@@ -1,0 +1,6 @@
+@API_HostAddress = https://localhost:7162/
+
+GET {{API_HostAddress}}/api/Noticias
+Accept: application/json
+
+###

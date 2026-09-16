@@ -1,0 +1,63 @@
+## .NET / Visual Studio
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+*.rsuser
+TestResults/
+BenchmarkDotNet.Artifacts/
+coverage*/
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/
+!**/packages/build/
+nuget.config.local
+
+# Publish
+**/publish/
+PublishProfiles/
+
+# ASP.NET secrets (mantener appsettings.json, ignorar locales)
+appsettings.*.local.json
+secrets.json
+*.pfx
+*.p12
+
+## Frontend (Vite/React/Node)
+node_modules/
+dist/
+dist-ssr/
+build/
+.next/
+.nuxt/
+.output/
+coverage/
+.vite/
+*.local
+.env
+.env.*
+!.env.example
+
+## Docker
+docker-compose.override.yml
+
+## OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+## Logs / temp
+*.log
+*.tmp
+*.temp
