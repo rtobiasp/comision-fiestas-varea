@@ -16,19 +16,27 @@ namespace API.Controllers
             _noticiaRepository = noticiaRepository;
         }
 
-        // GET: api/<NoticiasController>
+        // GET: api/Noticias/id
         [HttpGet("{id}")]
-        public Task<Noticia> Get(Guid id)
+        public async Task<ActionResult<Noticia>> Get(Guid id)
         {
-            return _noticiaRepository.GetAsync(id);
+            var noticia = await _noticiaRepository.GetAsync(id);
+            return Ok(noticia);
         }
 
-        // GET api/<NoticiasController>
+        // GET api/Noticias
         [HttpGet]
         public async Task<ActionResult<List<Noticia>>> GetAll()
         {
             var noticias = await _noticiaRepository.GetAllAsync();
             return Ok(noticias);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Noticia>> Post([FromBody] Noticia noticia)
+        {
+            await _noticiaRepository.AddAsync(noticia);
+            return CreatedAtAction(nameof(Get), new { id = noticia.Id }, noticia);
         }
 
     }

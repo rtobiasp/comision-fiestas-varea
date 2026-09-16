@@ -3,8 +3,9 @@ services:
     image: postgres:16-alpine
     container_name: fiestas-varea-postgres
     restart: unless-stopped
-    env_file:
-      - .env
+    # Sin env_file: no se usa ningún archivo .env en el host.
+    # Valores desde el entorno del shell o los defaults de abajo.
+    # En producción, inyectar POSTGRES_* desde el gestor de secretos de la plataforma.
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-fiestas_varea}
       POSTGRES_USER: ${POSTGRES_USER:-fiestas}
@@ -29,10 +30,9 @@ services:
     container_name: fiestas-varea-pgadmin
     restart: unless-stopped
     profiles: ["tools"]
-    env_file:
-      - .env
+    # Sin env_file: no se usa ningún archivo .env en el host.
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@local.test}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:

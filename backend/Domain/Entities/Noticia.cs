@@ -7,19 +7,22 @@ namespace Domain.Entities
     public class Noticia
     {
         public Guid Id { get; set; }
-        public string Titulo { get; set; }
-        public string Contenido { get; set; }
+        public string Titulo { get; set; } = string.Empty;
+        public string Contenido { get; set; } = string.Empty;
+        public string Autor { get; set; } = string.Empty;
 
-        public DateTime FechaPublicacion { get; set; } = DateTime.Now;
+        public DateTime FechaPublicacion { get; set; } = DateTime.UtcNow;
 
         public bool esBorrador { get; set; } = true;
         public bool publicada { get; set; } = false;
 
-        public string Autor { get; set; }
-
-        public Noticia(Guid id, string titulo, string contenido, string autor)
+        // Constructor para EF Core
+        private Noticia()
         {
-            Id = id;
+        }
+
+        public Noticia(string titulo, string contenido, string autor)
+        {
             Titulo = titulo;
             Contenido = contenido;
             Autor = autor;

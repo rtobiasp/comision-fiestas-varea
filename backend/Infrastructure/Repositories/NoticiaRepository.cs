@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,16 +9,25 @@ namespace Infrastructure.Repositories
 {
     public class NoticiaRepository : INoticiaRepository
     {
+        private readonly PostgreContext _postgreContext;
 
-        private static readonly List<Noticia> _noticias = new (){
-            new Noticia(Guid.NewGuid(), "Noticia 1", "Contenido de la noticia 1", "Autor 1"),
-            new Noticia(Guid.NewGuid(), "Noticia 2", "Contenido de la noticia 2", "Autor 2"),
-            new Noticia(Guid.NewGuid(), "Noticia 3", "Contenido de la noticia 3", "Autor 3")
-        };
-        public Task AddAsync(Noticia noticia)
+        public NoticiaRepository(PostgreContext postgreContext)
         {
-            _noticias.Add(noticia);
-            return Task.CompletedTask;
+            _postgreContext = postgreContext;
+        }
+
+        public async Task AddAsync(Noticia noticia)
+        {
+            if (noticia.Id == Guid.Empty)
+                noticia.Id = Guid.NewGuid();
+
+            if (noticia.FechaPublicacion == default)
+                noticia.FechaPublicacion = DateTime.UtcNow;
+            else if (noticia.FechaPublicacion.Kind != DateTimeKind.Utc)
+                noticia.FechaPublicacion = DateTime.SpecifyKind(noticia.FechaPublicacion, DateTimeKind.Utc);
+
+            await _postgreContext.Noticias.AddAsync(noticia);
+            await _postgreContext.SaveChangesAsync();
         }
 
         public Task DeleteAsync(Guid id)
@@ -25,15 +35,21 @@ namespace Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<List<Noticia>> GetAllAsync()
+        public async Task<List<Noticia>> GetAllAsync()
         {
-            var noticias = _noticias;
-            return Task.FromResult(noticias);
+            return await _postgreContext.Noticias.ToListAsync();
         }
 
-        public Task<Noticia> GetAsync(Guid id)
+        public async Task<Noticia> GetAsync(Guid id)
         {
-            return Task.FromResult(_noticias.FirstOrDefault(n => n.Id == id));
+            var noticia = await _postgreContext.Noticias.FirstOrDefaultAsync(n => n.Id == id);
+
+            if (noticia is null)
+            {
+                throw new Exception("No hay noticia");
+            }
+
+            return noticia;
         }
     }
 }
