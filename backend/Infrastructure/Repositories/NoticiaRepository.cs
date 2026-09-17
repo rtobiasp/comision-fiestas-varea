@@ -21,18 +21,36 @@ namespace Infrastructure.Repositories
             if (noticia.Id == Guid.Empty)
                 noticia.Id = Guid.NewGuid();
 
-            if (noticia.FechaPublicacion == default)
-                noticia.FechaPublicacion = DateTime.UtcNow;
-            else if (noticia.FechaPublicacion.Kind != DateTimeKind.Utc)
-                noticia.FechaPublicacion = DateTime.SpecifyKind(noticia.FechaPublicacion, DateTimeKind.Utc);
-
+            // La auditoría (CreatedAt/CreatedBy) la rellena AuditableEntityInterceptor.
             await _postgreContext.Noticias.AddAsync(noticia);
             await _postgreContext.SaveChangesAsync();
         }
 
-        public Task DeleteAsync(Guid id)
+        public Task DeleteAsync(string id)
         {
-            throw new NotImplementedException();
+            var formated_id = Guid.Empty;
+            try
+            {
+                formated_id = Guid.Parse(id);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("El id no es valido: " + e);
+            }
+
+            var noticia = this.GetAsync(id).Result;
+
+            if (noticia != null)
+            {
+                var result = _postgreContext.Noticias.Remove(noticia);
+                _postgreContext.SaveChanges();
+            }
+            else {
+                throw new Exception("No se han encontrado noticias con los parámetros proporcionados");
+            }
+
+            return Task.CompletedTask;
+
         }
 
         public async Task<List<Noticia>> GetAllAsync()
@@ -40,16 +58,42 @@ namespace Infrastructure.Repositories
             return await _postgreContext.Noticias.ToListAsync();
         }
 
-        public async Task<Noticia> GetAsync(Guid id)
+        public async Task<Noticia> GetAsync(string id)
         {
-            var noticia = await _postgreContext.Noticias.FirstOrDefaultAsync(n => n.Id == id);
+            var formated_id = Guid.Empty;
+            try {
+
+                formated_id = Guid.Parse(id);
+
+            } catch(Exception e) {
+                throw new Exception("El id no es valido: " + e);
+            }
+
+            var noticia = await _postgreContext.Noticias.FirstOrDefaultAsync(n => n.Id == formated_id);
 
             if (noticia is null)
             {
-                throw new Exception("No hay noticia");
+                throw new Exception("No se han encontrado noticias con los parámetros proporcionados");
             }
 
             return noticia;
+        }
+
+        public Task UpdateAsync(Noticia noticia)
+        {
+            if (noticia is null)
+                throw new Exception("La noticia no puede ser nula");
+
+            var existingNoticia = _postgreContext.Noticias.FirstOrDefault(n => n.Id == noticia.Id);
+
+            if (existingNoticia is null)
+                throw new Exception("No se han encontrado noticias con los parámetros proporcionados");
+            
+
+            _postgreContext.Entry(existingNoticia).CurrentValues.SetValues(noticia);
+            _postgreContext.SaveChanges();
+
+            return Task.CompletedTask;
         }
     }
 }

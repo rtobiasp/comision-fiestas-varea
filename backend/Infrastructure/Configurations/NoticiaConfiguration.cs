@@ -28,18 +28,28 @@ namespace Infrastructure.Configurations
                 .IsRequired()
                 .HasMaxLength(100);
 
-            e.Property(n => n.FechaPublicacion)
+            e.Property(n => n.EsBorrador)
+                .IsRequired()
+                .HasDefaultValue(true);
+
+            e.Property(n => n.Publicada)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            e.Property(n => n.CreatedAt)
                 .IsRequired()
                 .HasColumnType("timestamptz")
                 .HasDefaultValueSql("now()");
 
-            e.Property(n => n.esBorrador)
+            e.Property(n => n.CreatedBy)
                 .IsRequired()
-                .HasDefaultValue(true);
+                .HasMaxLength(100);
 
-            e.Property(n => n.publicada)
-                .IsRequired()
-                .HasDefaultValue(false);
+            e.Property(n => n.LastModifiedAt)
+                .HasColumnType("timestamptz");
+
+            e.Property(n => n.LastModifiedBy)
+                .HasMaxLength(100);
         }
     }
 }

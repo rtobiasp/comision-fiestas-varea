@@ -1,5 +1,7 @@
+using API.Services;
 using Application.Interfaces;
 using Infrastructure;
+using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,8 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 // (contenedor, Docker Secrets, Vault, Azure Key Vault, etc.). Nunca usar archivos .env.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Add PostgreSQL context
-builder.Services.AddDbContext<PostgreContext>(o => o.UseNpgsql(connectionString));
+// Add PostgreSQL context con interceptor de auditoría/soft-delete
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<AuditableEntityInterceptor>();
+builder.Services.AddDbContext<PostgreContext>((sp, o) => o
+    .UseNpgsql(connectionString)
+    .AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>()));
 
 // Add services to the container.
 builder.Services.AddControllers();
