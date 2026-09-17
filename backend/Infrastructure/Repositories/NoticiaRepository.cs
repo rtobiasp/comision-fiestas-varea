@@ -16,84 +16,54 @@ namespace Infrastructure.Repositories
             _postgreContext = postgreContext;
         }
 
-        public async Task<Noticia> AddAsync(Noticia noticia)
+        public async Task<Noticia> AddAsync(Noticia noticia, CancellationToken cancellationToken)
         {
             if (noticia.Id == Guid.Empty)
                 noticia.Id = Guid.NewGuid();
 
-            var addedNoticia = await _postgreContext.Noticias.AddAsync(noticia);
-            await _postgreContext.SaveChangesAsync();
+            var addedNoticia = await _postgreContext.Noticias.AddAsync(noticia, cancellationToken);
+            await _postgreContext.SaveChangesAsync(cancellationToken);
             return addedNoticia.Entity;
         }
 
-        public Task DeleteAsync(string id)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
-            var formated_id = Guid.Empty;
-            try
-            {
-                formated_id = Guid.Parse(id);
-            }
-            catch (Exception e)
-            {
-                throw new Exception("El id no es valido: " + e);
-            }
-
-            var noticia = this.GetAsync(id).Result;
-
-            if (noticia != null)
-            {
-                var result = _postgreContext.Noticias.Remove(noticia);
-                _postgreContext.SaveChanges();
-            }
-            else {
-                throw new Exception("No se han encontrado noticias con los parámetros proporcionados");
-            }
-
-            return Task.CompletedTask;
-
+            var noticia = await this.GetAsync(id, cancellationToken);
+            _postgreContext.Noticias.Remove(noticia);
+            await _postgreContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<Noticia>> GetAllAsync()
+        public async Task<List<Noticia>> GetAllAsync(CancellationToken cancellationToken)
         {
-            return await _postgreContext.Noticias.ToListAsync();
+            return await _postgreContext.Noticias.AsNoTracking().ToListAsync(cancellationToken);
         }
 
-        public async Task<Noticia> GetAsync(string id)
+        public async Task<Noticia> GetAsync(Guid id, CancellationToken cancellationToken)
         {
-            var formated_id = Guid.Empty;
-            try {
-
-                formated_id = Guid.Parse(id);
-
-            } catch(Exception e) {
-                throw new Exception("El id no es valido: " + e);
-            }
-
-            var noticia = await _postgreContext.Noticias.FirstOrDefaultAsync(n => n.Id == formated_id);
+            var noticia = await _postgreContext.Noticias.FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
 
             if (noticia is null)
             {
-                throw new Exception("No se han encontrado noticias con los parámetros proporcionados");
+                throw new KeyNotFoundException("No se han encontrado noticias con los parámetros proporcionados");
             }
 
             return noticia;
         }
 
-        public Task UpdateAsync(Noticia noticia)
+        public async Task UpdateAsync(Noticia noticia, CancellationToken cancellationToken)
         {
             if (noticia is null)
-                throw new Exception("La noticia no puede ser nula");
+                throw new ArgumentNullException(nameof(noticia), "La noticia no puede ser nula");
 
-            var existingNoticia = _postgreContext.Noticias.FirstOrDefault(n => n.Id == noticia.Id);
+            var existingNoticia = await _postgreContext.Noticias.FirstOrDefaultAsync(n => n.Id == noticia.Id, cancellationToken);
 
             if (existingNoticia is null)
-                throw new Exception("No se han encontrado noticias con los parámetros proporcionados");
-            
+                throw new KeyNotFoundException("No se han encontrado noticias con los parámetros proporcionados");
+
 
             _postgreContext.Entry(existingNoticia).CurrentValues.SetValues(noticia);
-            _postgreContext.SaveChanges();
+            await _postgreContext.SaveChangesAsync(cancellationToken);
 
-            return Task.CompletedTask;
         }
     }
 }

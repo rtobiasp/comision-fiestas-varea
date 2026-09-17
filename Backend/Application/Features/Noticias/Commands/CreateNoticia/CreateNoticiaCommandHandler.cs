@@ -18,6 +18,13 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
 
         public async Task<Noticia> Handle(CreateNoticiaCommand request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.Titulo))
+                throw new ArgumentException("El título es requerido.", nameof(request.Titulo));
+            if (string.IsNullOrWhiteSpace(request.Contenido))
+                throw new ArgumentException("El contenido es requerido.", nameof(request.Contenido));
+            if (string.IsNullOrWhiteSpace(request.Autor))
+                throw new ArgumentException("El autor es requerido.", nameof(request.Autor));
+
             var noticia = new Noticia
             {
                 Titulo = request.Titulo,
@@ -25,7 +32,7 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
                 Autor = request.Autor,
             };
 
-            var newNoticia = await _noticiaRepository.AddAsync(noticia);
+            var newNoticia = await _noticiaRepository.AddAsync(noticia, cancellationToken);
             return newNoticia;
         }
     }

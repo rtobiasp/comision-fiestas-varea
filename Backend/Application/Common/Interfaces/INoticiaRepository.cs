@@ -7,10 +7,10 @@ namespace Application.Common.Interfaces
 {
     public interface INoticiaRepository
     {
-        Task<Noticia> GetAsync(string id);
-        Task<List<Noticia>> GetAllAsync();
-        Task<Noticia> AddAsync(Noticia noticia);
-        Task DeleteAsync(string id);
-        Task UpdateAsync(Noticia noticia);
+        Task<Noticia> GetAsync(Guid id, CancellationToken cancellationToken);
+        Task<List<Noticia>> GetAllAsync(CancellationToken cancellationToken);
+        Task<Noticia> AddAsync(Noticia noticia, CancellationToken cancellationToken);
+        Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+        Task UpdateAsync(Noticia noticia, CancellationToken cancellationToken);
     }
 }

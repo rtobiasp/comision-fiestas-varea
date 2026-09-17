@@ -1,7 +1,8 @@
-﻿using Application.Common.Interfaces;
-using Application.Features.Noticias.Commands.CreateNoticia;
-using Domain.Entities;
-using Infrastructure.Repositories;
+﻿using Application.Features.Noticias.Commands.CreateNoticia;
+using Application.Features.Noticias.Commands.DeleteNoticia;
+using Application.Features.Noticias.Commands.UpdateNoticia;
+using Application.Features.Noticias.Queries.GetAllNoticias;
+using Application.Features.Noticias.Queries.GetNoticiaById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,23 +12,25 @@ namespace API.Controllers
     [ApiController]
     public class NoticiasController : ControllerBase
     {
-        private readonly INoticiaRepository _noticiaRepository;
         private readonly IMediator _mediator;
 
-        public NoticiasController(INoticiaRepository noticiaRepository, IMediator mediator)
+        public NoticiasController(IMediator mediator)
         {
-            _noticiaRepository = noticiaRepository;
             _mediator = mediator;
         }
 
-        // GET: api/Noticias/id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Noticia>> Get(string id)
+        // GET: api/v1/Noticias/id
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
         {
             try
             {
-                var noticia = await _noticiaRepository.GetAsync(id);
+                var noticia = await _mediator.Send(new GetNoticiaByIdQuery() { Id = id }, cancellationToken);
                 return Ok(noticia);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -37,13 +40,12 @@ namespace API.Controllers
 
         // GET api/Noticias
         [HttpGet]
-        public async Task<ActionResult<List<Noticia>>> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             try
             {
-                var noticias = await _noticiaRepository.GetAllAsync();
+                var noticias = await _mediator.Send(new GetAllNoticiasQuery(), cancellationToken);
                 return Ok(noticias);
-
             }
             catch (Exception ex)
             {
@@ -51,14 +53,14 @@ namespace API.Controllers
             }
         }
 
-        // POST api/Noticias
+        // POST api/v1/Noticias
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateNoticiaCommand command)
+        public async Task<IActionResult> Post([FromBody] CreateNoticiaCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                var noticia = await _mediator.Send(command);
-                return Ok(noticia);
+                var noticia = await _mediator.Send(command, cancellationToken);
+                return CreatedAtAction(nameof(Get), new { id = noticia.Id }, noticia);
             }
             catch (Exception ex)
             {
@@ -66,14 +68,18 @@ namespace API.Controllers
             }
         }
 
-        // DELETE api/Noticias/id
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(string id)
+        // DELETE api/v1/Noticias/id
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             try
             {
-                await _noticiaRepository.DeleteAsync(id);
+                await _mediator.Send(new DeleteNoticiaCommand() { Id = id }, cancellationToken);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -81,14 +87,19 @@ namespace API.Controllers
             }
         }
 
-        // PUT api/Noticias
-        [HttpPut]
-        public async Task<ActionResult> Put([FromBody] Noticia noticia)
+        // PUT api/v1/Noticias/id
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult> Put(Guid id, [FromBody] UpdateNoticiaCommand command, CancellationToken cancellationToken)
         {
             try
             {
-                await _noticiaRepository.UpdateAsync(noticia);
+                command.Id = id;
+                await _mediator.Send(command, cancellationToken);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
