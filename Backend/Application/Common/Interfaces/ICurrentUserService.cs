@@ -1,6 +1,6 @@
 using System;
 
-namespace Application.Interfaces
+namespace Application.Common.Interfaces
 {
     /// <summary>
     /// Abstracción del usuario actual. Hasta la fase 03 (OIDC/JWT) devuelve "system".

@@ -1,5 +1,5 @@
 using API.Services;
-using Application.Interfaces;
+using Application.Common.Interfaces;
 using Infrastructure;
 using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Repositories;
@@ -20,6 +20,9 @@ builder.Services.AddScoped<AuditableEntityInterceptor>();
 builder.Services.AddDbContext<PostgreContext>((sp, o) => o
     .UseNpgsql(connectionString)
     .AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>()));
+
+// MediatR configuration
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Application.Features.Noticias.Commands.CreateNoticia.CreateNoticiaCommand).Assembly));
 
 // Add services to the container.
 builder.Services.AddControllers();

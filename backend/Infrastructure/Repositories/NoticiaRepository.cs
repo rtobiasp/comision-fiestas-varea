@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Interfaces;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,14 +16,14 @@ namespace Infrastructure.Repositories
             _postgreContext = postgreContext;
         }
 
-        public async Task AddAsync(Noticia noticia)
+        public async Task<Noticia> AddAsync(Noticia noticia)
         {
             if (noticia.Id == Guid.Empty)
                 noticia.Id = Guid.NewGuid();
 
-            // La auditoría (CreatedAt/CreatedBy) la rellena AuditableEntityInterceptor.
-            await _postgreContext.Noticias.AddAsync(noticia);
+            var addedNoticia = await _postgreContext.Noticias.AddAsync(noticia);
             await _postgreContext.SaveChangesAsync();
+            return addedNoticia.Entity;
         }
 
         public Task DeleteAsync(string id)

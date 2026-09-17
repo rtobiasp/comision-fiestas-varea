@@ -19,7 +19,7 @@ namespace Domain.Entities
         public string? LastModifiedBy { get; set; }
 
         // Constructor para EF Core
-        private Noticia()
+        public Noticia()
         {
         }
 

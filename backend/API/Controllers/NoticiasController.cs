@@ -1,6 +1,8 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Interfaces;
+using Application.Features.Noticias.Commands.CreateNoticia;
 using Domain.Entities;
 using Infrastructure.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -10,10 +12,12 @@ namespace API.Controllers
     public class NoticiasController : ControllerBase
     {
         private readonly INoticiaRepository _noticiaRepository;
+        private readonly IMediator _mediator;
 
-        public NoticiasController(INoticiaRepository noticiaRepository)
+        public NoticiasController(INoticiaRepository noticiaRepository, IMediator mediator)
         {
             _noticiaRepository = noticiaRepository;
+            _mediator = mediator;
         }
 
         // GET: api/Noticias/id
@@ -49,12 +53,12 @@ namespace API.Controllers
 
         // POST api/Noticias
         [HttpPost]
-        public async Task<ActionResult<Noticia>> Post([FromBody] Noticia noticia)
+        public async Task<IActionResult> Post([FromBody] CreateNoticiaCommand command)
         {
             try
             {
-                await _noticiaRepository.AddAsync(noticia);
-                return CreatedAtAction(nameof(Get), new { id = noticia.Id }, noticia);
+                var noticia = await _mediator.Send(command);
+                return Ok(noticia);
             }
             catch (Exception ex)
             {
