@@ -1,11 +1,7 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Application.Features.Noticias.Commands.DeleteNoticia
+﻿namespace Application.Features.Noticias.Commands.DeleteNoticia
 {
-    public class DeleteNoticiaCommand : IRequest
+    // Mensaje Wolverine: clase simple sin interfaces.
+    public class DeleteNoticiaCommand
     {
         public Guid Id { get; set; }
     }

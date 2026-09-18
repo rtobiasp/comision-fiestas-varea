@@ -2,7 +2,7 @@
 
 ## Fuente de verdad funcional y tecnológica
 - Ante cualquier duda sobre cómo debe funcionar algo o qué tecnologías usar, leer `Plan_Implementacion_App_Fiestas.pdf` antes de decidir. Manda sobre suposiciones.
-- Define el roadmap en estricto orden de dependencia: 01 dominio/persistencia → 02 CQRS (MediatR + FluentValidation) → 03 OIDC/RBAC (Auth0/Clerk, JWT) → 04 API REST/OpenAPI → 05 frontend público Next.js 15 + ISR/SEO → 06 intranet gestión → 07 Redis/HybridCache → 08 tests (xUnit, Testcontainers, Playwright) → 09 observabilidad (Serilog, HealthChecks, RateLimiting) → 10 analítica RGPD + CI/CD. No adelantar fases que dependen de otras sin modelar.
+- Define el roadmap en estricto orden de dependencia: 01 dominio/persistencia → 02 CQRS (Wolverine MediatorOnly + FluentValidation) → 03 OIDC/RBAC (Auth0/Clerk, JWT) → 04 API REST/OpenAPI → 05 frontend público Next.js 15 + ISR/SEO → 06 intranet gestión → 07 Redis/HybridCache → 08 tests (xUnit, Testcontainers, Playwright) → 09 observabilidad (Serilog, HealthChecks, RateLimiting) → 10 analítica RGPD + CI/CD. No adelantar fases que dependen de otras sin modelar.
 
 ## Layout
 - `backend/` — .NET 10 solution `Backend.slnx` (new XML solution format). 4 projects: `API` / `Application` / `Domain` / `Infrastructure`.

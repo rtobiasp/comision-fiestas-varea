@@ -1,12 +1,9 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Application.Features.Noticias.Commands.UpdateNoticia
 {
-    public class UpdateNoticiaCommand : IRequest
+    // Mensaje Wolverine: clase simple sin interfaces.
+    public class UpdateNoticiaCommand
     {
         [JsonIgnore]
         public Guid Id { get; set; }

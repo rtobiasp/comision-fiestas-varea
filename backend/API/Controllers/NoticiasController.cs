@@ -3,8 +3,8 @@ using Application.Features.Noticias.Commands.DeleteNoticia;
 using Application.Features.Noticias.Commands.UpdateNoticia;
 using Application.Features.Noticias.Queries.GetAllNoticias;
 using Application.Features.Noticias.Queries.GetNoticiaById;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Wolverine;
 
 namespace API.Controllers
 {
@@ -12,11 +12,11 @@ namespace API.Controllers
     [ApiController]
     public class NoticiasController : ControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly IMessageBus _bus;
 
-        public NoticiasController(IMediator mediator)
+        public NoticiasController(IMessageBus bus)
         {
-            _mediator = mediator;
+            _bus = bus;
         }
 
         // GET: api/v1/Noticias/id
@@ -25,7 +25,7 @@ namespace API.Controllers
         {
             try
             {
-                var noticia = await _mediator.Send(new GetNoticiaByIdQuery() { Id = id }, cancellationToken);
+                var noticia = await _bus.InvokeAsync<Domain.Entities.Noticia>(new GetNoticiaByIdQuery() { Id = id }, cancellationToken);
                 return Ok(noticia);
             }
             catch (KeyNotFoundException ex)
@@ -44,7 +44,7 @@ namespace API.Controllers
         {
             try
             {
-                var noticias = await _mediator.Send(new GetAllNoticiasQuery(), cancellationToken);
+                var noticias = await _bus.InvokeAsync<List<Domain.Entities.Noticia>>(new GetAllNoticiasQuery(), cancellationToken);
                 return Ok(noticias);
             }
             catch (Exception ex)
@@ -59,7 +59,7 @@ namespace API.Controllers
         {
             try
             {
-                var noticia = await _mediator.Send(command, cancellationToken);
+                var noticia = await _bus.InvokeAsync<Domain.Entities.Noticia>(command, cancellationToken);
                 return CreatedAtAction(nameof(Get), new { id = noticia.Id }, noticia);
             }
             catch (Exception ex)
@@ -74,7 +74,8 @@ namespace API.Controllers
         {
             try
             {
-                await _mediator.Send(new DeleteNoticiaCommand() { Id = id }, cancellationToken);
+                // Los handlers sin respuesta (Update/Delete) se invocan sin tipo genérico.
+                await _bus.InvokeAsync(new DeleteNoticiaCommand() { Id = id }, cancellationToken);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -94,7 +95,7 @@ namespace API.Controllers
             try
             {
                 command.Id = id;
-                await _mediator.Send(command, cancellationToken);
+                await _bus.InvokeAsync(command, cancellationToken);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

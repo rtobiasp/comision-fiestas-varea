@@ -1,12 +1,11 @@
 ﻿using Application.Common.Interfaces;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.Features.Noticias.Commands.UpdateNoticia
 {
-    public class UpdateNoticiaCommandHandler : IRequestHandler<UpdateNoticiaCommand>
+    // Handler Wolverine: sin interfaces, dependencia por constructor para que
+    // la resuelva el contenedor DI (ver CreateNoticiaCommandHandler).
+    // Al no devolver nada, el controller usa InvokeAsync(mensaje) sin tipo.
+    public class UpdateNoticiaCommandHandler
     {
         private readonly INoticiaRepository _noticiaRepository;
 
@@ -15,7 +14,9 @@ namespace Application.Features.Noticias.Commands.UpdateNoticia
             _noticiaRepository = noticiaRepository;
         }
 
-        public async Task Handle(UpdateNoticiaCommand request, CancellationToken cancellationToken)
+        public async Task Handle(
+            UpdateNoticiaCommand request,
+            CancellationToken cancellationToken)
         {
             if (request.Id == Guid.Empty)
                 throw new ArgumentException("El ID de la noticia es requerido.", nameof(request.Id));

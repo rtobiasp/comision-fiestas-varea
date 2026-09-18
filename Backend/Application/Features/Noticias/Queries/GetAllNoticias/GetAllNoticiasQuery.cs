@@ -1,9 +1,8 @@
-﻿using Domain.Entities;
-using MediatR;
-
-namespace Application.Features.Noticias.Queries.GetAllNoticias
+﻿namespace Application.Features.Noticias.Queries.GetAllNoticias
 {
-    public class GetAllNoticiasQuery : IRequest<List<Noticia>>
+    // Mensaje Wolverine: clase simple sin interfaces. El tipo de respuesta lo
+    // define lo que devuelva el handler (List<Noticia>), no el mensaje.
+    public class GetAllNoticiasQuery
     {
 
     }

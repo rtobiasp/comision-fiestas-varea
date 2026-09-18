@@ -4,6 +4,7 @@ using Infrastructure;
 using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Wolverine;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +22,15 @@ builder.Services.AddDbContext<PostgreContext>((sp, o) => o
     .UseNpgsql(connectionString)
     .AddInterceptors(sp.GetRequiredService<AuditableEntityInterceptor>()));
 
-// MediatR configuration
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Application.Features.Noticias.Commands.CreateNoticia.CreateNoticiaCommand).Assembly));
+// Wolverine como mediador in-process.
+builder.Host.UseWolverine(opts =>
+{
+    opts.Durability.Mode = DurabilityMode.MediatorOnly;
+    opts.Discovery.IncludeAssembly(typeof(Application.Features.Noticias.Commands.CreateNoticia.CreateNoticiaCommand).Assembly);
+
+    // Si se añaden más repositorios sobre PostgreContext, añadir aquí su línea.
+    opts.CodeGeneration.AlwaysUseServiceLocationFor<INoticiaRepository>();
+});
 
 // Add services to the container.
 builder.Services.AddControllers();

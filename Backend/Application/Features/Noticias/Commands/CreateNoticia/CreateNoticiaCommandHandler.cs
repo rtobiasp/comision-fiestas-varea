@@ -1,13 +1,15 @@
 ﻿using Application.Common.Interfaces;
 using Domain.Entities;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.Features.Noticias.Commands.CreateNoticia
 {
-    public class CreateNoticiaCommandHandler : IRequestHandler<CreateNoticiaCommand, Noticia>
+    // Handler Wolverine: clase pública sin interfaces. Wolverine lo asocia al
+    // mensaje por el tipo del primer parámetro de Handle().
+    // La dependencia se pide por constructor (como con MediatR): así la
+    // resuelve el contenedor DI de .NET y el generador de código de Wolverine
+    // no necesita "ver" cómo se construye (evita ServiceLocationPolicy).
+    // Lo que devuelve Handle() es la respuesta de InvokeAsync<T>().
+    public class CreateNoticiaCommandHandler
     {
         private readonly INoticiaRepository _noticiaRepository;
 
@@ -16,7 +18,9 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
             _noticiaRepository = noticiaRepository;
         }
 
-        public async Task<Noticia> Handle(CreateNoticiaCommand request, CancellationToken cancellationToken)
+        public async Task<Noticia> Handle(
+            CreateNoticiaCommand request,
+            CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(request.Titulo))
                 throw new ArgumentException("El título es requerido.", nameof(request.Titulo));
