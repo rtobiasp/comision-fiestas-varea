@@ -11,9 +11,9 @@ namespace Application.Features.Noticias.Commands.UpdateNoticia
         [JsonIgnore]
         public Guid Id { get; set; }
         public string Titulo { get; set; } = string.Empty;
+        public string? Subtitulo { get; set; }
         public string Contenido { get; set; } = string.Empty;
-        public string Autor { get; set; } = string.Empty;
-        public bool EsBorrador { get; set; }
         public bool Publicada { get; set; }
+        public bool Fijada { get; set; }
     }
 }

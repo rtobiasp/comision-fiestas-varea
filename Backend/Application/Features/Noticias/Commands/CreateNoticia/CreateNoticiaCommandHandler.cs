@@ -22,14 +22,13 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
                 throw new ArgumentException("El título es requerido.", nameof(request.Titulo));
             if (string.IsNullOrWhiteSpace(request.Contenido))
                 throw new ArgumentException("El contenido es requerido.", nameof(request.Contenido));
-            if (string.IsNullOrWhiteSpace(request.Autor))
-                throw new ArgumentException("El autor es requerido.", nameof(request.Autor));
 
             var noticia = new Noticia
             {
                 Titulo = request.Titulo,
+                Subtitulo = request.Subtitulo,
                 Contenido = request.Contenido,
-                Autor = request.Autor,
+                Fijada = request.Fijada,
             };
 
             var newNoticia = await _noticiaRepository.AddAsync(noticia, cancellationToken);

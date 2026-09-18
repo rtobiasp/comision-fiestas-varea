@@ -24,15 +24,15 @@ namespace Infrastructure.Configurations
                 .IsRequired()
                 .HasMaxLength(2000);
 
-            e.Property(n => n.Autor)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            e.Property(n => n.EsBorrador)
-                .IsRequired()
-                .HasDefaultValue(true);
+            e.Property(n => n.Subtitulo)
+                .IsRequired(false)
+                .HasMaxLength(300);
 
             e.Property(n => n.Publicada)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            e.Property(n => n.Fijada)
                 .IsRequired()
                 .HasDefaultValue(false);
 
