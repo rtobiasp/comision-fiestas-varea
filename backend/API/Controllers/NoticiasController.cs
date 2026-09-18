@@ -3,6 +3,7 @@ using Application.Features.Noticias.Commands.DeleteNoticia;
 using Application.Features.Noticias.Commands.UpdateNoticia;
 using Application.Features.Noticias.Queries.GetAllNoticias;
 using Application.Features.Noticias.Queries.GetNoticiaById;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Wolverine;
 
@@ -62,7 +63,10 @@ namespace API.Controllers
                 var noticia = await _bus.InvokeAsync<Domain.Entities.Noticia>(command, cancellationToken);
                 return CreatedAtAction(nameof(Get), new { id = noticia.Id }, noticia);
             }
-            catch (Exception ex)
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
+            } catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

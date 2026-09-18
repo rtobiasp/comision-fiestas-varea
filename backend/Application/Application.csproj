@@ -16,4 +16,8 @@
     <Folder Include="Common\Mappings\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="WolverineFx.FluentValidation" Version="6.39.0" />
+  </ItemGroup>
+
 </Project>

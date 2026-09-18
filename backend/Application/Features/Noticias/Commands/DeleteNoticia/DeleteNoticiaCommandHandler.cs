@@ -15,9 +15,6 @@ namespace Application.Features.Noticias.Commands.DeleteNoticia
             DeleteNoticiaCommand request,
             CancellationToken cancellationToken)
         {
-            if (request.Id == Guid.Empty)
-                throw new ArgumentException("El ID de la noticia es requerido.", nameof(request.Id));
-
             await _noticiaRepository.DeleteAsync(request.Id, cancellationToken);
         }
 

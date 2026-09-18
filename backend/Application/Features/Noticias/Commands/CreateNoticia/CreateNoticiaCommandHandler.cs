@@ -16,11 +16,6 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
             CreateNoticiaCommand request,
             CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.Titulo))
-                throw new ArgumentException("El título es requerido.", nameof(request.Titulo));
-            if (string.IsNullOrWhiteSpace(request.Contenido))
-                throw new ArgumentException("El contenido es requerido.", nameof(request.Contenido));
-
             var noticia = new Noticia
             {
                 Titulo = request.Titulo,

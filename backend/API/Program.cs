@@ -5,6 +5,7 @@ using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Wolverine;
+using Wolverine.FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,9 @@ builder.Host.UseWolverine(opts =>
 {
     opts.Durability.Mode = DurabilityMode.MediatorOnly;
     opts.Discovery.IncludeAssembly(typeof(Application.Features.Noticias.Commands.CreateNoticia.CreateNoticiaCommand).Assembly);
+
+    // Fluent Validarion validators
+    opts.UseFluentValidation();
 
     // Si se añaden más repositorios sobre PostgreContext, añadir aquí su línea.
     opts.CodeGeneration.AlwaysUseServiceLocationFor<INoticiaRepository>();

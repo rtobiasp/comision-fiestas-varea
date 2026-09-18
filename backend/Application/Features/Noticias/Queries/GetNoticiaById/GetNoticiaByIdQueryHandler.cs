@@ -16,9 +16,6 @@ namespace Application.Features.Noticias.Queries.GetNoticiaById
             GetNoticiaByIdQuery request,
             CancellationToken cancellationToken)
         {
-            if (request.Id == Guid.Empty)
-                throw new ArgumentException("El ID de la noticia es requerido.", nameof(request.Id));
-
             return await _noticiaRepository.GetAsync(request.Id, cancellationToken);
         }
     }
