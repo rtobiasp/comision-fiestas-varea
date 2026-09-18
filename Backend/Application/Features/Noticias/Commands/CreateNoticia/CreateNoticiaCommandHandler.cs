@@ -3,12 +3,6 @@ using Domain.Entities;
 
 namespace Application.Features.Noticias.Commands.CreateNoticia
 {
-    // Handler Wolverine: clase pública sin interfaces. Wolverine lo asocia al
-    // mensaje por el tipo del primer parámetro de Handle().
-    // La dependencia se pide por constructor (como con MediatR): así la
-    // resuelve el contenedor DI de .NET y el generador de código de Wolverine
-    // no necesita "ver" cómo se construye (evita ServiceLocationPolicy).
-    // Lo que devuelve Handle() es la respuesta de InvokeAsync<T>().
     public class CreateNoticiaCommandHandler
     {
         private readonly INoticiaRepository _noticiaRepository;

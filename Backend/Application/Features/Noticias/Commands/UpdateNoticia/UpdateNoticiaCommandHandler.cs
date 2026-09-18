@@ -2,9 +2,6 @@
 
 namespace Application.Features.Noticias.Commands.UpdateNoticia
 {
-    // Handler Wolverine: sin interfaces, dependencia por constructor para que
-    // la resuelva el contenedor DI (ver CreateNoticiaCommandHandler).
-    // Al no devolver nada, el controller usa InvokeAsync(mensaje) sin tipo.
     public class UpdateNoticiaCommandHandler
     {
         private readonly INoticiaRepository _noticiaRepository;

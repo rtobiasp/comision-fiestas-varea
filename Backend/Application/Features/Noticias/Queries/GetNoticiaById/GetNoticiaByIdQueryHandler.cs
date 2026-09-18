@@ -3,9 +3,6 @@ using Domain.Entities;
 
 namespace Application.Features.Noticias.Queries.GetNoticiaById
 {
-    // Handler Wolverine: debe ser public para que el descubrimiento por
-    // convención lo encuentre (antes era internal, Wolverine lo ignoraría).
-    // Dependencia por constructor (ver CreateNoticiaCommandHandler).
     public class GetNoticiaByIdQueryHandler
     {
         private readonly INoticiaRepository _noticiaRepository;

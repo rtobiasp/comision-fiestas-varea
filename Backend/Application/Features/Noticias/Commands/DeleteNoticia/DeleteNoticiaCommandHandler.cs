@@ -2,8 +2,6 @@
 
 namespace Application.Features.Noticias.Commands.DeleteNoticia
 {
-    // Handler Wolverine: sin interfaces, dependencia por constructor
-    // (ver CreateNoticiaCommandHandler).
     public class DeleteNoticiaCommandHandler
     {
         private readonly INoticiaRepository _noticiaRepository;

@@ -2,7 +2,6 @@
 
 namespace Application.Features.Noticias.Commands.UpdateNoticia
 {
-    // Mensaje Wolverine: clase simple sin interfaces.
     public class UpdateNoticiaCommand
     {
         [JsonIgnore]

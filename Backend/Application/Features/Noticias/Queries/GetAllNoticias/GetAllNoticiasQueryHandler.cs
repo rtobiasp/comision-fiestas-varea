@@ -3,8 +3,6 @@ using Domain.Entities;
 
 namespace Application.Features.Noticias.Queries.GetAllNoticias
 {
-    // Handler Wolverine: sin interfaces, dependencia por constructor
-    // (ver CreateNoticiaCommandHandler).
     public class GetAllNoticiasQueryHandler
     {
         private readonly INoticiaRepository _noticiaRepository;
