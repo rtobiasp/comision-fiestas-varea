@@ -36,20 +36,7 @@ namespace Infrastructure.Configurations
                 .IsRequired()
                 .HasDefaultValue(false);
 
-            e.Property(n => n.CreatedAt)
-                .IsRequired()
-                .HasColumnType("timestamptz")
-                .HasDefaultValueSql("now()");
-
-            e.Property(n => n.CreatedBy)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            e.Property(n => n.LastModifiedAt)
-                .HasColumnType("timestamptz");
-
-            e.Property(n => n.LastModifiedBy)
-                .HasMaxLength(100);
+            e.ConfigureAuditable();
         }
     }
 }

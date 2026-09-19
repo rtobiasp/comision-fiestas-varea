@@ -9,6 +9,7 @@ namespace Infrastructure
     public class PostgreContext : DbContext
     {
         public DbSet<Noticia> Noticias => Set<Noticia>();
+        public DbSet<Categoria> Categorias => Set<Categoria>();
 
         public PostgreContext(DbContextOptions<PostgreContext> options) : base(options)
         {

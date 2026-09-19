@@ -34,6 +34,7 @@ builder.Host.UseWolverine(opts =>
 
     // Si se añaden más repositorios sobre PostgreContext, añadir aquí su línea.
     opts.CodeGeneration.AlwaysUseServiceLocationFor<INoticiaRepository>();
+    opts.CodeGeneration.AlwaysUseServiceLocationFor<ICategoriaRepository>();
 });
 
 // Add services to the container.
@@ -43,6 +44,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 
 var app = builder.Build();
 
