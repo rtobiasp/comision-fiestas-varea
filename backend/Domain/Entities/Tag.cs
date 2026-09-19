@@ -2,20 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
-    public class Categoria : IAuditableEntity
+    public class Tag : IAuditableEntity
     {
         public Guid Id { get; set; }
         public string Nombre { get; set; }
-        public string Descripcion { get; set; }
-        public Guid? CategoriaPadreId { get; set; }
-        [JsonIgnore]
-        public Categoria? CategoriaPadre { get; set; }
-        [JsonIgnore]
-        public ICollection<Categoria> Subcategorias { get; set; } = new List<Categoria>();
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? LastModifiedAt { get; set; }

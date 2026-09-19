@@ -15,6 +15,14 @@ namespace Application.Features.Categorias.Commands.UpdateCategoria
 
             RuleFor(x => x.Descripcion)
                 .MaximumLength(250).WithMessage("La descripción no puede tener más de 250 caracteres.");
+
+            RuleFor(x => x.CategoriaPadreId)
+                .Must(id => id.HasValue && id.Value != Guid.Empty).WithMessage("El Id de la categoría padre no es válido.")
+                .When(x => x.CategoriaPadreId.HasValue);
+
+            RuleFor(x => x)
+                .Must(c => c.CategoriaPadreId != c.Id).WithMessage("Una categoría no puede ser su propia padre.")
+                .When(x => x.CategoriaPadreId.HasValue);
         }
     }
 }

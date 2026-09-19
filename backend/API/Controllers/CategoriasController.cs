@@ -6,6 +6,7 @@ using Application.Features.Categorias.Queries.GetCategoriaById;
 using Domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Wolverine;
 
 namespace API.Controllers
@@ -70,6 +71,14 @@ namespace API.Controllers
             {
                 return BadRequest(ex.Errors);
             }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (DbUpdateException ex)
+            {
+                return Conflict(ex.InnerException?.Message ?? ex.Message);
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -90,6 +99,10 @@ namespace API.Controllers
             {
                 return NotFound(ex.Message);
             }
+            catch (DbUpdateException)
+            {
+                return Conflict("No se puede eliminar la categoría porque tiene subcategorías asociadas.");
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -109,6 +122,10 @@ namespace API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (DbUpdateException ex)
+            {
+                return Conflict(ex.InnerException?.Message ?? ex.Message);
             }
             catch (Exception ex)
             {

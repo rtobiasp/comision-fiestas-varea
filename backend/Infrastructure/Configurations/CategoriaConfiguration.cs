@@ -27,6 +27,15 @@ namespace Infrastructure.Configurations
             builder.Property(c => c.Descripcion)
                 .HasMaxLength(250);
 
+            builder.Property(c => c.CategoriaPadreId)
+                .HasColumnType("uuid")
+                .IsRequired(false);
+
+            builder.HasOne(c => c.CategoriaPadre)
+                .WithMany(c => c.Subcategorias)
+                .HasForeignKey(c => c.CategoriaPadreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.ConfigureAuditable();
         }
     }

@@ -8,5 +8,6 @@ namespace Application.Features.Categorias.Commands.UpdateCategoria
         public Guid Id { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
+        public Guid? CategoriaPadreId { get; set; }
     }
 }

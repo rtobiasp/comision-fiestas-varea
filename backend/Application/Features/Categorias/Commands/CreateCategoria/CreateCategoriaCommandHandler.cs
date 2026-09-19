@@ -17,10 +17,17 @@ namespace Application.Features.Categorias.Commands.CreateCategoria
 
         public async Task<Categoria> Handle(CreateCategoriaCommand command, CancellationToken cancellationToken)
         {
+            if (command.CategoriaPadreId.HasValue)
+            {
+                // Valida que la categoría padre exista (404 si no) antes de crear la hija.
+                await _categoriaRepository.GetAsync(command.CategoriaPadreId.Value, cancellationToken);
+            }
+
             var categoria = new Categoria
             {
                 Nombre = command.Nombre,
                 Descripcion = command.Descripcion,
+                CategoriaPadreId = command.CategoriaPadreId,
             };
 
             await _categoriaRepository.AddAsync(categoria, cancellationToken);

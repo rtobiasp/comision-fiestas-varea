@@ -8,5 +8,6 @@ namespace Application.Features.Categorias.Commands.CreateCategoria
     {
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
+        public Guid? CategoriaPadreId { get; set; }
     }
 }
