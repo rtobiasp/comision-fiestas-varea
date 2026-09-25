@@ -1,6 +1,8 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using System.Collections.Generic;
 
 namespace Infrastructure.Configurations
 {
@@ -35,6 +37,27 @@ namespace Infrastructure.Configurations
             e.Property(n => n.Fijada)
                 .IsRequired()
                 .HasDefaultValue(false);
+
+            e.HasMany(n => n.Categorias)
+                .WithMany(c => c.Noticias)
+                .UsingEntity<Dictionary<string, object>>(
+                    "NoticiaCategoria",
+                    j => j.HasOne<Categoria>()
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    j => j.HasOne<Noticia>()
+                        .WithMany()
+                        .HasForeignKey("NoticiaId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.ToTable("NoticiaCategorias", "contenido");
+                        j.HasKey("NoticiaId", "CategoriaId");
+                        j.Property<Guid>("NoticiaId").HasColumnType("uuid");
+                        j.Property<Guid>("CategoriaId").HasColumnType("uuid");
+                        j.HasIndex("CategoriaId");
+                    });
 
             e.ConfigureAuditable();
         }

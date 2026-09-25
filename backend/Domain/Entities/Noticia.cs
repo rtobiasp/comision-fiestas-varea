@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
@@ -10,6 +11,8 @@ namespace Domain.Entities
         public string Contenido { get; set; } = string.Empty;
         public bool Publicada { get; set; } = false;
         public bool Fijada { get; set; } = false;
+        [JsonIgnore]
+        public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? LastModifiedAt { get; set; }

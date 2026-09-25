@@ -15,6 +15,11 @@ namespace Application.Features.Categorias.Commands.DeleteCategoria
             DeleteCategoriaCommand request,
             CancellationToken cancellationToken)
         {
+            if (await _categoriaRepository.HasNoticiasAsync(request.Id, cancellationToken))
+            {
+                throw new InvalidOperationException("No se puede eliminar la categoría porque tiene noticias asociadas.");
+            }
+
             await _categoriaRepository.DeleteAsync(request.Id, cancellationToken);
         }
     }

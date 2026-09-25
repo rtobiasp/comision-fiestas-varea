@@ -24,19 +24,48 @@ namespace Infrastructure.Repositories
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
-            var noticia = await this.GetAsync(id, cancellationToken);
+            var noticia = await this.GetTrackedAsync(id, cancellationToken);
             _postgreContext.Noticias.Remove(noticia);
             await _postgreContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<List<Noticia>> GetAllAsync(CancellationToken cancellationToken)
         {
-            return await _postgreContext.Noticias.AsNoTracking().ToListAsync(cancellationToken);
+            return await _postgreContext.Noticias
+                .Include(n => n.Categorias)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<Noticia>> GetByCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Noticias
+                .Include(n => n.Categorias)
+                .AsNoTracking()
+                .Where(n => n.Categorias.Any(c => c.Id == categoriaId))
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<Noticia> GetAsync(Guid id, CancellationToken cancellationToken)
         {
-            var noticia = await _postgreContext.Noticias.FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
+            var noticia = await _postgreContext.Noticias
+                .Include(n => n.Categorias)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
+
+            if (noticia is null)
+            {
+                throw new KeyNotFoundException("No se han encontrado noticias con los parámetros proporcionados");
+            }
+
+            return noticia;
+        }
+
+        public async Task<Noticia> GetTrackedAsync(Guid id, CancellationToken cancellationToken)
+        {
+            var noticia = await _postgreContext.Noticias
+                .Include(n => n.Categorias)
+                .FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
 
             if (noticia is null)
             {
@@ -51,13 +80,18 @@ namespace Infrastructure.Repositories
             if (noticia is null)
                 throw new ArgumentNullException(nameof(noticia), "La noticia no puede ser nula");
 
-            var existingNoticia = await _postgreContext.Noticias.FirstOrDefaultAsync(n => n.Id == noticia.Id, cancellationToken);
+            // La entidad debe venir tracked de GetTrackedAsync, con sus escalares
+            // ya modificados y la colección Categorias ya sincronizada por el
+            // handler (entidades Categoria tracked del mismo DbContext). Aquí solo
+            // se persiste: un SetValues ciego rompería la relación N:N porque no
+            // toca navegaciones, y re-adjuntar una entidad detached marcaría las
+            // categorías como Added (duplicados en el INSERT).
+            var tracked = _postgreContext.ChangeTracker.Entries<Noticia>()
+                .FirstOrDefault(e => e.Entity.Id == noticia.Id);
 
-            if (existingNoticia is null)
-                throw new KeyNotFoundException("No se han encontrado noticias con los parámetros proporcionados");
+            if (tracked is null)
+                throw new InvalidOperationException("La noticia debe cargarse con GetTrackedAsync antes de actualizarla.");
 
-
-            _postgreContext.Entry(existingNoticia).CurrentValues.SetValues(noticia);
             await _postgreContext.SaveChangesAsync(cancellationToken);
 
         }

@@ -16,6 +16,8 @@ namespace Domain.Entities
         public Categoria? CategoriaPadre { get; set; }
         [JsonIgnore]
         public ICollection<Categoria> Subcategorias { get; set; } = new List<Categoria>();
+        [JsonIgnore]
+        public ICollection<Noticia> Noticias { get; set; } = new List<Noticia>();
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? LastModifiedAt { get; set; }

@@ -2,6 +2,6 @@
 {
     public class GetAllNoticiasQuery
     {
-
+        public Guid? CategoriaId { get; set; }
     }
 }

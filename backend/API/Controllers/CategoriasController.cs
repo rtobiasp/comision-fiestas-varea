@@ -99,6 +99,10 @@ namespace API.Controllers
             {
                 return NotFound(ex.Message);
             }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
             catch (DbUpdateException)
             {
                 return Conflict("No se puede eliminar la categoría porque tiene subcategorías asociadas.");

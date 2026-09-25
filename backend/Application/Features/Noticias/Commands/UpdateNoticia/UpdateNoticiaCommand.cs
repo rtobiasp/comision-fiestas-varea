@@ -11,5 +11,6 @@ namespace Application.Features.Noticias.Commands.UpdateNoticia
         public string Contenido { get; set; } = string.Empty;
         public bool Publicada { get; set; }
         public bool Fijada { get; set; }
+        public List<Guid> CategoriaIds { get; set; } = new();
     }
 }

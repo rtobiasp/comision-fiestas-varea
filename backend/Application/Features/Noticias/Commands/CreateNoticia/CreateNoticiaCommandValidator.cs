@@ -22,6 +22,9 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
                 .MaximumLength(2000).WithMessage("El contenido no puede exceder los 2000 caracteres.")
                 .IsSafeHtml();
 
-         }
+            RuleFor(x => x.CategoriaIds)
+                .IsValidCategoriaIds();
+
+          }
     }
 }

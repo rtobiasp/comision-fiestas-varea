@@ -17,13 +17,15 @@ namespace Application.Features.Categorias.Queries.GetCategoriaById
             CancellationToken cancellationToken)
         {
             var categoria = await _categoriaRepository.GetAsync(request.Id, cancellationToken);
+            var noticiasCount = await _categoriaRepository.CountNoticiasAsync(request.Id, cancellationToken);
             return new CategoriaDto(
                 categoria.Id,
                 categoria.Nombre,
                 categoria.Descripcion,
                 categoria.CategoriaPadreId,
                 categoria.CreatedAt,
-                categoria.CreatedBy
+                categoria.CreatedBy,
+                noticiasCount
             );
         }
     }

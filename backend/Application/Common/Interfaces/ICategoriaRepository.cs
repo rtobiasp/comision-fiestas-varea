@@ -9,6 +9,11 @@ namespace Application.Common.Interfaces
     {
         public Task<List<Categoria>> GetAllAsync(CancellationToken cancellationToken);
         public Task<Categoria> GetAsync(Guid id, CancellationToken cancellationToken);
+        public Task<List<Categoria>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken);
+        public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
+        public Task<bool> HasNoticiasAsync(Guid id, CancellationToken cancellationToken);
+        public Task<int> CountNoticiasAsync(Guid id, CancellationToken cancellationToken);
+        public Task<Dictionary<Guid, int>> CountNoticiasByCategoriasAsync(CancellationToken cancellationToken);
         public Task<Categoria> AddAsync(Categoria categoria, CancellationToken cancellationToken);
         public Task UpdateAsync(Categoria categoria, CancellationToken cancellationToken);
         public Task DeleteAsync(Guid id, CancellationToken cancellationToken);

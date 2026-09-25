@@ -17,16 +17,7 @@ namespace Application.Features.Noticias.Queries.GetNoticiaById
             CancellationToken cancellationToken)
         {
             var noticia = await _noticiaRepository.GetAsync(request.Id, cancellationToken);
-            return new NoticiaDto(
-                noticia.Id,
-                noticia.Titulo,
-                noticia.Subtitulo,
-                noticia.Contenido,
-                noticia.Publicada,
-                noticia.Fijada,
-                noticia.CreatedAt,
-                noticia.CreatedBy
-            );
+            return NoticiaMapper.ToDto(noticia);
         }
     }
 }

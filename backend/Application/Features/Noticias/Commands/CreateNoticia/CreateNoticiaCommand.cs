@@ -7,5 +7,6 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
         public string? Subtitulo { get; set; }
         public string Contenido { get; set; } = string.Empty;
         public bool Fijada { get; set; } = false;
+        public List<Guid> CategoriaIds { get; set; } = new();
     }
 }

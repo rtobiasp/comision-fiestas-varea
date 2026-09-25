@@ -20,7 +20,6 @@ namespace Application.Features.Categorias.Commands.CreateCategoria
         {
             if (command.CategoriaPadreId.HasValue)
             {
-                // Valida que la categoría padre exista (404 si no) antes de crear la hija.
                 await _categoriaRepository.GetAsync(command.CategoriaPadreId.Value, cancellationToken);
             }
 
@@ -38,7 +37,8 @@ namespace Application.Features.Categorias.Commands.CreateCategoria
                 categoria.Descripcion,
                 categoria.CategoriaPadreId,
                 categoria.CreatedAt,
-                categoria.CreatedBy
+                categoria.CreatedBy,
+                0
             );
         }
     }

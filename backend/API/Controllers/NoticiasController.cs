@@ -40,14 +40,18 @@ namespace API.Controllers
             }
         }
 
-        // GET api/Noticias
+        // GET api/Noticias?categoriaId=
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll([FromQuery] Guid? categoriaId, CancellationToken cancellationToken)
         {
             try
             {
-                var noticias = await _bus.InvokeAsync<List<NoticiaDto>>(new GetAllNoticiasQuery(), cancellationToken);
+                var noticias = await _bus.InvokeAsync<List<NoticiaDto>>(new GetAllNoticiasQuery { CategoriaId = categoriaId }, cancellationToken);
                 return Ok(noticias);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -67,6 +71,10 @@ namespace API.Controllers
             catch (ValidationException ex)
             {
                 return BadRequest(ex.Errors);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             } catch (Exception ex)
             {
                 return BadRequest(ex.Message);

@@ -148,5 +148,21 @@ namespace Application.Common.Validation
                 .Must(text => text is null || !HtmlTagHint.IsMatch(text))
                 .WithMessage("Este campo debe ser texto plano, sin etiquetas HTML.");
         }
+
+        /// <summary>
+        /// Regla para la colección opcional de categorías de una noticia.
+        /// null y vacío significan "sin categorías". Solo valida forma
+        /// (guids no vacíos, sin duplicados); la existencia de cada
+        /// categoría se comprueba en el handler (requiere BD).
+        /// </summary>
+        public static IRuleBuilderOptions<T, List<Guid>> IsValidCategoriaIds<T>(
+            this IRuleBuilder<T, List<Guid>> ruleBuilder)
+        {
+            return ruleBuilder
+                .Must(ids => ids is null || ids.All(id => id != Guid.Empty))
+                .WithMessage("Los identificadores de categoría no pueden estar vacíos.")
+                .Must(ids => ids is null || ids.Distinct().Count() == ids.Count)
+                .WithMessage("Las categorías no pueden repetirse.");
+        }
     }
 }

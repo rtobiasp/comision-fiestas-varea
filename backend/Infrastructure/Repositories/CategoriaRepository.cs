@@ -51,6 +51,44 @@ namespace Infrastructure.Repositories
             return categoria;
         }
 
+        public async Task<List<Categoria>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken)
+        {
+            var distinctIds = ids.Distinct().ToList();
+
+            if (distinctIds.Count == 0)
+                return new List<Categoria>();
+
+            return await _postgreContext.Categorias
+                .Where(c => distinctIds.Contains(c.Id))
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Categorias.AnyAsync(c => c.Id == id, cancellationToken);
+        }
+
+        public async Task<bool> HasNoticiasAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Categorias
+                .AnyAsync(c => c.Id == id && c.Noticias.Any(), cancellationToken);
+        }
+
+        public async Task<int> CountNoticiasAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Categorias
+                .Where(c => c.Id == id)
+                .Select(c => c.Noticias.Count)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<Dictionary<Guid, int>> CountNoticiasByCategoriasAsync(CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Categorias
+                .Select(c => new { c.Id, Count = c.Noticias.Count })
+                .ToDictionaryAsync(x => x.Id, x => x.Count, cancellationToken);
+        }
+
         public async Task UpdateAsync(Categoria categoria, CancellationToken cancellationToken)
         {
             if (categoria is null)
