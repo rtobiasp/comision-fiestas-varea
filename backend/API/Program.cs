@@ -4,6 +4,7 @@ using Infrastructure;
 using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using Wolverine;
 using Wolverine.FluentValidation;
 
@@ -42,7 +43,6 @@ builder.Host.UseWolverine(opts =>
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
@@ -54,8 +54,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
