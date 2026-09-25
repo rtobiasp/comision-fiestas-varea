@@ -10,6 +10,8 @@ namespace Application.Common.Interfaces
         Task<Noticia> GetAsync(Guid id, CancellationToken cancellationToken);
         Task<List<Noticia>> GetAllAsync(CancellationToken cancellationToken);
         Task<List<Noticia>> GetByCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken);
+        Task<List<Noticia>> GetByTagAsync(Guid tagId, CancellationToken cancellationToken);
+        Task<List<Noticia>> GetByCategoriaAndTagAsync(Guid categoriaId, Guid tagId, CancellationToken cancellationToken);
         Task<Noticia> GetTrackedAsync(Guid id, CancellationToken cancellationToken);
         Task<Noticia> AddAsync(Noticia noticia, CancellationToken cancellationToken);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken);

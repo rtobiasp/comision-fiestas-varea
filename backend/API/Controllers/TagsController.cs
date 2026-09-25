@@ -43,13 +43,13 @@ namespace API.Controllers
             }
         }
 
-        // GET api/v1/Tags
+        // GET api/v1/Tags?search=
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll([FromQuery] string? search, CancellationToken cancellationToken)
         {
             try
             {
-                var tags = await _bus.InvokeAsync<List<TagDto>>(new GetAllTagsQuery(), cancellationToken);
+                var tags = await _bus.InvokeAsync<List<TagDto>>(new GetAllTagsQuery { Search = search }, cancellationToken);
                 return Ok(tags);
             }
             catch (Exception ex)
@@ -98,6 +98,10 @@ namespace API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
             }
             catch (DbUpdateException)
             {

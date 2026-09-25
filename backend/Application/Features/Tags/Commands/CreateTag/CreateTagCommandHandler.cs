@@ -20,7 +20,7 @@ namespace Application.Features.Tags.Commands.CreateTag
         {
             var tag = new Tag
             {
-                Nombre = command.Nombre,
+                Nombre = Tag.NormalizeNombre(command.Nombre),
             };
 
             await _tagRepository.AddAsync(tag, cancellationToken);
@@ -28,7 +28,8 @@ namespace Application.Features.Tags.Commands.CreateTag
                 tag.Id,
                 tag.Nombre,
                 tag.CreatedAt,
-                tag.CreatedBy
+                tag.CreatedBy,
+                0
             );
         }
     }

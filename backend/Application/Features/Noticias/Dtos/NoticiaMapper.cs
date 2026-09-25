@@ -1,4 +1,5 @@
 using Application.Features.Categorias.Dtos;
+using Application.Features.Tags.Dtos;
 using Domain.Entities;
 
 namespace Application.Features.Noticias.Dtos
@@ -19,6 +20,10 @@ namespace Application.Features.Noticias.Dtos
                 noticia.Categorias
                     .OrderBy(c => c.Nombre)
                     .Select(c => new CategoriaResumenDto(c.Id, c.Nombre))
+                    .ToList(),
+                noticia.Tags
+                    .OrderBy(t => t.Nombre)
+                    .Select(t => new TagResumenDto(t.Id, t.Nombre))
                     .ToList()
             );
         }

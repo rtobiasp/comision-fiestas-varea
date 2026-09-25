@@ -1,3 +1,4 @@
+using Application.Common.Validation;
 using FluentValidation;
 
 namespace Application.Features.Tags.Commands.UpdateTag
@@ -11,7 +12,8 @@ namespace Application.Features.Tags.Commands.UpdateTag
 
             RuleFor(x => x.Nombre)
                 .NotEmpty().WithMessage("El nombre es obligatorio.")
-                .MaximumLength(100).WithMessage("El nombre no puede tener más de 100 caracteres.");
+                .MaximumLength(100).WithMessage("El nombre no puede tener más de 100 caracteres.")
+                .IsPlainText();
         }
     }
 }

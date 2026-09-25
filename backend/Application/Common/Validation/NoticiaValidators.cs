@@ -164,5 +164,21 @@ namespace Application.Common.Validation
                 .Must(ids => ids is null || ids.Distinct().Count() == ids.Count)
                 .WithMessage("Las categorías no pueden repetirse.");
         }
+
+        /// <summary>
+        /// Regla para la colección opcional de tags de una noticia.
+        /// null y vacío significan "sin tags". Solo valida forma
+        /// (guids no vacíos, sin duplicados); la existencia de cada
+        /// tag se comprueba en el handler (requiere BD).
+        /// </summary>
+        public static IRuleBuilderOptions<T, List<Guid>> IsValidTagIds<T>(
+            this IRuleBuilder<T, List<Guid>> ruleBuilder)
+        {
+            return ruleBuilder
+                .Must(ids => ids is null || ids.All(id => id != Guid.Empty))
+                .WithMessage("Los identificadores de tag no pueden estar vacíos.")
+                .Must(ids => ids is null || ids.Distinct().Count() == ids.Count)
+                .WithMessage("Los tags no pueden repetirse.");
+        }
     }
 }

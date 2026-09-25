@@ -15,6 +15,11 @@ namespace Application.Features.Tags.Commands.DeleteTag
             DeleteTagCommand request,
             CancellationToken cancellationToken)
         {
+            if (await _tagRepository.HasNoticiasAsync(request.Id, cancellationToken))
+            {
+                throw new InvalidOperationException("No se puede eliminar el tag porque tiene noticias asociadas.");
+            }
+
             await _tagRepository.DeleteAsync(request.Id, cancellationToken);
         }
     }

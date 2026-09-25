@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Domain.Entities;
 
 namespace Application.Features.Tags.Commands.UpdateTag
 {
@@ -17,7 +18,7 @@ namespace Application.Features.Tags.Commands.UpdateTag
         {
             var existingTag = await _tagRepository.GetAsync(request.Id, cancellationToken);
 
-            existingTag.Nombre = request.Nombre;
+            existingTag.Nombre = Tag.NormalizeNombre(request.Nombre);
 
             await _tagRepository.UpdateAsync(existingTag, cancellationToken);
         }

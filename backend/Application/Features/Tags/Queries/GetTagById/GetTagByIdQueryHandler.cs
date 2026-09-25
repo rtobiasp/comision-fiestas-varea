@@ -17,11 +17,13 @@ namespace Application.Features.Tags.Queries.GetTagById
             CancellationToken cancellationToken)
         {
             var tag = await _tagRepository.GetAsync(request.Id, cancellationToken);
+            var noticiasCount = await _tagRepository.CountNoticiasAsync(request.Id, cancellationToken);
             return new TagDto(
                 tag.Id,
                 tag.Nombre,
                 tag.CreatedAt,
-                tag.CreatedBy
+                tag.CreatedBy,
+                noticiasCount
             );
         }
     }

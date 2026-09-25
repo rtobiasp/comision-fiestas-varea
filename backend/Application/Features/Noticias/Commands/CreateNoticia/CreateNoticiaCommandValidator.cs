@@ -25,6 +25,9 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
             RuleFor(x => x.CategoriaIds)
                 .IsValidCategoriaIds();
 
+            RuleFor(x => x.TagIds)
+                .IsValidTagIds();
+
           }
     }
 }

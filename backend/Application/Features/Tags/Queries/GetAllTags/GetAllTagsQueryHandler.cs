@@ -1,5 +1,6 @@
 using Application.Common.Interfaces;
 using Application.Features.Tags.Dtos;
+using Domain.Entities;
 
 namespace Application.Features.Tags.Queries.GetAllTags
 {
@@ -16,12 +17,24 @@ namespace Application.Features.Tags.Queries.GetAllTags
             GetAllTagsQuery request,
             CancellationToken cancellationToken)
         {
-            var tags = await _tagRepository.GetAllAsync(cancellationToken);
+            List<Tag> tags;
+
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                tags = await _tagRepository.SearchAsync(request.Search, cancellationToken);
+            }
+            else
+            {
+                tags = await _tagRepository.GetAllAsync(cancellationToken);
+            }
+
+            var counts = await _tagRepository.CountNoticiasByTagsAsync(cancellationToken);
             return tags.Select(t => new TagDto(
                 t.Id,
                 t.Nombre,
                 t.CreatedAt,
-                t.CreatedBy
+                t.CreatedBy,
+                counts.TryGetValue(t.Id, out var count) ? count : 0
             )).ToList();
         }
     }

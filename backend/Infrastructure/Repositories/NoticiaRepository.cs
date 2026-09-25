@@ -33,6 +33,7 @@ namespace Infrastructure.Repositories
         {
             return await _postgreContext.Noticias
                 .Include(n => n.Categorias)
+                .Include(n => n.Tags)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
@@ -41,8 +42,19 @@ namespace Infrastructure.Repositories
         {
             return await _postgreContext.Noticias
                 .Include(n => n.Categorias)
+                .Include(n => n.Tags)
                 .AsNoTracking()
                 .Where(n => n.Categorias.Any(c => c.Id == categoriaId))
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<Noticia>> GetByTagAsync(Guid tagId, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Noticias
+                .Include(n => n.Categorias)
+                .Include(n => n.Tags)
+                .AsNoTracking()
+                .Where(n => n.Tags.Any(t => t.Id == tagId))
                 .ToListAsync(cancellationToken);
         }
 
@@ -50,6 +62,7 @@ namespace Infrastructure.Repositories
         {
             var noticia = await _postgreContext.Noticias
                 .Include(n => n.Categorias)
+                .Include(n => n.Tags)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
 
@@ -65,6 +78,7 @@ namespace Infrastructure.Repositories
         {
             var noticia = await _postgreContext.Noticias
                 .Include(n => n.Categorias)
+                .Include(n => n.Tags)
                 .FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
 
             if (noticia is null)
@@ -80,12 +94,6 @@ namespace Infrastructure.Repositories
             if (noticia is null)
                 throw new ArgumentNullException(nameof(noticia), "La noticia no puede ser nula");
 
-            // La entidad debe venir tracked de GetTrackedAsync, con sus escalares
-            // ya modificados y la colección Categorias ya sincronizada por el
-            // handler (entidades Categoria tracked del mismo DbContext). Aquí solo
-            // se persiste: un SetValues ciego rompería la relación N:N porque no
-            // toca navegaciones, y re-adjuntar una entidad detached marcaría las
-            // categorías como Added (duplicados en el INSERT).
             var tracked = _postgreContext.ChangeTracker.Entries<Noticia>()
                 .FirstOrDefault(e => e.Entity.Id == noticia.Id);
 

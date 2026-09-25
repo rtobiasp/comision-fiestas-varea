@@ -51,6 +51,55 @@ namespace Infrastructure.Repositories
             return tag;
         }
 
+        public async Task<List<Tag>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken)
+        {
+            var distinctIds = ids.Distinct().ToList();
+
+            if (distinctIds.Count == 0)
+                return new List<Tag>();
+
+            return await _postgreContext.Tags
+                .Where(t => distinctIds.Contains(t.Id))
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<Tag>> SearchAsync(string prefix, CancellationToken cancellationToken)
+        {
+            var normalized = Tag.NormalizeNombre(prefix);
+
+            return await _postgreContext.Tags
+                .AsNoTracking()
+                .Where(t => t.Nombre.StartsWith(normalized))
+                .OrderBy(t => t.Nombre)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Tags.AnyAsync(t => t.Id == id, cancellationToken);
+        }
+
+        public async Task<bool> HasNoticiasAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Tags
+                .AnyAsync(t => t.Id == id && t.Noticias.Any(), cancellationToken);
+        }
+
+        public async Task<int> CountNoticiasAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Tags
+                .Where(t => t.Id == id)
+                .Select(t => t.Noticias.Count)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<Dictionary<Guid, int>> CountNoticiasByTagsAsync(CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Tags
+                .Select(t => new { t.Id, Count = t.Noticias.Count })
+                .ToDictionaryAsync(x => x.Id, x => x.Count, cancellationToken);
+        }
+
         public async Task UpdateAsync(Tag tag, CancellationToken cancellationToken)
         {
             if (tag is null)

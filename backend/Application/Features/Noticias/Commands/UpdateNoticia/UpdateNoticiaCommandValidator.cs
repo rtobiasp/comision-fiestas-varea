@@ -27,6 +27,9 @@ namespace Application.Features.Noticias.Commands.UpdateNoticia
 
             RuleFor(x => x.CategoriaIds)
                 .IsValidCategoriaIds();
+
+            RuleFor(x => x.TagIds)
+                .IsValidTagIds();
         }
     }
 }

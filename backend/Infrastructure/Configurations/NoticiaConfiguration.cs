@@ -59,6 +59,27 @@ namespace Infrastructure.Configurations
                         j.HasIndex("CategoriaId");
                     });
 
+            e.HasMany(n => n.Tags)
+                .WithMany(t => t.Noticias)
+                .UsingEntity<Dictionary<string, object>>(
+                    "NoticiaTag",
+                    j => j.HasOne<Tag>()
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    j => j.HasOne<Noticia>()
+                        .WithMany()
+                        .HasForeignKey("NoticiaId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.ToTable("NoticiaTags", "contenido");
+                        j.HasKey("NoticiaId", "TagId");
+                        j.Property<Guid>("NoticiaId").HasColumnType("uuid");
+                        j.Property<Guid>("TagId").HasColumnType("uuid");
+                        j.HasIndex("TagId");
+                    });
+
             e.ConfigureAuditable();
         }
     }
