@@ -1,9 +1,9 @@
 ﻿using Application.Features.Categorias.Commands.CreateCategoria;
 using Application.Features.Categorias.Commands.DeleteCategoria;
 using Application.Features.Categorias.Commands.UpdateCategoria;
+using Application.Features.Categorias.Dtos;
 using Application.Features.Categorias.Queries.GetAllCategorias;
 using Application.Features.Categorias.Queries.GetCategoriaById;
-using Domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +30,7 @@ namespace API.Controllers
         {
             try
             {
-                var categoria = await _bus.InvokeAsync<Categoria>(new GetCategoriaByIdQuery() { Id = id }, cancellationToken);
+                var categoria = await _bus.InvokeAsync<CategoriaDto>(new GetCategoriaByIdQuery() { Id = id }, cancellationToken);
                 return Ok(categoria);
             }
             catch (KeyNotFoundException ex)
@@ -49,7 +49,7 @@ namespace API.Controllers
         {
             try
             {
-                var categorias = await _bus.InvokeAsync<List<Categoria>>(new GetAllCategoriasQuery(), cancellationToken);
+                var categorias = await _bus.InvokeAsync<List<CategoriaDto>>(new GetAllCategoriasQuery(), cancellationToken);
                 return Ok(categorias);
             }
             catch (Exception ex)
@@ -64,7 +64,7 @@ namespace API.Controllers
         {
             try
             {
-                var result = await _bus.InvokeAsync<Categoria>(command, cancellationToken);
+                var result = await _bus.InvokeAsync<CategoriaDto>(command, cancellationToken);
 
                 return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
             } catch(ValidationException ex)

@@ -1,4 +1,5 @@
 ﻿using Application.Common.Interfaces;
+using Application.Features.Categorias.Dtos;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace Application.Features.Categorias.Commands.CreateCategoria
             _categoriaRepository = categoriaRepository;
         }
 
-        public async Task<Categoria> Handle(CreateCategoriaCommand command, CancellationToken cancellationToken)
+        public async Task<CategoriaDto> Handle(CreateCategoriaCommand command, CancellationToken cancellationToken)
         {
             if (command.CategoriaPadreId.HasValue)
             {
@@ -31,7 +32,14 @@ namespace Application.Features.Categorias.Commands.CreateCategoria
             };
 
             await _categoriaRepository.AddAsync(categoria, cancellationToken);
-            return categoria;
+            return new CategoriaDto(
+                categoria.Id,
+                categoria.Nombre,
+                categoria.Descripcion,
+                categoria.CategoriaPadreId,
+                categoria.CreatedAt,
+                categoria.CreatedBy
+            );
         }
     }
 }

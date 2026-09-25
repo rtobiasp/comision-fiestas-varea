@@ -1,6 +1,7 @@
 ﻿using Application.Features.Noticias.Commands.CreateNoticia;
 using Application.Features.Noticias.Commands.DeleteNoticia;
 using Application.Features.Noticias.Commands.UpdateNoticia;
+using Application.Features.Noticias.Dtos;
 using Application.Features.Noticias.Queries.GetAllNoticias;
 using Application.Features.Noticias.Queries.GetNoticiaById;
 using FluentValidation;
@@ -26,7 +27,7 @@ namespace API.Controllers
         {
             try
             {
-                var noticia = await _bus.InvokeAsync<Domain.Entities.Noticia>(new GetNoticiaByIdQuery() { Id = id }, cancellationToken);
+                var noticia = await _bus.InvokeAsync<NoticiaDto>(new GetNoticiaByIdQuery() { Id = id }, cancellationToken);
                 return Ok(noticia);
             }
             catch (KeyNotFoundException ex)
@@ -45,7 +46,7 @@ namespace API.Controllers
         {
             try
             {
-                var noticias = await _bus.InvokeAsync<List<Domain.Entities.Noticia>>(new GetAllNoticiasQuery(), cancellationToken);
+                var noticias = await _bus.InvokeAsync<List<NoticiaDto>>(new GetAllNoticiasQuery(), cancellationToken);
                 return Ok(noticias);
             }
             catch (Exception ex)
@@ -60,7 +61,7 @@ namespace API.Controllers
         {
             try
             {
-                var noticia = await _bus.InvokeAsync<Domain.Entities.Noticia>(command, cancellationToken);
+                var noticia = await _bus.InvokeAsync<NoticiaDto>(command, cancellationToken);
                 return CreatedAtAction(nameof(Get), new { id = noticia.Id }, noticia);
             }
             catch (ValidationException ex)

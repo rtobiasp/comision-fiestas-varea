@@ -1,5 +1,5 @@
 ﻿using Application.Common.Interfaces;
-using Domain.Entities;
+using Application.Features.Noticias.Dtos;
 
 namespace Application.Features.Noticias.Queries.GetAllNoticias
 {
@@ -12,12 +12,21 @@ namespace Application.Features.Noticias.Queries.GetAllNoticias
             _noticiaRepository = noticiaRepository;
         }
 
-        public async Task<List<Noticia>> Handle(
+        public async Task<List<NoticiaDto>> Handle(
             GetAllNoticiasQuery request,
             CancellationToken cancellationToken)
         {
             var noticias = await _noticiaRepository.GetAllAsync(cancellationToken);
-            return noticias;
+            return noticias.Select(n => new NoticiaDto(
+                n.Id,
+                n.Titulo,
+                n.Subtitulo,
+                n.Contenido,
+                n.Publicada,
+                n.Fijada,
+                n.CreatedAt,
+                n.CreatedBy
+            )).ToList();
         }
     }
 }

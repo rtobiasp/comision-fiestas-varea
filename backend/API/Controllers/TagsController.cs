@@ -1,9 +1,9 @@
 using Application.Features.Tags.Commands.CreateTag;
 using Application.Features.Tags.Commands.DeleteTag;
 using Application.Features.Tags.Commands.UpdateTag;
+using Application.Features.Tags.Dtos;
 using Application.Features.Tags.Queries.GetAllTags;
 using Application.Features.Tags.Queries.GetTagById;
-using Domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +30,7 @@ namespace API.Controllers
         {
             try
             {
-                var tag = await _bus.InvokeAsync<Tag>(new GetTagByIdQuery() { Id = id }, cancellationToken);
+                var tag = await _bus.InvokeAsync<TagDto>(new GetTagByIdQuery() { Id = id }, cancellationToken);
                 return Ok(tag);
             }
             catch (KeyNotFoundException ex)
@@ -49,7 +49,7 @@ namespace API.Controllers
         {
             try
             {
-                var tags = await _bus.InvokeAsync<List<Tag>>(new GetAllTagsQuery(), cancellationToken);
+                var tags = await _bus.InvokeAsync<List<TagDto>>(new GetAllTagsQuery(), cancellationToken);
                 return Ok(tags);
             }
             catch (Exception ex)
@@ -64,7 +64,7 @@ namespace API.Controllers
         {
             try
             {
-                var result = await _bus.InvokeAsync<Tag>(command, cancellationToken);
+                var result = await _bus.InvokeAsync<TagDto>(command, cancellationToken);
 
                 return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
             } catch(ValidationException ex)

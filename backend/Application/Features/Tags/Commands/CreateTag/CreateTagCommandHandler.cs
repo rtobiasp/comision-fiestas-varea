@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Application.Features.Tags.Dtos;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace Application.Features.Tags.Commands.CreateTag
             _tagRepository = tagRepository;
         }
 
-        public async Task<Tag> Handle(CreateTagCommand command, CancellationToken cancellationToken)
+        public async Task<TagDto> Handle(CreateTagCommand command, CancellationToken cancellationToken)
         {
             var tag = new Tag
             {
@@ -23,7 +24,12 @@ namespace Application.Features.Tags.Commands.CreateTag
             };
 
             await _tagRepository.AddAsync(tag, cancellationToken);
-            return tag;
+            return new TagDto(
+                tag.Id,
+                tag.Nombre,
+                tag.CreatedAt,
+                tag.CreatedBy
+            );
         }
     }
 }

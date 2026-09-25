@@ -1,4 +1,5 @@
 ﻿using Application.Common.Interfaces;
+using Application.Features.Noticias.Dtos;
 using Domain.Entities;
 
 namespace Application.Features.Noticias.Commands.CreateNoticia
@@ -12,7 +13,7 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
             _noticiaRepository = noticiaRepository;
         }
 
-        public async Task<Noticia> Handle(
+        public async Task<NoticiaDto> Handle(
             CreateNoticiaCommand request,
             CancellationToken cancellationToken)
         {
@@ -25,7 +26,16 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
             };
 
             var newNoticia = await _noticiaRepository.AddAsync(noticia, cancellationToken);
-            return newNoticia;
+            return new NoticiaDto(
+                newNoticia.Id,
+                newNoticia.Titulo,
+                newNoticia.Subtitulo,
+                newNoticia.Contenido,
+                newNoticia.Publicada,
+                newNoticia.Fijada,
+                newNoticia.CreatedAt,
+                newNoticia.CreatedBy
+            );
         }
     }
 }

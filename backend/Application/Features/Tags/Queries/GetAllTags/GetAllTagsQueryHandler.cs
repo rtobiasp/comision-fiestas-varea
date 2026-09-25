@@ -1,5 +1,5 @@
 using Application.Common.Interfaces;
-using Domain.Entities;
+using Application.Features.Tags.Dtos;
 
 namespace Application.Features.Tags.Queries.GetAllTags
 {
@@ -12,12 +12,17 @@ namespace Application.Features.Tags.Queries.GetAllTags
             _tagRepository = tagRepository;
         }
 
-        public async Task<List<Tag>> Handle(
+        public async Task<List<TagDto>> Handle(
             GetAllTagsQuery request,
             CancellationToken cancellationToken)
         {
             var tags = await _tagRepository.GetAllAsync(cancellationToken);
-            return tags;
+            return tags.Select(t => new TagDto(
+                t.Id,
+                t.Nombre,
+                t.CreatedAt,
+                t.CreatedBy
+            )).ToList();
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Application.Common.Interfaces;
-using Domain.Entities;
+using Application.Features.Noticias.Dtos;
 
 namespace Application.Features.Noticias.Queries.GetNoticiaById
 {
@@ -12,11 +12,21 @@ namespace Application.Features.Noticias.Queries.GetNoticiaById
             _noticiaRepository = noticiaRepository;
         }
 
-        public async Task<Noticia> Handle(
+        public async Task<NoticiaDto> Handle(
             GetNoticiaByIdQuery request,
             CancellationToken cancellationToken)
         {
-            return await _noticiaRepository.GetAsync(request.Id, cancellationToken);
+            var noticia = await _noticiaRepository.GetAsync(request.Id, cancellationToken);
+            return new NoticiaDto(
+                noticia.Id,
+                noticia.Titulo,
+                noticia.Subtitulo,
+                noticia.Contenido,
+                noticia.Publicada,
+                noticia.Fijada,
+                noticia.CreatedAt,
+                noticia.CreatedBy
+            );
         }
     }
 }

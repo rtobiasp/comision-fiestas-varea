@@ -1,5 +1,5 @@
 using Application.Common.Interfaces;
-using Domain.Entities;
+using Application.Features.Categorias.Dtos;
 
 namespace Application.Features.Categorias.Queries.GetAllCategorias
 {
@@ -12,12 +12,19 @@ namespace Application.Features.Categorias.Queries.GetAllCategorias
             _categoriaRepository = categoriaRepository;
         }
 
-        public async Task<List<Categoria>> Handle(
+        public async Task<List<CategoriaDto>> Handle(
             GetAllCategoriasQuery request,
             CancellationToken cancellationToken)
         {
             var categorias = await _categoriaRepository.GetAllAsync(cancellationToken);
-            return categorias;
+            return categorias.Select(c => new CategoriaDto(
+                c.Id,
+                c.Nombre,
+                c.Descripcion,
+                c.CategoriaPadreId,
+                c.CreatedAt,
+                c.CreatedBy
+            )).ToList();
         }
     }
 }

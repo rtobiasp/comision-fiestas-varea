@@ -1,5 +1,5 @@
 using Application.Common.Interfaces;
-using Domain.Entities;
+using Application.Features.Tags.Dtos;
 
 namespace Application.Features.Tags.Queries.GetTagById
 {
@@ -12,11 +12,17 @@ namespace Application.Features.Tags.Queries.GetTagById
             _tagRepository = tagRepository;
         }
 
-        public async Task<Tag> Handle(
+        public async Task<TagDto> Handle(
             GetTagByIdQuery request,
             CancellationToken cancellationToken)
         {
-            return await _tagRepository.GetAsync(request.Id, cancellationToken);
+            var tag = await _tagRepository.GetAsync(request.Id, cancellationToken);
+            return new TagDto(
+                tag.Id,
+                tag.Nombre,
+                tag.CreatedAt,
+                tag.CreatedBy
+            );
         }
     }
 }
