@@ -12,6 +12,7 @@ namespace API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class NoticiasController : ControllerBase
     {
         private readonly IMessageBus _bus;
@@ -23,7 +24,10 @@ namespace API.Controllers
 
         // GET: api/v1/Noticias/id
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(NoticiaDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<NoticiaDto>> Get(Guid id, CancellationToken cancellationToken)
         {
             try
             {
@@ -42,7 +46,9 @@ namespace API.Controllers
 
         // GET api/Noticias?categoriaId=&tagId=
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(List<NoticiaDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<NoticiaDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, CancellationToken cancellationToken)
         {
             try
             {
@@ -61,7 +67,11 @@ namespace API.Controllers
 
         // POST api/v1/Noticias
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateNoticiaCommand command, CancellationToken cancellationToken)
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(NoticiaDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NoticiaDto>> Post([FromBody] CreateNoticiaCommand command, CancellationToken cancellationToken)
         {
             try
             {
@@ -83,6 +93,9 @@ namespace API.Controllers
 
         // DELETE api/v1/Noticias/id
         [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             try
@@ -103,6 +116,10 @@ namespace API.Controllers
 
         // PUT api/v1/Noticias/id
         [HttpPut("{id:guid}")]
+        [Consumes("application/json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Put(Guid id, [FromBody] UpdateNoticiaCommand command, CancellationToken cancellationToken)
         {
             try

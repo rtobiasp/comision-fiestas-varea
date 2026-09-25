@@ -58,6 +58,16 @@ namespace Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<Noticia>> GetByCategoriaAndTagAsync(Guid categoriaId, Guid tagId, CancellationToken cancellationToken)
+        {
+            return await _postgreContext.Noticias
+                .Include(n => n.Categorias)
+                .Include(n => n.Tags)
+                .AsNoTracking()
+                .Where(n => n.Categorias.Any(c => c.Id == categoriaId) && n.Tags.Any(t => t.Id == tagId))
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<Noticia> GetAsync(Guid id, CancellationToken cancellationToken)
         {
             var noticia = await _postgreContext.Noticias

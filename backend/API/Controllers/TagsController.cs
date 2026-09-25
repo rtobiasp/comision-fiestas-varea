@@ -14,6 +14,7 @@ namespace API.Controllers
 
     [Route("api/v1/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class TagsController : ControllerBase
     {
 
@@ -26,7 +27,10 @@ namespace API.Controllers
 
         // GET: api/v1/Tags/id
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(TagDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<TagDto>> Get(Guid id, CancellationToken cancellationToken)
         {
             try
             {
@@ -45,7 +49,9 @@ namespace API.Controllers
 
         // GET api/v1/Tags?search=
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? search, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(List<TagDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<TagDto>>> GetAll([FromQuery] string? search, CancellationToken cancellationToken)
         {
             try
             {
@@ -60,7 +66,12 @@ namespace API.Controllers
 
         // POST: api/v1/Tags
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateTagCommand command, CancellationToken cancellationToken)
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(TagDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<TagDto>> Post([FromBody] CreateTagCommand command, CancellationToken cancellationToken)
         {
             try
             {
@@ -87,6 +98,10 @@ namespace API.Controllers
 
         // DELETE api/v1/Tags/id
         [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             try
@@ -115,6 +130,11 @@ namespace API.Controllers
 
         // PUT api/v1/Tags/id
         [HttpPut("{id:guid}")]
+        [Consumes("application/json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Put(Guid id, [FromBody] UpdateTagCommand command, CancellationToken cancellationToken)
         {
             try

@@ -14,6 +14,7 @@ namespace API.Controllers
 
     [Route("api/v1/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class CategoriasController : ControllerBase
     {
 
@@ -26,7 +27,10 @@ namespace API.Controllers
 
         // GET: api/v1/Categorias/id
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(CategoriaDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CategoriaDto>> Get(Guid id, CancellationToken cancellationToken)
         {
             try
             {
@@ -45,7 +49,9 @@ namespace API.Controllers
 
         // GET api/v1/Categorias
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(List<CategoriaDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<CategoriaDto>>> GetAll(CancellationToken cancellationToken)
         {
             try
             {
@@ -60,7 +66,12 @@ namespace API.Controllers
 
         // POST: api/v1/Categorias
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateCategoriaCommand command, CancellationToken cancellationToken)
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(CategoriaDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<CategoriaDto>> Post([FromBody] CreateCategoriaCommand command, CancellationToken cancellationToken)
         {
             try
             {
@@ -87,6 +98,10 @@ namespace API.Controllers
 
         // DELETE api/v1/Categorias/id
         [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             try
@@ -115,6 +130,11 @@ namespace API.Controllers
 
         // PUT api/v1/Categorias/id
         [HttpPut("{id:guid}")]
+        [Consumes("application/json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Put(Guid id, [FromBody] UpdateCategoriaCommand command, CancellationToken cancellationToken)
         {
             try
