@@ -22,9 +22,11 @@ namespace Infrastructure.Configurations
                 .IsRequired()
                 .HasMaxLength(200);
 
+            // Sin HasMaxLength: el contenido HTML de Tiptap se mapea a text
+            // (sin límite físico). El tope real lo impone FluentValidation
+            // (MaximumLength 100000) como protección.
             e.Property(n => n.Contenido)
-                .IsRequired()
-                .HasMaxLength(2000);
+                .IsRequired();
 
             e.Property(n => n.Subtitulo)
                 .IsRequired(false)

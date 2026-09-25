@@ -19,7 +19,7 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
 
             RuleFor(x => x.Contenido)
                 .NotEmpty().WithMessage("El contenido es obligatorio.")
-                .MaximumLength(2000).WithMessage("El contenido no puede exceder los 2000 caracteres.")
+                .MaximumLength(100000).WithMessage("El contenido no puede exceder los 100000 caracteres.")
                 .IsSafeHtml();
 
             RuleFor(x => x.CategoriaIds)

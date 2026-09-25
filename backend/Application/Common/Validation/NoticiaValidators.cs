@@ -33,6 +33,7 @@ namespace Application.Common.Validation
             {
                 // Texto y formato que emite cualquier editor rico genérico
                 "p", "br", "strong", "b", "em", "i", "u", "s",
+                "sup", "sub", "mark",
                 "ul", "ol", "li", "h2", "h3", "h4",
                 "blockquote", "pre", "code", "hr", "span", "div",
                 // Tablas simples (contenido estático, sin scripts)
@@ -46,9 +47,16 @@ namespace Application.Common.Validation
                 sanitizer.AllowedTags.Add(tag);
 
             sanitizer.AllowedAttributes.Clear();
-            // Globales seguros (sin style, sin on*, sin id para evitar DOM clobbering)
+            // Globales seguros (sin on*, sin id para evitar DOM clobbering)
             sanitizer.AllowedAttributes.Add("class");
             sanitizer.AllowedAttributes.Add("title");
+            // Estilos en línea que emite Tiptap (color, tamaño, resaltado,
+            // alineación). HtmlSanitizer sigue depurando el CSS: cualquier
+            // estilo peligroso (expression(), url(javascript:...), ...) se
+            // elimina y RemovingStyle lo convierte en rechazo (400).
+            sanitizer.AllowedAttributes.Add("style");
+            // Tiptap Highlight emite <mark data-color="..."> además del style.
+            sanitizer.AllowedAttributes.Add("data-color");
             // Enlaces
             sanitizer.AllowedAttributes.Add("href");
             sanitizer.AllowedAttributes.Add("target");
@@ -73,7 +81,7 @@ namespace Application.Common.Validation
             sanitizer.AllowedAttributes.Add("colspan");
             sanitizer.AllowedAttributes.Add("rowspan");
             sanitizer.AllowedAttributes.Add("scope");
-            // NOTA: "style", "srcset", "action", "formaction", "xlink:href" y
+            // NOTA: "srcset", "action", "formaction", "xlink:href" y
             // cualquier atributo "on*" quedan fuera a propósito. Para permitir
             // autoplay en <video> añadir aquí "autoplay" (desactivado por UX/datos).
 
