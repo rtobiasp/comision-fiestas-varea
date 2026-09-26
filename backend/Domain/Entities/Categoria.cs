@@ -20,6 +20,8 @@ namespace Domain.Entities
         public ICollection<Noticia> Noticias { get; set; } = new List<Noticia>();
         [JsonIgnore]
         public ICollection<Evento> Eventos { get; set; } = new List<Evento>();
+        [JsonIgnore]
+        public ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? LastModifiedAt { get; set; }
