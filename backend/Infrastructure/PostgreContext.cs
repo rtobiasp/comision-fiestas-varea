@@ -11,6 +11,7 @@ namespace Infrastructure
         public DbSet<Noticia> Noticias => Set<Noticia>();
         public DbSet<Categoria> Categorias => Set<Categoria>();
         public DbSet<Tag> Tags => Set<Tag>();
+        public DbSet<Evento> Eventos => Set<Evento>();
 
         public PostgreContext(DbContextOptions<PostgreContext> options) : base(options)
         {

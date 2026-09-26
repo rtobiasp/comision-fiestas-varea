@@ -37,6 +37,7 @@ builder.Host.UseWolverine(opts =>
     opts.CodeGeneration.AlwaysUseServiceLocationFor<INoticiaRepository>();
     opts.CodeGeneration.AlwaysUseServiceLocationFor<ICategoriaRepository>();
     opts.CodeGeneration.AlwaysUseServiceLocationFor<ITagRepository>();
+    opts.CodeGeneration.AlwaysUseServiceLocationFor<IEventoRepository>();
 });
 
 // Add services to the container.
@@ -47,6 +48,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<IEventoRepository, EventoRepository>();
 
 var app = builder.Build();
 
