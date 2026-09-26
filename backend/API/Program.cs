@@ -46,6 +46,20 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 
+// CORS para el frontend Next.js. Orígenes vía configuración "Frontend:Origins"
+// (appsettings.Development.json en local, env var Frontend__Origins en prod).
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDev", policy =>
+    {
+        var origins = builder.Configuration.GetSection("Frontend:Origins").Get<string[]>()
+            ?? ["http://localhost:3000"];
+        policy.WithOrigins(origins)
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
@@ -62,6 +76,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("FrontendDev");
 
 app.UseAuthorization();
 
