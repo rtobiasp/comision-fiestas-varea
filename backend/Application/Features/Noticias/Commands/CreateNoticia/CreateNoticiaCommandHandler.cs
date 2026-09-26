@@ -45,6 +45,7 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
                 Titulo = request.Titulo,
                 Subtitulo = request.Subtitulo,
                 Contenido = request.Contenido,
+                Publicada = request.Publicada,
                 Fijada = request.Fijada,
                 Categorias = categorias,
                 Tags = tags,

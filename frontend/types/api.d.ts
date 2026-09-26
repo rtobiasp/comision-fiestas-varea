@@ -1234,6 +1234,7 @@ export interface components {
             titulo?: string;
             subtitulo?: null | string;
             contenido?: string;
+            publicada?: boolean;
             fijada?: boolean;
             categoriaIds?: string[];
             tagIds?: string[];
