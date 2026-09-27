@@ -17,6 +17,8 @@ namespace Application.Features.Noticias.Dtos
                 noticia.Fijada,
                 noticia.CreatedAt,
                 noticia.CreatedBy,
+                noticia.LastModifiedAt,
+                noticia.LastModifiedBy,
                 noticia.Categorias
                     .OrderBy(c => c.Nombre)
                     .Select(c => new CategoriaResumenDto(c.Id, c.Nombre))
