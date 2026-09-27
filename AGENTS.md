@@ -10,8 +10,13 @@
   - `Application/Interfaces/` — repository/use-case interfaces only, no logic yet.
   - `Infrastructure/` — EF Core `PostgreContext`, `Repositories/`, `Configurations/`, `Migrations/`.
   - `API/` — entrypoint `Program.cs` + `Controllers/` (currently only `NoticiasController` → `api/Noticias`).
-- `frontend/` — empty, reserved. `.gitignore` anticipates Vite/React/Node.
+- `frontend/` — Next.js + Tailwind v4 + shadcn (ver `frontend/components.json` y `frontend/components/ui/`). `.gitignore` anticipa Vite/React/Node.
 - `docker/` — `docker-compose.yml` (postgres + optional pgAdmin), `postgres/init.sql`, `.env.example` (reference only).
+
+## Frontend UI/UX — shadcn obligatorio
+- Al crear cualquier componente de UI/UX en `frontend/`, usar obligatoriamente shadcn: reutilizar primero lo existente en `frontend/components/ui/` (ej. `table.tsx` → `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`).
+- Si el componente shadcn no existe aún, añadirlo con `npx shadcn@latest add <componente>` desde `frontend/` (respeta `frontend/components.json`: style `base-nova`, RSC, Tailwind v4 en `app/globals.css`, `baseColor: neutral`, `cssVariables: true`, iconos `lucide`, alias `@/components/ui`). No reimplementarlo a mano ni inventar otro sistema de diseño.
+- Componer sobre shadcn + `cn` + `class-variance-authority` + tokens CSS de `app/globals.css`; mantener `data-slot`, variantes y estilos base, extendiendo solo vía `className`. No introducir otra librería UI ni estilos globales fuera de `app/globals.css`.
 
 ## Commands (run from repo root unless noted)
 - Build: `dotnet build backend/Backend.slnx`

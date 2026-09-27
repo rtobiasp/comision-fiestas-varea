@@ -5,5 +5,11 @@ import { revalidatePath } from "next/cache";
 export default async function Noticias() {
   const noticias = await getNoticias();
 
-  return <NoticiasTable noticias={noticias} />;
+  async function deleteNoticiaAction(id: string): Promise<void> {
+    "use server";
+    await deleteNoticia(id);
+    revalidatePath("/admin/noticias");
+  }
+
+  return <NoticiasTable noticias={noticias} onDelete={deleteNoticiaAction} />;
 }

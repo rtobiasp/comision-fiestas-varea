@@ -9,12 +9,14 @@ import {
 } from "@/components/ui/table";
 import { NoticiaDto } from "@/types";
 import Link from "next/link";
+import DeleteNoticiaButton from "@/components/admin/DeleteNoticiaButton";
 
 type NoticiasTableProps = {
   noticias: NoticiaDto[];
+  onDelete: (id: string) => Promise<void>;
 };
 
-export default async function NoticiasTable({ noticias }: NoticiasTableProps) {
+export default function NoticiasTable({ noticias, onDelete }: NoticiasTableProps) {
   return (
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
@@ -69,8 +71,15 @@ export default async function NoticiasTable({ noticias }: NoticiasTableProps) {
               {n.tags.length > 0 ? n.tags.map((t) => t.nombre).join(", ") : "—"}
             </TableCell>
             <TableCell>
-              <Link href={`/noticias/${n.id}`}>Ver</Link>
-              <Link href={`/admin/noticias/${n.id}/editar`}>Editar</Link>
+              <div className="flex items-center gap-2">
+                <Link href={`/noticias/${n.id}`}>Ver</Link>
+                <Link href={`/admin/noticias/${n.id}/editar`}>Editar</Link>
+                <DeleteNoticiaButton
+                  id={n.id}
+                  titulo={n.titulo}
+                  onDelete={onDelete}
+                />
+              </div>
             </TableCell>
           </TableRow>
         ))}
