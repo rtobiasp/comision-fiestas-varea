@@ -64,3 +64,6 @@ Desktop.ini
 
 ## Docs locales de referencia (volcados LLM descargables, pesan MBs: no versionar)
 backend/llms-full-wolverine.txt
+
+## TODO local (notas de trabajo, no versionar)
+todo.md
