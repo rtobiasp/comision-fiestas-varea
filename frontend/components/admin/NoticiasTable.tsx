@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -6,8 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { NoticiaDto } from "@/types";
-import NoticiaRowActions from "@/components/admin/NoticiaRowActions";
+import DeleteNoticiaDialog from "@/components/admin/DeleteNoticiaDialog";
+import NoticiasTableRow from "@/components/admin/NoticiasTableRow";
+import type { NoticiaDto } from "@/types";
 
 type NoticiasTableProps = {
   noticias: NoticiaDto[];
@@ -18,68 +22,58 @@ export default function NoticiasTable({
   noticias,
   onDelete,
 }: NoticiasTableProps) {
+  const [selected, setSelected] = useState<{
+    id: string;
+    titulo: string;
+  } | null>(null);
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-25">Titulo</TableHead>
-          <TableHead>Estado</TableHead>
-          <TableHead>Fecha creación</TableHead>
-          <TableHead>Autor</TableHead>
-          <TableHead>Última modificación</TableHead>
-          <TableHead>Modificado por</TableHead>
-          <TableHead>Categorias</TableHead>
-          <TableHead>Tags</TableHead>
-          <TableHead>Acciones</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {noticias.map((n) => (
-          <TableRow key={n.id}>
-            <TableCell>{n.titulo}</TableCell>
-            <TableCell>{n.publicada ? "Publicada" : "Borrador"}</TableCell>
-            <TableCell>
-              {new Date(n.createdAt).toLocaleString("es-ES", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </TableCell>
-            <TableCell>{n.createdBy}</TableCell>
-            <TableCell>
-              {n.lastModifiedAt != null
-                ? new Date(n.lastModifiedAt).toLocaleString("es-ES", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "-"}
-            </TableCell>
-            <TableCell>
-              {n.lastModifiedBy != null ? n.lastModifiedBy : "-"}
-            </TableCell>
-            <TableCell>
-              {n.categorias.length > 0
-                ? n.categorias.map((c) => c.nombre).join(", ")
-                : "—"}
-            </TableCell>
-            <TableCell>
-              {n.tags.length > 0 ? n.tags.map((t) => t.nombre).join(", ") : "—"}
-            </TableCell>
-            <TableCell>
-              <NoticiaRowActions
-                id={n.id}
-                titulo={n.titulo}
-                onDelete={onDelete}
-              />
-            </TableCell>
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-25">Titulo</TableHead>
+            <TableHead>Estado</TableHead>
+            <TableHead>Fecha creación</TableHead>
+            <TableHead>Autor</TableHead>
+            <TableHead>Última modificación</TableHead>
+            <TableHead>Modificado por</TableHead>
+            <TableHead>Categorias</TableHead>
+            <TableHead>Tags</TableHead>
+            <TableHead className="sticky right-0 bg-background">
+              Acciones
+            </TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {noticias.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={9} className="text-center text-muted-foreground">
+                No hay noticias todavía.
+              </TableCell>
+            </TableRow>
+          ) : (
+            noticias.map((noticia) => (
+              <NoticiasTableRow
+                key={noticia.id}
+                noticia={noticia}
+                onSelectDelete={setSelected}
+              />
+            ))
+          )}
+        </TableBody>
+      </Table>
+      {selected != null && (
+        <DeleteNoticiaDialog
+          open={selected != null}
+          onOpenChange={(open) => {
+            if (!open) setSelected(null);
+          }}
+          id={selected.id}
+          titulo={selected.titulo}
+          onDelete={onDelete}
+        />
+      )}
+    </>
   );
 }

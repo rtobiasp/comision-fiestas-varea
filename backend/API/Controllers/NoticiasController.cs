@@ -44,16 +44,20 @@ namespace API.Controllers
             }
         }
 
-        // GET api/Noticias?categoriaId=&tagId=
+        // GET api/Noticias?categoriaId=&tagId=&offset=&limit=
         [HttpGet]
         [ProducesResponseType(typeof(List<NoticiaDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<List<NoticiaDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<NoticiaDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, [FromQuery] int? offset, [FromQuery] int? limit, CancellationToken cancellationToken)
         {
             try
             {
-                var noticias = await _bus.InvokeAsync<List<NoticiaDto>>(new GetAllNoticiasQuery { CategoriaId = categoriaId, TagId = tagId }, cancellationToken);
+                var noticias = await _bus.InvokeAsync<List<NoticiaDto>>(new GetAllNoticiasQuery { CategoriaId = categoriaId, TagId = tagId, Offset = offset, Limit = limit }, cancellationToken);
                 return Ok(noticias);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
             }
             catch (KeyNotFoundException ex)
             {

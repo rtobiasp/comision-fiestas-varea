@@ -42,7 +42,7 @@ namespace Application.Features.Noticias.Queries.GetAllNoticias
                 }
 
                 noticias = await _noticiaRepository.GetByCategoriaAndTagAsync(
-                    request.CategoriaId.Value, request.TagId.Value, cancellationToken);
+                    request.CategoriaId.Value, request.TagId.Value, request.Offset, request.Limit, cancellationToken);
             }
             else if (hasCategoria)
             {
@@ -51,7 +51,7 @@ namespace Application.Features.Noticias.Queries.GetAllNoticias
                     throw new KeyNotFoundException("No se han encontrado categorías con los parámetros proporcionados");
                 }
 
-                noticias = await _noticiaRepository.GetByCategoriaAsync(request.CategoriaId.Value, cancellationToken);
+                noticias = await _noticiaRepository.GetByCategoriaAsync(request.CategoriaId.Value, request.Offset, request.Limit, cancellationToken);
             }
             else if (hasTag)
             {
@@ -60,11 +60,11 @@ namespace Application.Features.Noticias.Queries.GetAllNoticias
                     throw new KeyNotFoundException("No se han encontrado tags con los parámetros proporcionados");
                 }
 
-                noticias = await _noticiaRepository.GetByTagAsync(request.TagId.Value, cancellationToken);
+                noticias = await _noticiaRepository.GetByTagAsync(request.TagId.Value, request.Offset, request.Limit, cancellationToken);
             }
             else
             {
-                noticias = await _noticiaRepository.GetAllAsync(cancellationToken);
+                noticias = await _noticiaRepository.GetAllAsync(request.Offset, request.Limit, cancellationToken);
             }
 
             return noticias.Select(NoticiaMapper.ToDto).ToList();

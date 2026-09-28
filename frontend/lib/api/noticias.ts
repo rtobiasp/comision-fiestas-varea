@@ -5,8 +5,13 @@ export function createNoticia(cmd: CreateNoticiaCommand): Promise<NoticiaDto> {
   return apiPost<NoticiaDto>("/api/v1/Noticias", cmd);
 }
 
-export function getNoticias(): Promise<NoticiaDto[]> {
-  return apiFetch<NoticiaDto[]>("/api/v1/Noticias");
+export function getNoticias(
+  offset: number,
+  limit: number,
+): Promise<NoticiaDto[]> {
+  return apiFetch<NoticiaDto[]>(
+    `/api/v1/Noticias?offset=${offset}&limit=${limit}`,
+  );
 }
 
 export function deleteNoticia(id: string) {

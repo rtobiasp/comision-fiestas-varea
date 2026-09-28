@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   Copy,
@@ -17,62 +16,50 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import DeleteNoticiaDialog from "@/components/admin/DeleteNoticiaDialog";
 
 type NoticiaRowActionsProps = {
   id: string;
   titulo: string;
-  onDelete: (id: string) => Promise<void>;
+  onSelectDelete: (noticia: { id: string; titulo: string }) => void;
 };
 
 export default function NoticiaRowActions({
   id,
   titulo,
-  onDelete,
+  onSelectDelete,
 }: NoticiaRowActionsProps) {
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button variant="ghost" size="icon" className="size-8">
-              <MoreHorizontalIcon />
-              <span className="sr-only">Abrir menú</span>
-            </Button>
-          }
-        />
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem render={<Link href={`/admin/noticias/${id}/editar`} />}>
-            <Pencil />
-            Editar
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            <Copy />
-            Duplicar
-          </DropdownMenuItem>
-          <DropdownMenuItem render={<Link href={`/noticias/${id}`} />}>
-            <Eye />
-            Ver
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2 />
-            Eliminar
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <DeleteNoticiaDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        id={id}
-        titulo={titulo}
-        onDelete={onDelete}
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon" className="size-8">
+            <MoreHorizontalIcon />
+            <span className="sr-only">Abrir menú</span>
+          </Button>
+        }
       />
-    </>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem render={<Link href={`/admin/noticias/${id}/editar`} />}>
+          <Pencil />
+          Editar
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled>
+          <Copy />
+          Duplicar
+        </DropdownMenuItem>
+        <DropdownMenuItem render={<Link href={`/noticias/${id}`} />}>
+          <Eye />
+          Ver
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={() => onSelectDelete({ id, titulo })}
+        >
+          <Trash2 />
+          Eliminar
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
