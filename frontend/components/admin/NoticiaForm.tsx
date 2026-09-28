@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { TriangleAlert } from "lucide-react";
 import Tiptap from "@/components/ui/tiptap/Tiptap";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoriaDto, TagDto } from "@/types";
+import {
+  isRedirectError,
+  toFormError,
+  type FormErrorState,
+} from "@/lib/api/form-error";
 import CategoriasCardForm from "./CategoriasCardForm";
 import TagsCardForm from "./TagsCardForm";
 
@@ -44,12 +51,56 @@ export default function NoticiaForm({
   const heading = title ?? (isEdit ? "Editar noticia" : "Añadir noticia");
   const selectedCategoriaIds = new Set(initial?.categoriaIds ?? []);
 
+  type SubmitState = { ok: true } | FormErrorState | null;
+
+  const [submitState, formAction] = useActionState(
+    async (_prev: SubmitState, formData: FormData): Promise<SubmitState> => {
+      try {
+        await onSubmit(formData);
+        return { ok: true };
+      } catch (e) {
+        if (isRedirectError(e)) throw e;
+        return { ok: false, ...toFormError(e) };
+      }
+    },
+    null,
+  );
+
+  const fieldErrors =
+    submitState !== null && !submitState.ok ? submitState.fieldErrors : {};
+  const tituloErrors = fieldErrors.titulo ?? [];
+  const subtituloErrors = fieldErrors.subtitulo ?? [];
+  const contenidoErrors = fieldErrors.contenido ?? [];
+  const otherErrors = Object.entries(fieldErrors).filter(
+    ([key]) => !["titulo", "subtitulo", "contenido"].includes(key),
+  );
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <h1 className="text-2xl font-semibold">{heading}</h1>
+      {submitState !== null && !submitState.ok && (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertTitle>No se ha podido guardar la noticia</AlertTitle>
+          <AlertDescription>
+            <p>{submitState.message}</p>
+            {otherErrors.length > 0 && (
+              <ul className="mt-1 list-disc pl-5">
+                {otherErrors.map(([key, messages]) =>
+                  messages.map((m, i) => (
+                    <li key={`${key}-${i}`}>
+                      {key}: {m}
+                    </li>
+                  )),
+                )}
+              </ul>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
       <form
         id="noticia-form"
-        action={onSubmit}
+        action={formAction}
         className="grid items-start gap-4 lg:grid-cols-[1fr_300px]"
       >
         <div className="flex min-w-0 flex-col gap-4">
@@ -65,8 +116,14 @@ export default function NoticiaForm({
               maxLength={200}
               placeholder="Añade un título"
               defaultValue={initial?.titulo ?? ""}
+              aria-invalid={tituloErrors.length > 0}
               className="h-12 text-xl font-medium"
             />
+            {tituloErrors.map((m, i) => (
+              <p key={i} className="text-sm text-destructive">
+                {m}
+              </p>
+            ))}
           </div>
 
           <div className="grid gap-2">
@@ -80,13 +137,24 @@ export default function NoticiaForm({
               maxLength={300}
               placeholder="Subtítulo opcional"
               defaultValue={initial?.subtitulo ?? ""}
+              aria-invalid={subtituloErrors.length > 0}
             />
+            {subtituloErrors.map((m, i) => (
+              <p key={i} className="text-sm text-destructive">
+                {m}
+              </p>
+            ))}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="contenido">Contenido *</Label>
             <Tiptap content={contenido} onChange={setContenido} />
             <Input type="hidden" name="contenido" value={contenido} />
+            {contenidoErrors.map((m, i) => (
+              <p key={i} className="text-sm text-destructive">
+                {m}
+              </p>
+            ))}
           </div>
         </div>
 
