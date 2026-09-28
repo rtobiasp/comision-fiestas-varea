@@ -5,10 +5,7 @@ import Tiptap from "@/components/ui/tiptap/Tiptap";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -29,34 +26,33 @@ export default function NoticiaForm({
   const [contenido, setContenido] = useState("");
 
   return (
-    <Card className="mx-auto w-full max-w-3xl">
-      <CardHeader>
-        <CardTitle>Nueva noticia</CardTitle>
-        <CardDescription>
-          Completa los campos para crear una noticia.
-        </CardDescription>
-        <CardAction>
-          <Button type="submit" form="noticia-form">
-            Guardar
-          </Button>
-        </CardAction>
-      </CardHeader>
-      <CardContent>
-        <form id="noticia-form" action={onCreate} className="flex flex-col gap-6">
+    <div className="flex flex-1 flex-col gap-4 p-4">
+      <h1 className="text-2xl font-semibold">Añadir noticia</h1>
+      <form
+        id="noticia-form"
+        action={onCreate}
+        className="grid items-start gap-4 lg:grid-cols-[1fr_300px]"
+      >
+        <div className="flex min-w-0 flex-col gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="titulo">Título *</Label>
+            <Label htmlFor="titulo" className="sr-only">
+              Título *
+            </Label>
             <Input
               type="text"
               id="titulo"
               name="titulo"
               required
               maxLength={200}
-              placeholder="Titular de la noticia"
+              placeholder="Añade un título"
+              className="h-12 text-xl font-medium"
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="subtitulo">Subtítulo</Label>
+            <Label htmlFor="subtitulo" className="sr-only">
+              Subtítulo
+            </Label>
             <Input
               type="text"
               id="subtitulo"
@@ -71,88 +67,105 @@ export default function NoticiaForm({
             <Tiptap content={contenido} onChange={setContenido} />
             <Input type="hidden" name="contenido" value={contenido} />
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <div className="flex items-center gap-2">
-              <Checkbox id="publicada" name="publicada" />
-              <Label htmlFor="publicada" className="cursor-pointer">
-                Publicada
-              </Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="fijada" name="fijada" />
-              <Label htmlFor="fijada" className="cursor-pointer">
-                Fijada
-              </Label>
-            </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Categorías</Label>
-            {categorias.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No hay categorías disponibles.
-              </p>
-            ) : (
-              <div className="grid gap-2 sm:grid-cols-2">
-                {categorias.map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex items-center gap-2 rounded-lg border border-input px-3 py-2"
-                  >
-                    <Checkbox
-                      id={`categoria-${c.id}`}
-                      name="categoriaIds"
-                      value={c.id}
-                    />
-                    <Label
-                      htmlFor={`categoria-${c.id}`}
-                      className="cursor-pointer font-normal"
-                    >
-                      {c.nombre}
-                    </Label>
-                  </div>
-                ))}
+        <div className="flex min-w-0 flex-col gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Publicar</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Checkbox id="fijada" name="fijada" />
+                <Label htmlFor="fijada" className="cursor-pointer">
+                  Fijada
+                </Label>
               </div>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Tags</Label>
-            {tags.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No hay tags disponibles.
-              </p>
-            ) : (
-              <div className="grid gap-2 sm:grid-cols-2">
-                {tags.map((t) => (
-                  <div
-                    key={t.id}
-                    className="flex items-center gap-2 rounded-lg border border-input px-3 py-2"
-                  >
-                    <Checkbox
-                      id={`tag-${t.id}`}
-                      name="tagIds"
-                      value={t.id}
-                    />
-                    <Label
-                      htmlFor={`tag-${t.id}`}
-                      className="cursor-pointer font-normal"
-                    >
-                      {t.nombre}
-                    </Label>
-                  </div>
-                ))}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="submit"
+                  form="noticia-form"
+                  name="accion"
+                  value="guardar"
+                >
+                  Guardar
+                </Button>
+                <Button
+                  type="submit"
+                  form="noticia-form"
+                  name="accion"
+                  value="borrador"
+                  variant="outline"
+                >
+                  Guardar como borrador
+                </Button>
               </div>
-            )}
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter className="justify-end">
-        <Button type="submit" form="noticia-form">
-          Guardar
-        </Button>
-      </CardFooter>
-    </Card>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Categorías</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {categorias.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No hay categorías disponibles.
+                </p>
+              ) : (
+                <div className="flex max-h-60 flex-col gap-2 overflow-y-auto">
+                  {categorias.map((c) => (
+                    <div key={c.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`categoria-${c.id}`}
+                        name="categoriaIds"
+                        value={c.id}
+                      />
+                      <Label
+                        htmlFor={`categoria-${c.id}`}
+                        className="cursor-pointer font-normal"
+                      >
+                        {c.nombre}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Etiquetas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {tags.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No hay tags disponibles.
+                </p>
+              ) : (
+                <div className="flex max-h-60 flex-col gap-2 overflow-y-auto">
+                  {tags.map((t) => (
+                    <div key={t.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`tag-${t.id}`}
+                        name="tagIds"
+                        value={t.id}
+                      />
+                      <Label
+                        htmlFor={`tag-${t.id}`}
+                        className="cursor-pointer font-normal"
+                      >
+                        {t.nombre}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </form>
+    </div>
   );
 }
