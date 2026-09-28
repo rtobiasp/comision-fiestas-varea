@@ -32,24 +32,18 @@ export default function NoticiasTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-25">Titulo</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Fecha creación</TableHead>
+            <TableHead>Título</TableHead>
             <TableHead>Autor</TableHead>
-            <TableHead>Última modificación</TableHead>
-            <TableHead>Modificado por</TableHead>
-            <TableHead>Categorias</TableHead>
-            <TableHead>Tags</TableHead>
-            <TableHead className="sticky right-0 bg-background">
-              Acciones
-            </TableHead>
+            <TableHead>Categorías</TableHead>
+            <TableHead>Etiquetas</TableHead>
+            <TableHead>Fecha</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {noticias.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center text-muted-foreground">
-                No hay noticias todavía.
+              <TableCell colSpan={5} className="text-center text-muted-foreground">
+                No hay entradas todavía.
               </TableCell>
             </TableRow>
           ) : (

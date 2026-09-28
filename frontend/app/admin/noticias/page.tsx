@@ -27,13 +27,13 @@ export default async function Noticias({
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-      <div className="flex flex-row gap-4 items-center">
-        <h1 className="text-3xl font-bold">Noticias</h1>
+      <div className="flex flex-row flex-wrap items-center gap-3">
+        <h1 className="text-2xl font-semibold">Noticias</h1>
         <Link
-          className={buttonVariants({ className: "w-fit" })}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
           href={`/admin/noticias/nueva`}
         >
-          Nueva noticia
+          Añadir noticia
         </Link>
       </div>
       <NoticiasTable noticias={noticias} onDelete={deleteNoticiaAction} />

@@ -1,21 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Copy,
-  Eye,
-  MoreHorizontalIcon,
-  Pencil,
-  Trash2,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 
 type NoticiaRowActionsProps = {
   id: string;
@@ -29,37 +14,32 @@ export default function NoticiaRowActions({
   onSelectDelete,
 }: NoticiaRowActionsProps) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon" className="size-8">
-            <MoreHorizontalIcon />
-            <span className="sr-only">Abrir menú</span>
-          </Button>
-        }
-      />
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem render={<Link href={`/admin/noticias/${id}/editar`} />}>
-          <Pencil />
-          Editar
-        </DropdownMenuItem>
-        <DropdownMenuItem disabled>
-          <Copy />
-          Duplicar
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href={`/noticias/${id}`} />}>
-          <Eye />
-          Ver
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={() => onSelectDelete({ id, titulo })}
-        >
-          <Trash2 />
-          Eliminar
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="mt-1 flex flex-wrap items-center gap-x-1 text-[0.8rem] md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+      <Link
+        href={`/admin/noticias/${id}/editar`}
+        className="text-primary underline-offset-4 hover:underline"
+      >
+        Editar
+      </Link>
+      <span aria-hidden="true" className="text-muted-foreground">
+        |
+      </span>
+      <Link
+        href={`/noticias/${id}`}
+        className="text-primary underline-offset-4 hover:underline"
+      >
+        Ver
+      </Link>
+      <span aria-hidden="true" className="text-muted-foreground">
+        |
+      </span>
+      <button
+        type="button"
+        onClick={() => onSelectDelete({ id, titulo })}
+        className="cursor-pointer text-destructive underline-offset-4 hover:underline"
+      >
+        Papelera
+      </button>
+    </div>
   );
 }

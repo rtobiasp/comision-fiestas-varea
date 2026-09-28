@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { TableCell, TableRow } from "@/components/ui/table";
 import NoticiaRowActions from "@/components/admin/NoticiaRowActions";
 import { formatDateTime } from "@/lib/format";
@@ -13,13 +14,25 @@ export default function NoticiasTableRow({
   onSelectDelete,
 }: NoticiasTableRowProps) {
   return (
-    <TableRow>
-      <TableCell>{noticia.titulo}</TableCell>
-      <TableCell>{noticia.publicada ? "Publicada" : "Borrador"}</TableCell>
-      <TableCell>{formatDateTime(noticia.createdAt)}</TableCell>
+    <TableRow className="group">
+      <TableCell>
+        <Link
+          href={`/admin/noticias/${noticia.id}/editar`}
+          className="font-medium text-primary underline-offset-4 hover:underline"
+        >
+          {noticia.titulo}
+        </Link>
+        {!noticia.publicada && (
+          <span className="text-muted-foreground"> — Borrador</span>
+        )}
+        {noticia.fijada && <span className="text-muted-foreground"> — Fijada</span>}
+        <NoticiaRowActions
+          id={noticia.id}
+          titulo={noticia.titulo}
+          onSelectDelete={onSelectDelete}
+        />
+      </TableCell>
       <TableCell>{noticia.createdBy}</TableCell>
-      <TableCell>{formatDateTime(noticia.lastModifiedAt)}</TableCell>
-      <TableCell>{noticia.lastModifiedBy ?? "-"}</TableCell>
       <TableCell>
         {noticia.categorias.length > 0
           ? noticia.categorias.map((c) => c.nombre).join(", ")
@@ -30,12 +43,12 @@ export default function NoticiasTableRow({
           ? noticia.tags.map((t) => t.nombre).join(", ")
           : "—"}
       </TableCell>
-      <TableCell className="sticky right-0 bg-background">
-        <NoticiaRowActions
-          id={noticia.id}
-          titulo={noticia.titulo}
-          onSelectDelete={onSelectDelete}
-        />
+      <TableCell>
+        {noticia.publicada ? "Publicada" : "Borrador"}
+        <br />
+        <span className="text-muted-foreground">
+          {formatDateTime(noticia.createdAt)}
+        </span>
       </TableCell>
     </TableRow>
   );
