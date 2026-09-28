@@ -1,8 +1,17 @@
 import { notFound, redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import NoticiaForm from "@/components/admin/NoticiaForm";
-import { getCategorias } from "@/lib/api/categorias";
+import { getCategorias, createCategoria } from "@/lib/api/categorias";
 import { getTags } from "@/lib/api/tags";
 import { getNoticiaById, updateNoticia } from "@/lib/api/noticias";
+
+async function createCategoriaAction(formData: FormData): Promise<void> {
+  "use server";
+  await createCategoria({
+    nombre: String(formData.get("nombre") ?? ""),
+  });
+  revalidatePath("/admin/noticias");
+}
 
 export default async function EditarNoticia({
   params,
@@ -49,6 +58,7 @@ export default async function EditarNoticia({
         tagIds: noticia.tags.map((t) => t.id),
       }}
       onSubmit={updateNoticiaAction}
+      onCreateCategoria={createCategoriaAction}
     />
   );
 }

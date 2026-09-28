@@ -27,7 +27,7 @@ namespace Application.Features.Categorias.Commands.UpdateCategoria
             }
 
             existingCategoria.Nombre = request.Nombre;
-            existingCategoria.Descripcion = request.Descripcion;
+            existingCategoria.Descripcion = request.Descripcion ?? string.Empty;
             existingCategoria.CategoriaPadreId = request.CategoriaPadreId;
 
             await _categoriaRepository.UpdateAsync(existingCategoria, cancellationToken);

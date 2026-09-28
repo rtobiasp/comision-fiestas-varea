@@ -26,7 +26,7 @@ namespace Application.Features.Categorias.Commands.CreateCategoria
             var categoria = new Categoria
             {
                 Nombre = command.Nombre,
-                Descripcion = command.Descripcion,
+                Descripcion = command.Descripcion ?? string.Empty,
                 CategoriaPadreId = command.CategoriaPadreId,
             };
 

@@ -3,16 +3,12 @@
 import { useState } from "react";
 import Tiptap from "@/components/ui/tiptap/Tiptap";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoriaDto, TagDto } from "@/types";
+import CategoriasCardForm from "./CategoriasCardForm";
 
 export type NoticiaFormInitial = {
   titulo: string;
@@ -30,6 +26,7 @@ export default function NoticiaForm({
   mode = "create",
   title,
   onSubmit,
+  onCreateCategoria,
 }: {
   categorias: CategoriaDto[];
   tags: TagDto[];
@@ -37,6 +34,7 @@ export default function NoticiaForm({
   mode?: "create" | "edit";
   title?: string;
   onSubmit: (formData: FormData) => Promise<void>;
+  onCreateCategoria: (formData: FormData) => void | Promise<void>;
 }) {
   const isEdit = mode === "edit";
   const [contenido, setContenido] = useState(initial?.contenido ?? "");
@@ -128,37 +126,11 @@ export default function NoticiaForm({
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Categorías</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {categorias.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No hay categorías disponibles.
-                </p>
-              ) : (
-                <div className="flex max-h-60 flex-col gap-2 overflow-y-auto">
-                  {categorias.map((c) => (
-                    <div key={c.id} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`categoria-${c.id}`}
-                        name="categoriaIds"
-                        value={c.id}
-                        defaultChecked={selectedCategoriaIds.has(c.id)}
-                      />
-                      <Label
-                        htmlFor={`categoria-${c.id}`}
-                        className="cursor-pointer font-normal"
-                      >
-                        {c.nombre}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <CategoriasCardForm
+            categorias={categorias}
+            selectedCategoriaIds={selectedCategoriaIds}
+            onCreateCategoria={onCreateCategoria}
+          />
 
           <Card>
             <CardHeader>
