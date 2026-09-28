@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import NoticiaForm from "@/components/admin/NoticiaForm";
 import { getCategorias, createCategoria } from "@/lib/api/categorias";
-import { getTags } from "@/lib/api/tags";
+import { getTags, createTag } from "@/lib/api/tags";
 import { createNoticia } from "@/lib/api/noticias";
 
 async function createNoticiaAction(formData: FormData): Promise<void> {
@@ -27,6 +27,12 @@ async function createCategoriaAction(formData: FormData): Promise<void> {
   revalidatePath("/admin/noticias/nueva");
 }
 
+async function createTagAction(formData: FormData): Promise<void> {
+  "use server";
+  await createTag({ nombre: String(formData.get("nombre") ?? "") });
+  revalidatePath("/admin/noticias/nueva");
+}
+
 export default async function Noticias() {
   const categorias = await getCategorias();
   const tags = await getTags();
@@ -37,6 +43,7 @@ export default async function Noticias() {
       mode="create"
       onSubmit={createNoticiaAction}
       onCreateCategoria={createCategoriaAction}
+      onCreateTag={createTagAction}
     />
   );
 }

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoriaDto, TagDto } from "@/types";
 import CategoriasCardForm from "./CategoriasCardForm";
+import TagsCardForm from "./TagsCardForm";
 
 export type NoticiaFormInitial = {
   titulo: string;
@@ -27,6 +28,7 @@ export default function NoticiaForm({
   title,
   onSubmit,
   onCreateCategoria,
+  onCreateTag,
 }: {
   categorias: CategoriaDto[];
   tags: TagDto[];
@@ -35,12 +37,12 @@ export default function NoticiaForm({
   title?: string;
   onSubmit: (formData: FormData) => Promise<void>;
   onCreateCategoria: (formData: FormData) => void | Promise<void>;
+  onCreateTag: (formData: FormData) => void | Promise<void>;
 }) {
   const isEdit = mode === "edit";
   const [contenido, setContenido] = useState(initial?.contenido ?? "");
   const heading = title ?? (isEdit ? "Editar noticia" : "Añadir noticia");
   const selectedCategoriaIds = new Set(initial?.categoriaIds ?? []);
-  const selectedTagIds = new Set(initial?.tagIds ?? []);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -132,37 +134,11 @@ export default function NoticiaForm({
             onCreateCategoria={onCreateCategoria}
           />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Etiquetas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {tags.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No hay tags disponibles.
-                </p>
-              ) : (
-                <div className="flex max-h-60 flex-col gap-2 overflow-y-auto">
-                  {tags.map((t) => (
-                    <div key={t.id} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`tag-${t.id}`}
-                        name="tagIds"
-                        value={t.id}
-                        defaultChecked={selectedTagIds.has(t.id)}
-                      />
-                      <Label
-                        htmlFor={`tag-${t.id}`}
-                        className="cursor-pointer font-normal"
-                      >
-                        {t.nombre}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <TagsCardForm
+            tags={tags}
+            initialSelectedTagIds={initial?.tagIds ?? []}
+            onCreateTag={onCreateTag}
+          />
         </div>
       </form>
     </div>
