@@ -15,7 +15,7 @@ async function createNoticiaAction(formData: FormData): Promise<void> {
     categoriaIds: formData.getAll("categoriaIds").map(String),
     tagIds: formData.getAll("tagIds").map(String),
   });
-  redirect("/admin/noticias/nueva");
+  redirect("/admin/noticias");
 }
 
 export default async function Noticias() {
@@ -25,7 +25,8 @@ export default async function Noticias() {
     <NoticiaForm
       categorias={categorias}
       tags={tags}
-      onCreate={createNoticiaAction}
+      mode="create"
+      onSubmit={createNoticiaAction}
     />
   );
 }

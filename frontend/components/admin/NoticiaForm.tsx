@@ -14,23 +14,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoriaDto, TagDto } from "@/types";
 
+export type NoticiaFormInitial = {
+  titulo: string;
+  subtitulo: string | null;
+  contenido: string;
+  fijada: boolean;
+  categoriaIds: string[];
+  tagIds: string[];
+};
+
 export default function NoticiaForm({
   categorias,
   tags,
-  onCreate,
+  initial,
+  mode = "create",
+  title,
+  onSubmit,
 }: {
   categorias: CategoriaDto[];
   tags: TagDto[];
-  onCreate: (formData: FormData) => Promise<void>;
+  initial?: NoticiaFormInitial;
+  mode?: "create" | "edit";
+  title?: string;
+  onSubmit: (formData: FormData) => Promise<void>;
 }) {
-  const [contenido, setContenido] = useState("");
+  const isEdit = mode === "edit";
+  const [contenido, setContenido] = useState(initial?.contenido ?? "");
+  const heading = title ?? (isEdit ? "Editar noticia" : "Añadir noticia");
+  const selectedCategoriaIds = new Set(initial?.categoriaIds ?? []);
+  const selectedTagIds = new Set(initial?.tagIds ?? []);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-      <h1 className="text-2xl font-semibold">Añadir noticia</h1>
+      <h1 className="text-2xl font-semibold">{heading}</h1>
       <form
         id="noticia-form"
-        action={onCreate}
+        action={onSubmit}
         className="grid items-start gap-4 lg:grid-cols-[1fr_300px]"
       >
         <div className="flex min-w-0 flex-col gap-4">
@@ -45,6 +64,7 @@ export default function NoticiaForm({
               required
               maxLength={200}
               placeholder="Añade un título"
+              defaultValue={initial?.titulo ?? ""}
               className="h-12 text-xl font-medium"
             />
           </div>
@@ -59,6 +79,7 @@ export default function NoticiaForm({
               name="subtitulo"
               maxLength={300}
               placeholder="Subtítulo opcional"
+              defaultValue={initial?.subtitulo ?? ""}
             />
           </div>
 
@@ -72,11 +93,15 @@ export default function NoticiaForm({
         <div className="flex min-w-0 flex-col gap-4">
           <Card>
             <CardHeader>
-              <CardTitle>Publicar</CardTitle>
+              <CardTitle>{isEdit ? "Guardar" : "Publicar"}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <Checkbox id="fijada" name="fijada" />
+                <Checkbox
+                  id="fijada"
+                  name="fijada"
+                  defaultChecked={initial?.fijada ?? false}
+                />
                 <Label htmlFor="fijada" className="cursor-pointer">
                   Fijada
                 </Label>
@@ -88,7 +113,7 @@ export default function NoticiaForm({
                   name="accion"
                   value="guardar"
                 >
-                  Guardar
+                  {isEdit ? "Guardar" : "Publicar"}
                 </Button>
                 <Button
                   type="submit"
@@ -120,6 +145,7 @@ export default function NoticiaForm({
                         id={`categoria-${c.id}`}
                         name="categoriaIds"
                         value={c.id}
+                        defaultChecked={selectedCategoriaIds.has(c.id)}
                       />
                       <Label
                         htmlFor={`categoria-${c.id}`}
@@ -151,6 +177,7 @@ export default function NoticiaForm({
                         id={`tag-${t.id}`}
                         name="tagIds"
                         value={t.id}
+                        defaultChecked={selectedTagIds.has(t.id)}
                       />
                       <Label
                         htmlFor={`tag-${t.id}`}
