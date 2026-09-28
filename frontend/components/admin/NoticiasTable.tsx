@@ -1,25 +1,25 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { NoticiaDto } from "@/types";
-import Link from "next/link";
-import DeleteNoticiaButton from "@/components/admin/DeleteNoticiaButton";
+import NoticiaRowActions from "@/components/admin/NoticiaRowActions";
 
 type NoticiasTableProps = {
   noticias: NoticiaDto[];
   onDelete: (id: string) => Promise<void>;
 };
 
-export default function NoticiasTable({ noticias, onDelete }: NoticiasTableProps) {
+export default function NoticiasTable({
+  noticias,
+  onDelete,
+}: NoticiasTableProps) {
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-25">Titulo</TableHead>
@@ -71,15 +71,11 @@ export default function NoticiasTable({ noticias, onDelete }: NoticiasTableProps
               {n.tags.length > 0 ? n.tags.map((t) => t.nombre).join(", ") : "—"}
             </TableCell>
             <TableCell>
-              <div className="flex items-center gap-2">
-                <Link href={`/noticias/${n.id}`}>Ver</Link>
-                <Link href={`/admin/noticias/${n.id}/editar`}>Editar</Link>
-                <DeleteNoticiaButton
-                  id={n.id}
-                  titulo={n.titulo}
-                  onDelete={onDelete}
-                />
-              </div>
+              <NoticiaRowActions
+                id={n.id}
+                titulo={n.titulo}
+                onDelete={onDelete}
+              />
             </TableCell>
           </TableRow>
         ))}

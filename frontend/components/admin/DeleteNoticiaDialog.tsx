@@ -10,22 +10,23 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 
-type DeleteNoticiaButtonProps = {
+type DeleteNoticiaDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   id: string;
   titulo: string;
   onDelete: (id: string) => Promise<void>;
 };
 
-export default function DeleteNoticiaButton({
+export default function DeleteNoticiaDialog({
+  open,
+  onOpenChange,
   id,
   titulo,
   onDelete,
-}: DeleteNoticiaButtonProps) {
-  const [open, setOpen] = useState(false);
+}: DeleteNoticiaDialogProps) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +35,7 @@ export default function DeleteNoticiaButton({
     setError(null);
     try {
       await onDelete(id);
-      setOpen(false);
+      onOpenChange(false);
     } catch {
       setError("No se ha podido eliminar la noticia. Inténtalo de nuevo.");
     } finally {
@@ -47,13 +48,10 @@ export default function DeleteNoticiaButton({
       open={open}
       onOpenChange={(next) => {
         if (pending) return;
-        setOpen(next);
+        onOpenChange(next);
         if (!next) setError(null);
       }}
     >
-      <AlertDialogTrigger render={<Button variant="destructive" size="sm" />}>
-        Eliminar
-      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Eliminar esta noticia?</AlertDialogTitle>
