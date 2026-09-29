@@ -12,16 +12,16 @@ namespace Application.Features.Noticias.Commands.UpdateNoticia
 
             RuleFor(x => x.Titulo)
                 .NotEmpty().WithMessage("El título es obligatorio.")
+                .IsNotBlank()
                 .MaximumLength(200).WithMessage("El título no puede exceder los 200 caracteres.")
                 .IsPlainText();
 
             RuleFor(x => x.Subtitulo)
                 .MaximumLength(300).WithMessage("El subtítulo no puede exceder los 300 caracteres.")
                 .IsPlainText()
-                .When(x => !string.IsNullOrEmpty(x.Subtitulo));
+                .When(x => !string.IsNullOrWhiteSpace(x.Subtitulo));
 
             RuleFor(x => x.Contenido)
-                .NotEmpty().WithMessage("El contenido es obligatorio.")
                 .MaximumLength(100000).WithMessage("El contenido no puede exceder los 100000 caracteres.")
                 .IsSafeHtml();
 

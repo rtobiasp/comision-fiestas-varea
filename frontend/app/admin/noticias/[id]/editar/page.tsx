@@ -45,8 +45,8 @@ export default async function EditarNoticia({
   async function updateNoticiaAction(formData: FormData): Promise<void> {
     "use server";
     await updateNoticia(id, {
-      titulo: String(formData.get("titulo") ?? ""),
-      subtitulo: String(formData.get("subtitulo") ?? "") || null,
+      titulo: String(formData.get("titulo") ?? "").trim(),
+      subtitulo: String(formData.get("subtitulo") ?? "").trim() || null,
       contenido: String(formData.get("contenido") ?? ""),
       publicada: formData.get("accion") === "guardar",
       fijada: formData.get("fijada") === "on",

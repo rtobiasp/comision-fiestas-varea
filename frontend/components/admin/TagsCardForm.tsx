@@ -18,6 +18,7 @@ type TagsCardFormProps = {
   loadError?: boolean;
   onRetry?: () => void;
   retrying?: boolean;
+  fieldErrors?: string[];
 };
 
 export default function TagsCardForm({
@@ -28,6 +29,7 @@ export default function TagsCardForm({
   loadError = false,
   onRetry,
   retrying = false,
+  fieldErrors = [],
 }: TagsCardFormProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>(
     initialSelectedTagIds,
@@ -77,6 +79,15 @@ export default function TagsCardForm({
               )}
             </AlertDescription>
           </Alert>
+        )}
+        {fieldErrors.length > 0 && (
+          <div id="tags-error" role="alert">
+            {fieldErrors.map((m, i) => (
+              <p key={i} className="text-sm text-destructive">
+                {m}
+              </p>
+            ))}
+          </div>
         )}
         {tags.length === 0 ? (
           <p className="text-sm text-muted-foreground">

@@ -8,8 +8,8 @@ import type { CategoriaDto, TagDto } from "@/types";
 async function createNoticiaAction(formData: FormData): Promise<void> {
   "use server";
   await createNoticia({
-    titulo: String(formData.get("titulo") ?? ""),
-    subtitulo: String(formData.get("subtitulo") ?? "") || null,
+    titulo: String(formData.get("titulo") ?? "").trim(),
+    subtitulo: String(formData.get("subtitulo") ?? "").trim() || null,
     contenido: String(formData.get("contenido") ?? ""),
     publicada: formData.get("accion") === "guardar",
     fijada: formData.get("fijada") === "on",

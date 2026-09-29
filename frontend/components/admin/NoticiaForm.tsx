@@ -54,6 +54,10 @@ export default function NoticiaForm({
 }) {
   const isEdit = mode === "edit";
   const [contenido, setContenido] = useState(initial?.contenido ?? "");
+  const [tituloLen, setTituloLen] = useState(initial?.titulo.length ?? 0);
+  const [subtituloLen, setSubtituloLen] = useState(
+    initial?.subtitulo?.length ?? 0,
+  );
   const heading = title ?? (isEdit ? "Editar noticia" : "Añadir noticia");
   const selectedCategoriaIds = new Set(initial?.categoriaIds ?? []);
 
@@ -61,8 +65,6 @@ export default function NoticiaForm({
     useState<CategoriaDto[]>(categorias);
   const [visibleTags, setVisibleTags] = useState<TagDto[]>(tags);
 
-  // Fallos de carga inicial: aviso por tarjeta + reintento en cliente,
-  // sin perder lo ya escrito (sin `router.refresh()`).
   const [categoriasFailed, setCategoriasFailed] = useState(categoriasError);
   const [tagsFailed, setTagsFailed] = useState(tagsError);
   const [retryingCategorias, setRetryingCategorias] = useState(false);
@@ -122,6 +124,37 @@ export default function NoticiaForm({
 
   const [submitState, formAction, isPending] = useActionState(
     async (_prev: SubmitState, formData: FormData): Promise<SubmitState> => {
+      const titulo = String(formData.get("titulo") ?? "");
+      const contenidoValue = String(formData.get("contenido") ?? "");
+      if (titulo.trim() === "") {
+        return {
+          ok: false,
+          message: "Revisa los campos marcados.",
+          fieldErrors: {
+            titulo: [
+              "El título no puede estar vacío ni contener solo espacios.",
+            ],
+          },
+        };
+      }
+      if (titulo.length > 200) {
+        return {
+          ok: false,
+          message: "Revisa los campos marcados.",
+          fieldErrors: {
+            titulo: ["El título no puede exceder los 200 caracteres."],
+          },
+        };
+      }
+      if (contenidoValue.length > 100000) {
+        return {
+          ok: false,
+          message: "Revisa los campos marcados.",
+          fieldErrors: {
+            contenido: ["El contenido no puede exceder los 100000 caracteres."],
+          },
+        };
+      }
       try {
         await onSubmit(formData);
         return { ok: true };
@@ -138,8 +171,13 @@ export default function NoticiaForm({
   const tituloErrors = fieldErrors.titulo ?? [];
   const subtituloErrors = fieldErrors.subtitulo ?? [];
   const contenidoErrors = fieldErrors.contenido ?? [];
+  const categoriaErrors = fieldErrors.categoriaids ?? [];
+  const tagErrors = fieldErrors.tagids ?? [];
   const otherErrors = Object.entries(fieldErrors).filter(
-    ([key]) => !["titulo", "subtitulo", "contenido"].includes(key),
+    ([key]) =>
+      !["titulo", "subtitulo", "contenido", "categoriaids", "tagids"].includes(
+        key,
+      ),
   );
 
   return (
@@ -185,15 +223,29 @@ export default function NoticiaForm({
               placeholder="Añade un título"
               defaultValue={initial?.titulo ?? ""}
               aria-invalid={tituloErrors.length > 0}
+              aria-describedby={`titulo-count${tituloErrors.length > 0 ? " titulo-error" : ""}`}
               onKeyDown={preventEnterSubmit}
+              onChange={(e) => setTituloLen(e.target.value.length)}
               readOnly={isPending}
               className="h-12 text-xl font-medium"
             />
-            {tituloErrors.map((m, i) => (
-              <p key={i} className="text-sm text-destructive">
-                {m}
+            <div className="flex justify-end">
+              <p
+                id="titulo-count"
+                className={`text-xs ${tituloLen > 200 ? "text-destructive" : "text-muted-foreground"}`}
+              >
+                {tituloLen}/200
               </p>
-            ))}
+            </div>
+            {tituloErrors.length > 0 && (
+              <div id="titulo-error">
+                {tituloErrors.map((m, i) => (
+                  <p key={i} className="text-sm text-destructive">
+                    {m}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -208,29 +260,61 @@ export default function NoticiaForm({
               placeholder="Subtítulo opcional"
               defaultValue={initial?.subtitulo ?? ""}
               aria-invalid={subtituloErrors.length > 0}
+              aria-describedby={`subtitulo-count${subtituloErrors.length > 0 ? " subtitulo-error" : ""}`}
               onKeyDown={preventEnterSubmit}
+              onChange={(e) => setSubtituloLen(e.target.value.length)}
               readOnly={isPending}
             />
-            {subtituloErrors.map((m, i) => (
-              <p key={i} className="text-sm text-destructive">
-                {m}
+            <div className="flex justify-end">
+              <p
+                id="subtitulo-count"
+                className={`text-xs ${subtituloLen > 300 ? "text-destructive" : "text-muted-foreground"}`}
+              >
+                {subtituloLen}/300
               </p>
-            ))}
+            </div>
+            {subtituloErrors.length > 0 && (
+              <div id="subtitulo-error">
+                {subtituloErrors.map((m, i) => (
+                  <p key={i} className="text-sm text-destructive">
+                    {m}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="contenido">Contenido *</Label>
+            <Label htmlFor="contenido">
+              Contenido{" "}
+              <span className="font-normal text-muted-foreground">
+                (opcional)
+              </span>
+            </Label>
             <Tiptap
               content={contenido}
               onChange={setContenido}
               editable={!isPending}
             />
             <Input type="hidden" name="contenido" value={contenido} />
-            {contenidoErrors.map((m, i) => (
-              <p key={i} className="text-sm text-destructive">
-                {m}
+            <div className="flex justify-end">
+              <p
+                id="contenido-count"
+                className={`text-xs ${contenido.length > 100000 ? "text-destructive" : "text-muted-foreground"}`}
+              >
+                {contenido.length.toLocaleString("es-ES")} / 100.000 (incluye
+                formato)
               </p>
-            ))}
+            </div>
+            {contenidoErrors.length > 0 && (
+              <div id="contenido-error">
+                {contenidoErrors.map((m, i) => (
+                  <p key={i} className="text-sm text-destructive">
+                    {m}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -292,6 +376,7 @@ export default function NoticiaForm({
             loadError={categoriasFailed}
             onRetry={handleRetryCategorias}
             retrying={retryingCategorias}
+            fieldErrors={categoriaErrors}
           />
 
           <TagsCardForm
@@ -302,6 +387,7 @@ export default function NoticiaForm({
             loadError={tagsFailed}
             onRetry={handleRetryTags}
             retrying={retryingTags}
+            fieldErrors={tagErrors}
           />
         </div>
       </form>

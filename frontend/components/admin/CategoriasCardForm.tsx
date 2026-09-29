@@ -17,6 +17,7 @@ type CategoriasCardFormProps = {
   loadError?: boolean;
   onRetry?: () => void;
   retrying?: boolean;
+  fieldErrors?: string[];
 };
 
 export default function CategoriasCardForm({
@@ -27,6 +28,7 @@ export default function CategoriasCardForm({
   loadError = false,
   onRetry,
   retrying = false,
+  fieldErrors = [],
 }: CategoriasCardFormProps) {
   const missingIds = [...selectedCategoriaIds].filter(
     (id) => !categorias.some((c) => c.id === id),
@@ -66,6 +68,15 @@ export default function CategoriasCardForm({
               )}
             </AlertDescription>
           </Alert>
+        )}
+        {fieldErrors.length > 0 && (
+          <div id="categorias-error" role="alert">
+            {fieldErrors.map((m, i) => (
+              <p key={i} className="text-sm text-destructive">
+                {m}
+              </p>
+            ))}
+          </div>
         )}
         {categorias.length === 0 ? (
           <p className="text-sm text-muted-foreground">

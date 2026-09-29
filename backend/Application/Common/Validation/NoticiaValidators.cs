@@ -102,7 +102,8 @@ namespace Application.Common.Validation
 
         /// <summary>
         /// Núcleo de la comprobación: true si el HTML es seguro.
-        /// null/vacío se considera válido aquí (lo gobierna NotEmpty()).
+        /// null/vacío se considera válido aquí (el contenido es opcional;
+        /// solo lo gobiernan MaximumLength e IsSafeHtml).
         /// </summary>
         public static bool IsSafeHtmlContent(string? html)
         {
@@ -142,6 +143,18 @@ namespace Application.Common.Validation
             return ruleBuilder
                 .Must(html => IsSafeHtmlContent(html))
                 .WithMessage("El contenido contiene HTML no permitido o potencialmente peligroso.");
+        }
+
+        /// <summary>
+        /// Regla explícita anti-espacios para campos obligatorios de texto
+        /// plano. Complementa a NotEmpty() con mensaje propio.
+        /// </summary>
+        public static IRuleBuilderOptions<T, string> IsNotBlank<T>(
+            this IRuleBuilder<T, string> ruleBuilder)
+        {
+            return ruleBuilder
+                .Must(text => !string.IsNullOrWhiteSpace(text))
+                .WithMessage("Este campo no puede estar vacío ni contener solo espacios.");
         }
 
         /// <summary>
