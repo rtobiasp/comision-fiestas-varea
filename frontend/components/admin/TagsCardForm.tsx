@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { XIcon } from "lucide-react";
+import { TriangleAlert, XIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -14,6 +15,9 @@ type TagsCardFormProps = {
   initialSelectedTagIds?: string[];
   onCreateTag: (formData: FormData) => TagDto | Promise<TagDto>;
   disabled?: boolean;
+  loadError?: boolean;
+  onRetry?: () => void;
+  retrying?: boolean;
 };
 
 export default function TagsCardForm({
@@ -21,6 +25,9 @@ export default function TagsCardForm({
   initialSelectedTagIds = [],
   onCreateTag,
   disabled = false,
+  loadError = false,
+  onRetry,
+  retrying = false,
 }: TagsCardFormProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>(
     initialSelectedTagIds,
@@ -44,17 +51,38 @@ export default function TagsCardForm({
         <CardTitle>Etiquetas</CardTitle>
         <CreateTagDialog onCreateTag={onCreateTag} disabled={disabled} />
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col gap-3">
         {selectedIds.map((id) => (
           <input key={id} type="hidden" name="tagIds" value={id} />
         ))}
+        {loadError && (
+          <Alert>
+            <TriangleAlert />
+            <AlertTitle>No se pudieron cargar las etiquetas</AlertTitle>
+            <AlertDescription className="flex flex-col gap-2">
+              <p>
+                Puedes escribir y guardar igual; las etiquetas son opcionales.
+              </p>
+              {onRetry && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="self-start"
+                  disabled={disabled || retrying}
+                  onClick={onRetry}
+                >
+                  {retrying ? "Reintentando…" : "Reintentar"}
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
         {tags.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No hay tags disponibles.
           </p>
         ) : (
-          // Los `hidden tagIds` se siguen enviando; solo se bloquea
-          // la interacción con los badges.
           <div
             className={`flex flex-row flex-wrap gap-2 ${disabled ? "opacity-60" : ""}`}
             inert={disabled}

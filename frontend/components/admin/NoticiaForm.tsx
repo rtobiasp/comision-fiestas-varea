@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoriaDto, TagDto } from "@/types";
+import { getCategorias } from "@/lib/api/categorias";
+import { getTags } from "@/lib/api/tags";
 import {
   isRedirectError,
   toFormError,
@@ -30,6 +32,8 @@ export type NoticiaFormInitial = {
 export default function NoticiaForm({
   categorias,
   tags,
+  categoriasError = false,
+  tagsError = false,
   initial,
   mode = "create",
   title,
@@ -39,6 +43,8 @@ export default function NoticiaForm({
 }: {
   categorias: CategoriaDto[];
   tags: TagDto[];
+  categoriasError?: boolean;
+  tagsError?: boolean;
   initial?: NoticiaFormInitial;
   mode?: "create" | "edit";
   title?: string;
@@ -54,6 +60,39 @@ export default function NoticiaForm({
   const [visibleCategorias, setVisibleCategorias] =
     useState<CategoriaDto[]>(categorias);
   const [visibleTags, setVisibleTags] = useState<TagDto[]>(tags);
+
+  // Fallos de carga inicial: aviso por tarjeta + reintento en cliente,
+  // sin perder lo ya escrito (sin `router.refresh()`).
+  const [categoriasFailed, setCategoriasFailed] = useState(categoriasError);
+  const [tagsFailed, setTagsFailed] = useState(tagsError);
+  const [retryingCategorias, setRetryingCategorias] = useState(false);
+  const [retryingTags, setRetryingTags] = useState(false);
+
+  async function handleRetryCategorias() {
+    if (retryingCategorias || isPending) return;
+    setRetryingCategorias(true);
+    try {
+      setVisibleCategorias(await getCategorias());
+      setCategoriasFailed(false);
+    } catch {
+      setCategoriasFailed(true);
+    } finally {
+      setRetryingCategorias(false);
+    }
+  }
+
+  async function handleRetryTags() {
+    if (retryingTags || isPending) return;
+    setRetryingTags(true);
+    try {
+      setVisibleTags(await getTags());
+      setTagsFailed(false);
+    } catch {
+      setTagsFailed(true);
+    } finally {
+      setRetryingTags(false);
+    }
+  }
 
   async function handleCreateCategoria(
     formData: FormData,
@@ -250,6 +289,9 @@ export default function NoticiaForm({
             selectedCategoriaIds={selectedCategoriaIds}
             onCreateCategoria={handleCreateCategoria}
             disabled={isPending}
+            loadError={categoriasFailed}
+            onRetry={handleRetryCategorias}
+            retrying={retryingCategorias}
           />
 
           <TagsCardForm
@@ -257,6 +299,9 @@ export default function NoticiaForm({
             initialSelectedTagIds={initial?.tagIds ?? []}
             onCreateTag={handleCreateTag}
             disabled={isPending}
+            loadError={tagsFailed}
+            onRetry={handleRetryTags}
+            retrying={retryingTags}
           />
         </div>
       </form>

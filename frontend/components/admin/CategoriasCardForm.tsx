@@ -1,4 +1,7 @@
+import { TriangleAlert } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Label } from "../ui/label";
 import { CategoriaDto } from "@/types";
@@ -11,6 +14,9 @@ type CategoriasCardFormProps = {
     formData: FormData,
   ) => CategoriaDto | Promise<CategoriaDto>;
   disabled?: boolean;
+  loadError?: boolean;
+  onRetry?: () => void;
+  retrying?: boolean;
 };
 
 export default function CategoriasCardForm({
@@ -18,7 +24,13 @@ export default function CategoriasCardForm({
   selectedCategoriaIds,
   onCreateCategoria,
   disabled = false,
+  loadError = false,
+  onRetry,
+  retrying = false,
 }: CategoriasCardFormProps) {
+  const missingIds = [...selectedCategoriaIds].filter(
+    (id) => !categorias.some((c) => c.id === id),
+  );
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -28,14 +40,38 @@ export default function CategoriasCardForm({
           disabled={disabled}
         />
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col gap-3">
+        {missingIds.map((id) => (
+          <input key={id} type="hidden" name="categoriaIds" value={id} />
+        ))}
+        {loadError && (
+          <Alert>
+            <TriangleAlert />
+            <AlertTitle>No se pudieron cargar las categorías</AlertTitle>
+            <AlertDescription className="flex flex-col gap-2">
+              <p>
+                Puedes escribir y guardar igual; las categorías son opcionales.
+              </p>
+              {onRetry && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="self-start"
+                  disabled={disabled || retrying}
+                  onClick={onRetry}
+                >
+                  {retrying ? "Reintentando…" : "Reintentar"}
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
         {categorias.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No hay categorías disponibles.
           </p>
         ) : (
-          // `inert` en vez de `disabled` nativo: los Checkbox marcados
-          // deben seguir viajando en el FormData durante el envío.
           <div
             className={`flex max-h-60 flex-col gap-2 overflow-y-auto ${disabled ? "opacity-60" : ""}`}
             inert={disabled}

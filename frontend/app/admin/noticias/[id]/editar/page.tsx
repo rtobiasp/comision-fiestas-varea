@@ -26,15 +26,21 @@ export default async function EditarNoticia({
 }) {
   const { id } = await params;
 
-  const [noticia, categorias, tags] = await Promise.all([
-    getNoticiaById(id).catch(() => null),
+  const [noticiaRes, categoriasRes, tagsRes] = await Promise.allSettled([
+    getNoticiaById(id),
     getCategorias(),
     getTags(),
   ]);
 
-  if (!noticia) {
+  if (noticiaRes.status !== "fulfilled" || noticiaRes.value == null) {
     notFound();
   }
+  const noticia = noticiaRes.value;
+  const categorias =
+    categoriasRes.status === "fulfilled" ? categoriasRes.value : [];
+  const tags = tagsRes.status === "fulfilled" ? tagsRes.value : [];
+  const categoriasError = categoriasRes.status !== "fulfilled";
+  const tagsError = tagsRes.status !== "fulfilled";
 
   async function updateNoticiaAction(formData: FormData): Promise<void> {
     "use server";
@@ -54,6 +60,8 @@ export default async function EditarNoticia({
     <NoticiaForm
       categorias={categorias}
       tags={tags}
+      categoriasError={categoriasError}
+      tagsError={tagsError}
       mode="edit"
       initial={{
         titulo: noticia.titulo,

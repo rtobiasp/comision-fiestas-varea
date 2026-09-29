@@ -35,12 +35,26 @@ async function createTagAction(formData: FormData): Promise<TagDto> {
 }
 
 export default async function Noticias() {
-  const categorias = await getCategorias();
-  const tags = await getTags();
+  let categorias: CategoriaDto[] = [];
+  let tags: TagDto[] = [];
+  let categoriasError = false;
+  let tagsError = false;
+  try {
+    categorias = await getCategorias();
+  } catch {
+    categoriasError = true;
+  }
+  try {
+    tags = await getTags();
+  } catch {
+    tagsError = true;
+  }
   return (
     <NoticiaForm
       categorias={categorias}
       tags={tags}
+      categoriasError={categoriasError}
+      tagsError={tagsError}
       mode="create"
       onSubmit={createNoticiaAction}
       onCreateCategoria={createCategoriaAction}
