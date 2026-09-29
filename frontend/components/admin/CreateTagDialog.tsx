@@ -19,9 +19,13 @@ import { TagDto } from "@/types";
 
 type CreateTagDialogProps = {
   onCreateTag: (formData: FormData) => TagDto | Promise<TagDto>;
+  disabled?: boolean;
 };
 
-export function CreateTagDialog({ onCreateTag }: CreateTagDialogProps) {
+export function CreateTagDialog({
+  onCreateTag,
+  disabled = false,
+}: CreateTagDialogProps) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -50,7 +54,9 @@ export function CreateTagDialog({ onCreateTag }: CreateTagDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger render={<Button>Crear</Button>} />
+      <DialogTrigger
+        render={<Button disabled={disabled}>Crear</Button>}
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Nueva etiqueta</DialogTitle>

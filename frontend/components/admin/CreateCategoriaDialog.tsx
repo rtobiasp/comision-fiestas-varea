@@ -21,10 +21,12 @@ type CreateCategoriaDialogProps = {
   onCreateCategoria: (
     formData: FormData,
   ) => CategoriaDto | Promise<CategoriaDto>;
+  disabled?: boolean;
 };
 
 export function CreateCategoriaDialog({
   onCreateCategoria,
+  disabled = false,
 }: CreateCategoriaDialogProps) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,9 @@ export function CreateCategoriaDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger render={<Button>Crear</Button>} />
+      <DialogTrigger
+        render={<Button disabled={disabled}>Crear</Button>}
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Nueva categoria</DialogTitle>

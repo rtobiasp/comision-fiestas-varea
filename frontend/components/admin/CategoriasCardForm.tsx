@@ -10,18 +10,23 @@ type CategoriasCardFormProps = {
   onCreateCategoria: (
     formData: FormData,
   ) => CategoriaDto | Promise<CategoriaDto>;
+  disabled?: boolean;
 };
 
 export default function CategoriasCardForm({
   categorias,
   selectedCategoriaIds,
   onCreateCategoria,
+  disabled = false,
 }: CategoriasCardFormProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Categorías</CardTitle>
-        <CreateCategoriaDialog onCreateCategoria={onCreateCategoria} />
+        <CreateCategoriaDialog
+          onCreateCategoria={onCreateCategoria}
+          disabled={disabled}
+        />
       </CardHeader>
       <CardContent>
         {categorias.length === 0 ? (
@@ -29,7 +34,13 @@ export default function CategoriasCardForm({
             No hay categorías disponibles.
           </p>
         ) : (
-          <div className="flex max-h-60 flex-col gap-2 overflow-y-auto">
+          // `inert` en vez de `disabled` nativo: los Checkbox marcados
+          // deben seguir viajando en el FormData durante el envío.
+          <div
+            className={`flex max-h-60 flex-col gap-2 overflow-y-auto ${disabled ? "opacity-60" : ""}`}
+            inert={disabled}
+            aria-disabled={disabled}
+          >
             {categorias.map((c) => (
               <div key={c.id} className="flex items-center gap-2">
                 <Checkbox

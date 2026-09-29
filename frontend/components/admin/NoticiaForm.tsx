@@ -129,6 +129,7 @@ export default function NoticiaForm({
       <form
         id="noticia-form"
         action={formAction}
+        aria-busy={isPending}
         className="grid items-start gap-4 lg:grid-cols-[1fr_300px]"
       >
         <div className="flex min-w-0 flex-col gap-4">
@@ -146,6 +147,7 @@ export default function NoticiaForm({
               defaultValue={initial?.titulo ?? ""}
               aria-invalid={tituloErrors.length > 0}
               onKeyDown={preventEnterSubmit}
+              readOnly={isPending}
               className="h-12 text-xl font-medium"
             />
             {tituloErrors.map((m, i) => (
@@ -168,6 +170,7 @@ export default function NoticiaForm({
               defaultValue={initial?.subtitulo ?? ""}
               aria-invalid={subtituloErrors.length > 0}
               onKeyDown={preventEnterSubmit}
+              readOnly={isPending}
             />
             {subtituloErrors.map((m, i) => (
               <p key={i} className="text-sm text-destructive">
@@ -178,7 +181,11 @@ export default function NoticiaForm({
 
           <div className="grid gap-2">
             <Label htmlFor="contenido">Contenido *</Label>
-            <Tiptap content={contenido} onChange={setContenido} />
+            <Tiptap
+              content={contenido}
+              onChange={setContenido}
+              editable={!isPending}
+            />
             <Input type="hidden" name="contenido" value={contenido} />
             {contenidoErrors.map((m, i) => (
               <p key={i} className="text-sm text-destructive">
@@ -194,7 +201,11 @@ export default function NoticiaForm({
               <CardTitle>{isEdit ? "Guardar" : "Publicar"}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2"
+                inert={isPending}
+                aria-disabled={isPending}
+              >
                 <Checkbox
                   id="fijada"
                   name="fijada"
@@ -212,7 +223,13 @@ export default function NoticiaForm({
                   value="guardar"
                   disabled={isPending}
                 >
-                  {isEdit ? "Guardar" : "Publicar"}
+                  {isPending
+                    ? isEdit
+                      ? "Guardando…"
+                      : "Publicando…"
+                    : isEdit
+                      ? "Guardar"
+                      : "Publicar"}
                 </Button>
                 <Button
                   type="submit"
@@ -222,7 +239,7 @@ export default function NoticiaForm({
                   variant="outline"
                   disabled={isPending}
                 >
-                  Guardar como borrador
+                  {isPending ? "Guardando…" : "Guardar como borrador"}
                 </Button>
               </div>
             </CardContent>
@@ -232,12 +249,14 @@ export default function NoticiaForm({
             categorias={visibleCategorias}
             selectedCategoriaIds={selectedCategoriaIds}
             onCreateCategoria={handleCreateCategoria}
+            disabled={isPending}
           />
 
           <TagsCardForm
             tags={visibleTags}
             initialSelectedTagIds={initial?.tagIds ?? []}
             onCreateTag={handleCreateTag}
+            disabled={isPending}
           />
         </div>
       </form>
