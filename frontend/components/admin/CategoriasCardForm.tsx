@@ -7,7 +7,9 @@ import { CreateCategoriaDialog } from "./CreateCategoriaDialog";
 type CategoriasCardFormProps = {
   categorias: CategoriaDto[];
   selectedCategoriaIds: Set<string>;
-  onCreateCategoria: (formData: FormData) => void | Promise<void>;
+  onCreateCategoria: (
+    formData: FormData,
+  ) => CategoriaDto | Promise<CategoriaDto>;
 };
 
 export default function CategoriasCardForm({

@@ -1,22 +1,22 @@
 import { notFound, redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import NoticiaForm from "@/components/admin/NoticiaForm";
 import { getCategorias, createCategoria } from "@/lib/api/categorias";
 import { getTags, createTag } from "@/lib/api/tags";
 import { getNoticiaById, updateNoticia } from "@/lib/api/noticias";
+import type { CategoriaDto, TagDto } from "@/types";
 
-async function createCategoriaAction(formData: FormData): Promise<void> {
+async function createCategoriaAction(
+  formData: FormData,
+): Promise<CategoriaDto> {
   "use server";
-  await createCategoria({
+  return createCategoria({
     nombre: String(formData.get("nombre") ?? ""),
   });
-  revalidatePath("/admin/noticias");
 }
 
-async function createTagAction(formData: FormData): Promise<void> {
+async function createTagAction(formData: FormData): Promise<TagDto> {
   "use server";
-  await createTag({ nombre: String(formData.get("nombre") ?? "") });
-  revalidatePath("/admin/noticias");
+  return createTag({ nombre: String(formData.get("nombre") ?? "") });
 }
 
 export default async function EditarNoticia({

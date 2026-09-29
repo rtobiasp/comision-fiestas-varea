@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, type KeyboardEvent } from "react";
 import { TriangleAlert } from "lucide-react";
 import Tiptap from "@/components/ui/tiptap/Tiptap";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -43,17 +43,45 @@ export default function NoticiaForm({
   mode?: "create" | "edit";
   title?: string;
   onSubmit: (formData: FormData) => Promise<void>;
-  onCreateCategoria: (formData: FormData) => void | Promise<void>;
-  onCreateTag: (formData: FormData) => void | Promise<void>;
+  onCreateCategoria: (formData: FormData) => Promise<CategoriaDto>;
+  onCreateTag: (formData: FormData) => Promise<TagDto>;
 }) {
   const isEdit = mode === "edit";
   const [contenido, setContenido] = useState(initial?.contenido ?? "");
   const heading = title ?? (isEdit ? "Editar noticia" : "Añadir noticia");
   const selectedCategoriaIds = new Set(initial?.categoriaIds ?? []);
 
+  const [visibleCategorias, setVisibleCategorias] =
+    useState<CategoriaDto[]>(categorias);
+  const [visibleTags, setVisibleTags] = useState<TagDto[]>(tags);
+
+  async function handleCreateCategoria(
+    formData: FormData,
+  ): Promise<CategoriaDto> {
+    const created = await onCreateCategoria(formData);
+    setVisibleCategorias((prev) =>
+      prev.some((c) => c.id === created.id) ? prev : [...prev, created],
+    );
+    return created;
+  }
+
+  async function handleCreateTag(formData: FormData): Promise<TagDto> {
+    const created = await onCreateTag(formData);
+    setVisibleTags((prev) =>
+      prev.some((t) => t.id === created.id) ? prev : [...prev, created],
+    );
+    return created;
+  }
+
+  function preventEnterSubmit(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+    }
+  }
+
   type SubmitState = { ok: true } | FormErrorState | null;
 
-  const [submitState, formAction] = useActionState(
+  const [submitState, formAction, isPending] = useActionState(
     async (_prev: SubmitState, formData: FormData): Promise<SubmitState> => {
       try {
         await onSubmit(formData);
@@ -117,6 +145,7 @@ export default function NoticiaForm({
               placeholder="Añade un título"
               defaultValue={initial?.titulo ?? ""}
               aria-invalid={tituloErrors.length > 0}
+              onKeyDown={preventEnterSubmit}
               className="h-12 text-xl font-medium"
             />
             {tituloErrors.map((m, i) => (
@@ -138,6 +167,7 @@ export default function NoticiaForm({
               placeholder="Subtítulo opcional"
               defaultValue={initial?.subtitulo ?? ""}
               aria-invalid={subtituloErrors.length > 0}
+              onKeyDown={preventEnterSubmit}
             />
             {subtituloErrors.map((m, i) => (
               <p key={i} className="text-sm text-destructive">
@@ -180,6 +210,7 @@ export default function NoticiaForm({
                   form="noticia-form"
                   name="accion"
                   value="guardar"
+                  disabled={isPending}
                 >
                   {isEdit ? "Guardar" : "Publicar"}
                 </Button>
@@ -189,6 +220,7 @@ export default function NoticiaForm({
                   name="accion"
                   value="borrador"
                   variant="outline"
+                  disabled={isPending}
                 >
                   Guardar como borrador
                 </Button>
@@ -197,15 +229,15 @@ export default function NoticiaForm({
           </Card>
 
           <CategoriasCardForm
-            categorias={categorias}
+            categorias={visibleCategorias}
             selectedCategoriaIds={selectedCategoriaIds}
-            onCreateCategoria={onCreateCategoria}
+            onCreateCategoria={handleCreateCategoria}
           />
 
           <TagsCardForm
-            tags={tags}
+            tags={visibleTags}
             initialSelectedTagIds={initial?.tagIds ?? []}
-            onCreateTag={onCreateTag}
+            onCreateTag={handleCreateTag}
           />
         </div>
       </form>

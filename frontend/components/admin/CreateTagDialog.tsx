@@ -14,9 +14,10 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TagDto } from "@/types";
 
 type CreateTagDialogProps = {
-  onCreateTag: (formData: FormData) => void | Promise<void>;
+  onCreateTag: (formData: FormData) => TagDto | Promise<TagDto>;
 };
 
 export function CreateTagDialog({ onCreateTag }: CreateTagDialogProps) {

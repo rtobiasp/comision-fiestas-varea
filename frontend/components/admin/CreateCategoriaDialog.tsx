@@ -14,9 +14,12 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CategoriaDto } from "@/types";
 
 type CreateCategoriaDialogProps = {
-  onCreateCategoria: (formData: FormData) => void | Promise<void>;
+  onCreateCategoria: (
+    formData: FormData,
+  ) => CategoriaDto | Promise<CategoriaDto>;
 };
 
 export function CreateCategoriaDialog({

@@ -12,7 +12,7 @@ import { cn } from "cn";
 type TagsCardFormProps = {
   tags: TagDto[];
   initialSelectedTagIds?: string[];
-  onCreateTag: (formData: FormData) => void | Promise<void>;
+  onCreateTag: (formData: FormData) => TagDto | Promise<TagDto>;
 };
 
 export default function TagsCardForm({
