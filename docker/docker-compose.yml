@@ -23,6 +23,24 @@ services:
       retries: 10
       start_period: 10s
 
+  api:
+    build:
+      context: ../backend
+      dockerfile: API/Dockerfile
+    container_name: fiestas-varea-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-fiestas_varea};Username=${POSTGRES_USER:-fiestas};Password=${POSTGRES_PASSWORD:-fiestas_dev}"
+      Storage__RootPath: /app/uploads
+    ports:
+      - "${API_PORT:-5243}:8080"
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   # Herramienta visual opcional. Se levanta solo con --profile tools:
   #   docker compose --profile tools up -d
   pgadmin:
@@ -48,3 +66,5 @@ volumes:
     name: fiestas-varea-postgres-data
   pgadmin_data:
     name: fiestas-varea-pgadmin-data
+  uploads:
+    name: fiestas-varea-uploads

@@ -1,0 +1,8 @@
+# Excluye carpetas de build de TODOS los proyectos (no solo de la raíz del contexto).
+# Si API/obj, Domain/obj, etc. entran al contexto, sus project.assets.json de Windows
+# (con fallback folder de Visual Studio) pisan a los restaurados en Linux y el
+# publish --no-restore falla con MSB4018.
+**/bin/
+**/obj/
+**/.vs/
+**/TestResults/

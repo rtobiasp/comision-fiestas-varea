@@ -3,7 +3,9 @@ using Application.Common.Interfaces;
 using Infrastructure;
 using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 using Wolverine;
 using Wolverine.FluentValidation;
@@ -65,6 +67,7 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<IEventoRepository, EventoRepository>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
 
 var app = builder.Build();
 
@@ -76,6 +79,26 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Sirve los ficheros guardados por LocalFileStorageService.
+// Misma resolución que el servicio: relativa a AppContext.BaseDirectory,
+// absoluta tal cual. Sin esto, las UrlRelativa /uploads/* devuelven 404.
+var uploadsRoot = builder.Configuration.GetValue<string>("Storage:RootPath");
+if (string.IsNullOrWhiteSpace(uploadsRoot))
+    uploadsRoot = Path.Combine("wwwroot", "uploads");
+
+var uploadsPath = Path.GetFullPath(
+    Path.IsPathRooted(uploadsRoot)
+        ? uploadsRoot
+        : Path.Combine(AppContext.BaseDirectory, uploadsRoot));
+
+Directory.CreateDirectory(uploadsPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 app.UseCors("FrontendDev");
 

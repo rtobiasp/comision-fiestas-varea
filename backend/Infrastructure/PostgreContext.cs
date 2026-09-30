@@ -13,6 +13,7 @@ namespace Infrastructure
         public DbSet<Tag> Tags => Set<Tag>();
         public DbSet<Evento> Eventos => Set<Evento>();
         public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
+        public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
 
         public PostgreContext(DbContextOptions<PostgreContext> options) : base(options)
         {
