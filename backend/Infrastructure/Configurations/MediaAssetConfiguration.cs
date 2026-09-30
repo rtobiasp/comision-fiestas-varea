@@ -45,6 +45,9 @@ namespace Infrastructure.Configurations
             builder.HasIndex(m => m.StorageKey)
                 .IsUnique();
 
+            builder.HasIndex(m => m.Tipo);
+            builder.HasIndex(m => m.CreatedAt);
+
             builder.ConfigureAuditable();
         }
     }

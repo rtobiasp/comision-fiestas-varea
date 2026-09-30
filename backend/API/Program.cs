@@ -41,6 +41,7 @@ builder.Host.UseWolverine(opts =>
     opts.CodeGeneration.AlwaysUseServiceLocationFor<ITagRepository>();
     opts.CodeGeneration.AlwaysUseServiceLocationFor<IEventoRepository>();
     opts.CodeGeneration.AlwaysUseServiceLocationFor<INotificacionRepository>();
+    opts.CodeGeneration.AlwaysUseServiceLocationFor<IMediaAssetRepository>();
 });
 
 // Add services to the container.
@@ -67,12 +68,16 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<IEventoRepository, EventoRepository>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+builder.Services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
 builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+
+var docsEnabled = app.Environment.IsDevelopment()
+    || builder.Configuration.GetValue<bool>("Docs:Enabled");
+
+if (docsEnabled)
 {
     app.MapOpenApi();
     app.MapScalarApiReference();

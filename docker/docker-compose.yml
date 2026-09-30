@@ -33,6 +33,7 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-fiestas_varea};Username=${POSTGRES_USER:-fiestas};Password=${POSTGRES_PASSWORD:-fiestas_dev}"
       Storage__RootPath: /app/uploads
+      Docs__Enabled: "true"
     ports:
       - "${API_PORT:-5243}:8080"
     volumes:
