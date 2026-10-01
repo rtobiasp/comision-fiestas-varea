@@ -481,6 +481,200 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/Media/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MediaDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/Media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    tipo?: components["schemas"]["MediaTipo"];
+                    offset?: number | string;
+                    limit?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MediaDto"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/Media/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        file?: components["schemas"]["IFormFile"];
+                    } & {
+                        altText?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MediaDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/Noticias/{id}": {
         parameters: {
             query?: never;
@@ -631,6 +825,8 @@ export interface paths {
                 query?: {
                     categoriaId?: string;
                     tagId?: string;
+                    offset?: number | string;
+                    limit?: number | string;
                 };
                 header?: never;
                 path?: never;
@@ -1212,7 +1408,7 @@ export interface components {
         };
         CreateCategoriaCommand: {
             nombre?: string;
-            descripcion?: string;
+            descripcion?: null | string;
             /** Format: uuid */
             categoriaPadreId?: null | string;
         };
@@ -1272,6 +1468,28 @@ export interface components {
             categorias: components["schemas"]["CategoriaResumenDto"][];
             tags: components["schemas"]["TagResumenDto"][];
         };
+        /** Format: binary */
+        IFormFile: string;
+        MediaDto: {
+            /** Format: uuid */
+            id: string;
+            nombreOriginal: string;
+            url: string;
+            contentType: string;
+            tipo: components["schemas"]["MediaTipo"];
+            /** Format: int64 */
+            tamanoBytes: number | string;
+            /** Format: int32 */
+            ancho: null | number | string;
+            /** Format: int32 */
+            alto: null | number | string;
+            /** Format: int32 */
+            duracionSeg: null | number | string;
+            altText: null | string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        MediaTipo: number;
         NoticiaDto: {
             /** Format: uuid */
             id: string;
@@ -1330,7 +1548,7 @@ export interface components {
         };
         UpdateCategoriaCommand: {
             nombre?: string;
-            descripcion?: string;
+            descripcion?: null | string;
             /** Format: uuid */
             categoriaPadreId?: null | string;
         };
