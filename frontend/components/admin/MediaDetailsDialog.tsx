@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { formatBytes, formatDateTime, formatDuration } from "@/lib/format";
 import { getMediaAbsoluteUrl } from "@/lib/media-url";
 import { MediaDto, MediaTipo } from "@/types";
+import DeleteMediaButton from "./DeleteMediaButton";
 
 const tipoLabel: Record<number, string> = {
   [MediaTipo.Imagen]: "Imagen",
@@ -28,7 +29,15 @@ function hasDimensions(
   return media.ancho != null && media.alto != null;
 }
 
-export default function MediaDetailsDialog({ media }: { media: MediaDto }) {
+export default function MediaDetailsDialog({
+  media,
+  onDelete,
+  onDeleted,
+}: {
+  media: MediaDto;
+  onDelete: (id: string) => Promise<void>;
+  onDeleted: () => void;
+}) {
   const [copied, setCopied] = useState(false);
   const src = getMediaAbsoluteUrl(media.url);
 
@@ -149,6 +158,13 @@ export default function MediaDetailsDialog({ media }: { media: MediaDto }) {
           </div>
         </div>
       </div>
+
+      <DeleteMediaButton
+        id={media.id}
+        nombre={media.nombreOriginal}
+        onDelete={onDelete}
+        onDeleted={onDeleted}
+      />
     </DialogContent>
   );
 }

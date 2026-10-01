@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { FileText, Video } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -10,14 +11,17 @@ import { MediaDto, MediaTipo } from "@/types";
 
 type MediaCardProps = {
   media: MediaDto;
+  onDelete: (id: string) => Promise<void>;
 };
 
-export default function MediaCard({ media }: MediaCardProps) {
+export default function MediaCard({ media, onDelete }: MediaCardProps) {
+  const [open, setOpen] = useState(false);
   const src = getMediaAbsoluteUrl(media.url);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
+        nativeButton={false}
         render={
           <Card className="relative aspect-square w-full cursor-pointer gap-0 overflow-hidden p-0 py-0 text-left transition-shadow hover:shadow-md hover:ring-2 hover:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
         }
@@ -46,7 +50,11 @@ export default function MediaCard({ media }: MediaCardProps) {
           </span>
         </span>
       </DialogTrigger>
-      <MediaDetailsDialog media={media} />
+      <MediaDetailsDialog
+        media={media}
+        onDelete={onDelete}
+        onDeleted={() => setOpen(false)}
+      />
     </Dialog>
   );
 }
