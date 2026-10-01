@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BookOpen,
   CalendarDays,
   ChevronRight,
   ChevronsUpDown,
@@ -54,6 +55,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
   const isNoticias = pathname.startsWith("/admin/noticias");
+  const isMedia = pathname.startsWith("/admin/media");
 
   return (
     <Sidebar collapsible="icon">
@@ -103,6 +105,20 @@ export function AppSidebar() {
                 />
               </SidebarMenuItem>
 
+              {/* REAL: lleva a /admin/media de verdad */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={isMedia}
+                  tooltip="Media"
+                  render={
+                    <Link href="/admin/media">
+                      <Images />
+                      <span>Media</span>
+                    </Link>
+                  }
+                />
+              </SidebarMenuItem>
+
               {/* PRUEBA: botón + acción + badge juntos */}
               <SidebarMenuItem>
                 <SidebarMenuButton
@@ -130,7 +146,7 @@ export function AppSidebar() {
                   <CollapsibleTrigger
                     render={
                       <SidebarMenuButton tooltip="Programas (prueba)">
-                        <Images />
+                        <BookOpen />
                         <span>Programas</span>
                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[open]/collapsible:rotate-90" />
                       </SidebarMenuButton>
