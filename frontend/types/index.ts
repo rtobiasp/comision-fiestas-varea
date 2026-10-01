@@ -25,5 +25,9 @@ export type UpdateCategoriaCommand =
   components["schemas"]["UpdateCategoriaCommand"];
 export type CreateTagCommand = components["schemas"]["CreateTagCommand"];
 export type UpdateTagCommand = components["schemas"]["UpdateTagCommand"];
+export type UploadMediaData = {
+  file: File;
+  altText?: string;
+};
 
 export type ApiPaths = paths;
