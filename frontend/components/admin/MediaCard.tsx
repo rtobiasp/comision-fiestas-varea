@@ -12,9 +12,16 @@ import { MediaDto, MediaTipo } from "@/types";
 type MediaCardProps = {
   media: MediaDto;
   onDelete: (id: string) => Promise<void>;
+  onUpdate: (formData: FormData) => Promise<void>;
+  priority?: boolean;
 };
 
-export default function MediaCard({ media, onDelete }: MediaCardProps) {
+export default function MediaCard({
+  media,
+  onDelete,
+  onUpdate,
+  priority = false,
+}: MediaCardProps) {
   const [open, setOpen] = useState(false);
   const src = getMediaAbsoluteUrl(media.url);
 
@@ -33,6 +40,8 @@ export default function MediaCard({ media, onDelete }: MediaCardProps) {
             fill
             sizes="(max-width: 768px) 25vw, 12vw"
             className="object-cover"
+            priority={priority}
+            loading={priority ? "eager" : undefined}
           />
         ) : (
           <span className="flex h-full w-full items-center justify-center bg-muted">
@@ -54,6 +63,7 @@ export default function MediaCard({ media, onDelete }: MediaCardProps) {
         media={media}
         onDelete={onDelete}
         onDeleted={() => setOpen(false)}
+        onUpdate={onUpdate}
       />
     </Dialog>
   );

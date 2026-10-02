@@ -1,4 +1,5 @@
 using Application.Features.Media.Commands.DeleteMedia;
+using Application.Features.Media.Commands.UpdateMedia;
 using Application.Features.Media.Commands.UploadMedia;
 using Application.Features.Media.Dtos;
 using Application.Features.Media.Queries.GetMediaById;
@@ -94,6 +95,30 @@ namespace API.Controllers
             catch (ValidationException ex)
             {
                 return BadRequest(ex.Errors);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // PUT api/v1/Media/id (solo metadatos: título y alt. No renombra el fichero)
+        [HttpPut("{id:guid}")]
+        [Consumes("application/json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> Put(Guid id, [FromBody] UpdateMediaCommand command, CancellationToken cancellationToken)
+        {
+            try
+            {
+                command.Id = id;
+                await _bus.InvokeAsync(command, cancellationToken);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

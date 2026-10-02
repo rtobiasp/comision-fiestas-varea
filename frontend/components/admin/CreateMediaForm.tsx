@@ -133,7 +133,6 @@ export default function CreateMediaForm({ onSubmit }: CreateMediaFormProps) {
           <FieldGroup>
             <Field>
               <Label htmlFor="file">Archivo</Label>
-              {/* Dropzone: el input nativo queda oculto pero sigue siendo el que envía el fichero */}
               <Label
                 htmlFor="file"
                 className={cn(

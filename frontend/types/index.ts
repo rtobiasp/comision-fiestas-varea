@@ -30,4 +30,9 @@ export type UploadMediaData = {
   altText?: string;
 };
 
+export type UpdateMediaCommand = {
+  nombreOriginal: string;
+  altText?: string | null;
+};
+
 export type ApiPaths = paths;

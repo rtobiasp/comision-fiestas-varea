@@ -1,5 +1,10 @@
-import { MediaDto, MediaTipo, UploadMediaData } from "@/types";
-import { apiDelete, apiFetch } from "./client";
+import {
+  MediaDto,
+  MediaTipo,
+  UpdateMediaCommand,
+  UploadMediaData,
+} from "@/types";
+import { apiDelete, apiFetch, apiPut } from "./client";
 
 const BASE_URL = "/api/v1/Media";
 
@@ -31,4 +36,11 @@ export async function uploadMedia(cmd: UploadMediaData): Promise<MediaDto> {
     method: "POST",
     body: form,
   });
+}
+
+export async function updateMedia(
+  id: string,
+  cmd: UpdateMediaCommand,
+): Promise<void> {
+  return await apiPut<void>(`${BASE_URL}/${id}`, cmd);
 }

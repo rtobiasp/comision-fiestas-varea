@@ -2,8 +2,7 @@ import { Suspense } from "react";
 import CreateMediaForm from "@/components/admin/CreateMediaForm";
 import MediaCard from "@/components/admin/MediaCard";
 import TablePagination from "@/components/admin/TablePagination";
-import { deleteMedia, getAllMedias, uploadMedia } from "@/lib/api/media";
-import { UploadMediaData } from "@/types";
+import { deleteMedia, getAllMedias, updateMedia, uploadMedia } from "@/lib/api/media";
 import { revalidatePath } from "next/cache";
 
 async function deleteMediaAction(id: string) {
@@ -25,6 +24,22 @@ async function uploadMediaAction(formData: FormData) {
   const created = await uploadMedia({ file: entry, altText });
   revalidatePath("/admin/media");
   return created;
+}
+
+async function updateMediaAction(formData: FormData): Promise<void> {
+  "use server";
+  const id = String(formData.get("id") ?? "");
+  const stem = String(formData.get("nombreOriginal") ?? "").trim();
+  const ext = String(formData.get("extension") ?? "");
+  const rawAlt = formData.get("altText");
+  await updateMedia(id, {
+    nombreOriginal: `${stem}${ext}`,
+    altText:
+      typeof rawAlt === "string" && rawAlt.trim() !== ""
+        ? rawAlt.trim()
+        : null,
+  });
+  revalidatePath("/admin/media");
 }
 
 export default async function Media({
@@ -55,8 +70,14 @@ export default async function Media({
       </div>
 
       <div className="mt-6 grid grid-cols-4 gap-3 sm:grid-cols-6 lg:grid-cols-8">
-        {media.map((m) => (
-          <MediaCard key={m.id} media={m} onDelete={deleteMediaAction} />
+        {media.map((m, i) => (
+          <MediaCard
+            key={m.id}
+            media={m}
+            onDelete={deleteMediaAction}
+            onUpdate={updateMediaAction}
+            priority={i < 8}
+          />
         ))}
       </div>
       <Suspense>
