@@ -53,6 +53,9 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Video } from "./tiptap-video";
+import MediaSelector from "@/components/admin/media-selector/MediaSelector";
+import { getMediaAbsoluteUrl } from "@/lib/media-url";
+import { MediaTipo } from "@/types";
 
 export interface TiptapProps {
   /** HTML inicial. Controlado: si cambia desde fuera, el editor se actualiza. */
@@ -86,7 +89,6 @@ const HIGHLIGHT_COLORS = [
 
 const FONT_SIZES = [12, 14, 16, 18, 20, 24, 30, 36];
 
-const HTTP_URL = /^https?:\/\/.+/i;
 const LINK_URL = /^(https?:\/\/.+|mailto:[^\s]+)$/i;
 
 export default function Tiptap({
@@ -179,78 +181,65 @@ export default function Tiptap({
 
 function Toolbar({ editor }: { editor: Editor | null }) {
   const [dialog, setDialog] = useState<{
-    mode: "link" | "image" | "video";
+    mode: "link";
     url: string;
-    alt: string;
     error: string;
   } | null>(null);
+  const [picker, setPicker] = useState<{
+    mode: "image" | "video";
+    currentSrc: string | null;
+  } | null>(null);
+
+  function openPicker(mode: "image" | "video") {
+    if (!editor) return;
+    const attrs =
+      mode === "image"
+        ? (editor.getAttributes("image") as { src?: string })
+        : (editor.getAttributes("video") as { src?: string });
+    setPicker({ mode, currentSrc: attrs.src ?? null });
+  }
 
   const disabled = !editor || !editor.isEditable;
 
-  function openDialog(mode: "link" | "image" | "video") {
+  function openDialog(mode: "link") {
     if (!editor) return;
-    if (mode === "link") {
-      const attrs = editor.getAttributes("link") as { href?: string };
-      setDialog({ mode, url: attrs.href ?? "", alt: "", error: "" });
-    } else if (mode === "image") {
-      const attrs = editor.getAttributes("image") as {
-        src?: string;
-        alt?: string;
-      };
-      setDialog({
-        mode,
-        url: attrs.src ?? "",
-        alt: attrs.alt ?? "",
-        error: "",
-      });
-    } else {
-      const attrs = editor.getAttributes("video") as { src?: string };
-      setDialog({ mode, url: attrs.src ?? "", alt: "", error: "" });
-    }
+    const attrs = editor.getAttributes("link") as { href?: string };
+    setDialog({ mode, url: attrs.href ?? "", error: "" });
   }
 
   function applyDialog() {
     if (!editor || !dialog) return;
     const url = dialog.url.trim();
-    if (dialog.mode === "link") {
-      if (url === "") {
-        editor.chain().focus().extendMarkRange("link").unsetLink().run();
-        setDialog(null);
-        return;
-      }
-      if (!LINK_URL.test(url)) {
-        setDialog({
-          ...dialog,
-          error: "Usa una URL http(s) o un correo mailto:.",
-        });
-        return;
-      }
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange("link")
-        .setLink({ href: url, target: "_blank" })
-        .run();
-    } else {
-      // Imagen y vídeo: el backend rechaza data: URIs, solo http(s).
-      if (!HTTP_URL.test(url)) {
-        setDialog({
-          ...dialog,
-          error: "Usa una URL http(s). No se admiten imágenes en base64.",
-        });
-        return;
-      }
-      if (dialog.mode === "image") {
-        editor
-          .chain()
-          .focus()
-          .setImage({ src: url, alt: dialog.alt.trim() })
-          .run();
-      } else {
-        editor.chain().focus().setVideo({ src: url }).run();
-      }
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      setDialog(null);
+      return;
     }
+    if (!LINK_URL.test(url)) {
+      setDialog({
+        ...dialog,
+        error: "Usa una URL http(s) o un correo mailto:.",
+      });
+      return;
+    }
+    editor
+      .chain()
+      .focus()
+      .extendMarkRange("link")
+      .setLink({ href: url, target: "_blank" })
+      .run();
     setDialog(null);
+  }
+
+  function insertFromLibrary(media: { url: string; altText: string | null }) {
+    if (!editor || !picker) return;
+    const src = getMediaAbsoluteUrl(media.url);
+    if (picker.mode === "image") {
+      editor.chain().focus().setImage({ src, alt: media.altText ?? "" }).run();
+    } else {
+      editor.chain().focus().setVideo({ src }).run();
+    }
+    setPicker(null);
   }
 
   const currentColor = editor?.getAttributes("textStyle").color as
@@ -617,16 +606,16 @@ function Toolbar({ editor }: { editor: Editor | null }) {
           </ToolButton>
         )}
         <ToolButton
-          title="Insertar imagen (URL)"
+          title="Insertar imagen de la biblioteca"
           disabled={disabled}
-          onClick={() => openDialog("image")}
+          onClick={() => openPicker("image")}
         >
           <ImagePlus size={17} />
         </ToolButton>
         <ToolButton
-          title="Insertar vídeo (URL mp4/webm)"
+          title="Insertar vídeo de la biblioteca"
           disabled={disabled}
-          onClick={() => openDialog("video")}
+          onClick={() => openPicker("video")}
         >
           <Clapperboard size={17} />
         </ToolButton>
@@ -690,7 +679,7 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         </Menu>
       </div>
 
-      {/* Panel de URL para enlace / imagen / vídeo */}
+      {/* Panel de URL para enlaces */}
       {dialog && (
         <div className="border-t border-neutral-200 bg-white px-3 py-2.5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -705,28 +694,9 @@ function Toolbar({ editor }: { editor: Editor | null }) {
                 if (e.key === "Enter") applyDialog();
                 if (e.key === "Escape") setDialog(null);
               }}
-              placeholder={
-                dialog.mode === "link"
-                  ? "https://… o mailto:correo@ejemplo.com"
-                  : dialog.mode === "image"
-                    ? "https://…/foto.jpg"
-                    : "https://…/video.mp4"
-              }
+              placeholder="https://… o mailto:correo@ejemplo.com"
               className="min-w-0 flex-1 rounded-md border border-neutral-300 px-2.5 py-1.5 text-sm outline-none focus:border-neutral-500"
             />
-            {dialog.mode === "image" && (
-              <input
-                type="text"
-                value={dialog.alt}
-                onChange={(e) => setDialog({ ...dialog, alt: e.target.value })}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") applyDialog();
-                  if (e.key === "Escape") setDialog(null);
-                }}
-                placeholder="Texto alternativo (accesibilidad)"
-                className="min-w-0 flex-1 rounded-md border border-neutral-300 px-2.5 py-1.5 text-sm outline-none focus:border-neutral-500"
-              />
-            )}
             <div className="flex shrink-0 gap-1.5">
               <button
                 type="button"
@@ -747,13 +717,24 @@ function Toolbar({ editor }: { editor: Editor | null }) {
           {dialog.error && (
             <p className="mt-1.5 text-xs text-red-600">{dialog.error}</p>
           )}
-          {dialog.mode === "video" && !dialog.error && (
-            <p className="mt-1.5 text-xs text-neutral-500">
-              Solo ficheros de vídeo directos (mp4, webm, ogg). Los vídeos de
-              YouTube/Vimeo embebidos usan iframe y el servidor los rechaza.
-            </p>
-          )}
         </div>
+      )}
+      {picker && (
+        <MediaSelector
+          open
+          onOpenChange={(v) => {
+            if (!v) setPicker(null);
+          }}
+          acceptedTypes={
+            picker.mode === "image" ? [MediaTipo.Imagen] : [MediaTipo.Video]
+          }
+          title={
+            picker.mode === "image" ? "Insertar imagen" : "Insertar vídeo"
+          }
+          description="Elige de la biblioteca o sube un archivo nuevo."
+          valueUrl={picker.currentSrc}
+          onSelect={insertFromLibrary}
+        />
       )}
     </div>
   );

@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { getMediaAbsoluteUrl } from "@/lib/media-url";
+import { MediaTipo } from "@/types";
+import MediaSelector from "./media-selector/MediaSelector";
 
 type PortadaCardFormProps = {
   defaultUrl?: string | null;
@@ -19,18 +19,10 @@ export default function PortadaCardForm({
   disabled = false,
   fieldErrors = [],
 }: PortadaCardFormProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string>(defaultUrl ?? "");
   const [loadError, setLoadError] = useState(false);
 
-  function handlePreview() {
-    const value = inputRef.current?.value.trim() ?? "";
-    setPreview(value);
-    setLoadError(false);
-  }
-
   function handleRemove() {
-    if (inputRef.current) inputRef.current.value = "";
     setPreview("");
     setLoadError(false);
   }
@@ -60,34 +52,29 @@ export default function PortadaCardForm({
           </div>
         )}
 
-        <div className="grid gap-2">
-          <Label htmlFor="imagenPortada">URL de la imagen</Label>
-          <Input
-            ref={inputRef}
-            type="text"
-            id="imagenPortada"
-            name="imagenPortada"
-            placeholder="Pega la URL del archivo media (/uploads/… o https://…)"
-            defaultValue={defaultUrl ?? ""}
-            aria-invalid={fieldErrors.length > 0}
-            aria-describedby={fieldErrors.length > 0 ? "imagenPortada-error" : undefined}
-            disabled={disabled}
-          />
-          {fieldErrors.length > 0 && (
-            <div id="imagenPortada-error">
-              {fieldErrors.map((m, i) => (
-                <p key={i} className="text-sm text-destructive">
-                  {m}
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
+        <input type="hidden" name="imagenPortada" value={preview} />
+        {fieldErrors.length > 0 && (
+          <div id="imagenPortada-error" role="alert">
+            {fieldErrors.map((m, i) => (
+              <p key={i} className="text-sm text-destructive">
+                {m}
+              </p>
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" onClick={handlePreview} disabled={disabled}>
-            Establecer imagen
-          </Button>
+          <MediaSelector
+            acceptedTypes={[MediaTipo.Imagen]}
+            title="Elegir imagen destacada"
+            description="Elige una imagen de la biblioteca o sube una nueva."
+            valueUrl={preview.trim() === "" ? null : preview}
+            disabled={disabled}
+            onSelect={(media) => {
+              setPreview(media.url);
+              setLoadError(false);
+            }}
+          />
           {preview.trim() !== "" && (
             <Button type="button" variant="ghost" onClick={handleRemove} disabled={disabled}>
               Eliminar
