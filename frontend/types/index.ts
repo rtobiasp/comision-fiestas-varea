@@ -28,10 +28,13 @@ export type UploadMediaData = {
   file: File;
   altText?: string;
 };
-
 export type UpdateMediaCommand = {
   nombreOriginal: string;
   altText?: string | null;
 };
+export type CreateNotificacionCommand =
+  components["schemas"]["CreateNotificacionCommand"];
+export type UpdateNotificacionCommand =
+  components["schemas"]["UpdateNotificacionCommand"];
 
 export type ApiPaths = paths;

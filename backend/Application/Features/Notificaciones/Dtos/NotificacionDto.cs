@@ -1,8 +1,5 @@
 using Application.Features.Categorias.Dtos;
 using Application.Features.Tags.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.Features.Notificaciones.Dtos
 {
