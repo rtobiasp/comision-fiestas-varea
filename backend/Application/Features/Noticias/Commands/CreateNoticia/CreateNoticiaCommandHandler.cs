@@ -45,6 +45,7 @@ namespace Application.Features.Noticias.Commands.CreateNoticia
                 Titulo = request.Titulo,
                 Subtitulo = request.Subtitulo,
                 Contenido = request.Contenido,
+                ImagenPortada = string.IsNullOrWhiteSpace(request.ImagenPortada) ? null : request.ImagenPortada.Trim(),
                 Publicada = request.Publicada,
                 Fijada = request.Fijada,
                 Categorias = categorias,

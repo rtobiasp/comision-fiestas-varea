@@ -25,6 +25,9 @@ namespace Application.Features.Noticias.Commands.UpdateNoticia
                 .MaximumLength(100000).WithMessage("El contenido no puede exceder los 100000 caracteres.")
                 .IsSafeHtml();
 
+            RuleFor(x => x.ImagenPortada)
+                .IsValidPortadaUrl();
+
             RuleFor(x => x.CategoriaIds)
                 .IsValidCategoriaIds();
 

@@ -32,6 +32,10 @@ namespace Infrastructure.Configurations
                 .IsRequired(false)
                 .HasMaxLength(300);
 
+            e.Property(n => n.ImagenPortada)
+                .IsRequired(false)
+                .HasMaxLength(2048);
+
             e.Property(n => n.Publicada)
                 .IsRequired()
                 .HasDefaultValue(false);

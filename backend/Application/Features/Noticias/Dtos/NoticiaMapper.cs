@@ -13,6 +13,7 @@ namespace Application.Features.Noticias.Dtos
                 noticia.Titulo,
                 noticia.Subtitulo,
                 noticia.Contenido,
+                noticia.ImagenPortada,
                 noticia.Publicada,
                 noticia.Fijada,
                 noticia.CreatedAt,

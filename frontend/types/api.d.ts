@@ -528,7 +528,51 @@ export interface paths {
                 };
             };
         };
-        put?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateMediaCommand"];
+                    "application/*+json": components["schemas"]["UpdateMediaCommand"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         post?: never;
         delete: {
             parameters: {
@@ -1430,6 +1474,7 @@ export interface components {
             titulo?: string;
             subtitulo?: null | string;
             contenido?: string;
+            imagenPortada?: null | string;
             publicada?: boolean;
             fijada?: boolean;
             categoriaIds?: string[];
@@ -1496,6 +1541,7 @@ export interface components {
             titulo: string;
             subtitulo: null | string;
             contenido: string;
+            imagenPortada: null | string;
             publicada: boolean;
             fijada: boolean;
             /** Format: date-time */
@@ -1567,10 +1613,15 @@ export interface components {
             categoriaIds?: string[];
             tagIds?: string[];
         };
+        UpdateMediaCommand: {
+            nombreOriginal?: string;
+            altText?: null | string;
+        };
         UpdateNoticiaCommand: {
             titulo?: string;
             subtitulo?: null | string;
             contenido?: string;
+            imagenPortada?: null | string;
             publicada?: boolean;
             fijada?: boolean;
             categoriaIds?: string[];

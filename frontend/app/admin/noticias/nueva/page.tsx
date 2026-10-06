@@ -11,6 +11,7 @@ async function createNoticiaAction(formData: FormData): Promise<void> {
     titulo: String(formData.get("titulo") ?? "").trim(),
     subtitulo: String(formData.get("subtitulo") ?? "").trim() || null,
     contenido: String(formData.get("contenido") ?? ""),
+    imagenPortada: String(formData.get("imagenPortada") ?? "").trim() || null,
     publicada: formData.get("accion") === "guardar",
     fijada: formData.get("fijada") === "on",
     categoriaIds: formData.getAll("categoriaIds").map(String),

@@ -15,6 +15,7 @@ namespace Domain.Entities
         public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
         [JsonIgnore]
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+        public string? ImagenPortada { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? LastModifiedAt { get; set; }

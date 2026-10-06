@@ -44,6 +44,7 @@ namespace Application.Features.Noticias.Commands.UpdateNoticia
             existingNoticia.Titulo = request.Titulo;
             existingNoticia.Subtitulo = request.Subtitulo;
             existingNoticia.Contenido = request.Contenido;
+            existingNoticia.ImagenPortada = string.IsNullOrWhiteSpace(request.ImagenPortada) ? null : request.ImagenPortada.Trim();
             existingNoticia.Publicada = request.Publicada;
             existingNoticia.Fijada = request.Fijada;
 

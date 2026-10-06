@@ -171,6 +171,49 @@ namespace Application.Common.Validation
         }
 
         /// <summary>
+        /// Valida la URL opcional de la imagen de portada: null/vacía = sin portada.
+        /// Acepta URLs absolutas http(s) o rutas relativas (/uploads/...). Rechaza
+        /// esquemas peligrosos (javascript:, data:, vbscript:, file:) y espacios.
+        /// </summary>
+        public static bool IsValidPortadaUrlContent(string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return true;
+
+            var value = url.Trim();
+            if (value.Length > 2048)
+                return false;
+            if (value.Any(char.IsWhiteSpace))
+                return false;
+            if (HtmlTagHint.IsMatch(value))
+                return false;
+
+            var lower = value.ToLowerInvariant();
+            if (lower.StartsWith("javascript:") || lower.StartsWith("data:")
+                || lower.StartsWith("vbscript:") || lower.StartsWith("file:"))
+                return false;
+
+            if (lower.StartsWith("http://") || lower.StartsWith("https://"))
+            {
+                return Uri.TryCreate(value, UriKind.Absolute, out _);
+            }
+
+            return value.StartsWith("/");
+        }
+
+        /// <summary>
+        /// Regla FluentValidation para la portada opcional de la noticia.
+        /// </summary>
+        public static IRuleBuilderOptions<T, string?> IsValidPortadaUrl<T>(
+            this IRuleBuilder<T, string?> ruleBuilder)
+        {
+            return ruleBuilder
+                .MaximumLength(2048).WithMessage("La imagen de portada no puede exceder los 2048 caracteres.")
+                .Must(url => IsValidPortadaUrlContent(url))
+                .WithMessage("La imagen de portada debe ser una URL http(s) válida o una ruta relativa (/uploads/...).");
+        }
+
+        /// <summary>
         /// Regla para la colección opcional de categorías de una noticia.
         /// null y vacío significan "sin categorías". Solo valida forma
         /// (guids no vacíos, sin duplicados); la existencia de cada

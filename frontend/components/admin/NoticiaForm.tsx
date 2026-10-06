@@ -18,12 +18,14 @@ import {
   type FormErrorState,
 } from "@/lib/api/form-error";
 import CategoriasCardForm from "./CategoriasCardForm";
+import PortadaCardForm from "./PortadaCardForm";
 import TagsCardForm from "./TagsCardForm";
 
 export type NoticiaFormInitial = {
   titulo: string;
   subtitulo: string | null;
   contenido: string;
+  imagenPortada: string | null;
   fijada: boolean;
   categoriaIds: string[];
   tagIds: string[];
@@ -171,13 +173,21 @@ export default function NoticiaForm({
   const tituloErrors = fieldErrors.titulo ?? [];
   const subtituloErrors = fieldErrors.subtitulo ?? [];
   const contenidoErrors = fieldErrors.contenido ?? [];
+  const portadaErrors =
+    fieldErrors.imagenportada ?? fieldErrors.imagenPortada ?? [];
   const categoriaErrors = fieldErrors.categoriaids ?? [];
   const tagErrors = fieldErrors.tagids ?? [];
   const otherErrors = Object.entries(fieldErrors).filter(
     ([key]) =>
-      !["titulo", "subtitulo", "contenido", "categoriaids", "tagids"].includes(
-        key,
-      ),
+      ![
+        "titulo",
+        "subtitulo",
+        "contenido",
+        "imagenportada",
+        "imagenPortada",
+        "categoriaids",
+        "tagids",
+      ].includes(key),
   );
 
   return (
@@ -367,6 +377,12 @@ export default function NoticiaForm({
               </div>
             </CardContent>
           </Card>
+
+          <PortadaCardForm
+            defaultUrl={initial?.imagenPortada ?? null}
+            disabled={isPending}
+            fieldErrors={portadaErrors}
+          />
 
           <CategoriasCardForm
             categorias={visibleCategorias}

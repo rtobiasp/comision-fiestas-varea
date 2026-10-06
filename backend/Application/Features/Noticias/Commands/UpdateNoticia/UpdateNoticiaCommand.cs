@@ -9,6 +9,7 @@ namespace Application.Features.Noticias.Commands.UpdateNoticia
         public string Titulo { get; set; } = string.Empty;
         public string? Subtitulo { get; set; }
         public string Contenido { get; set; } = string.Empty;
+        public string? ImagenPortada { get; set; }
         public bool Publicada { get; set; }
         public bool Fijada { get; set; }
         public List<Guid> CategoriaIds { get; set; } = new();
