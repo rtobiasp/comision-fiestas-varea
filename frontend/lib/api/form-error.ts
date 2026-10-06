@@ -3,11 +3,9 @@ import { ApiError } from "./client";
 export type FormErrorState = {
   ok: false;
   message: string;
-  /** Claves normalizadas en minúsculas: titulo, subtitulo, contenido, ... */
   fieldErrors: Record<string, string[]>;
 };
 
-/** `redirect()` de next/navigation lanza una excepción con digest NEXT_REDIRECT: hay que relanzarla, no tratarla como error. */
 export function isRedirectError(e: unknown): boolean {
   return (
     e instanceof Error &&

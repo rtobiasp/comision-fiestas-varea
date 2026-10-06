@@ -58,9 +58,7 @@ import { getMediaAbsoluteUrl } from "@/lib/media-url";
 import { MediaTipo } from "@/types";
 
 export interface TiptapProps {
-  /** HTML inicial. Controlado: si cambia desde fuera, el editor se actualiza. */
   content?: string;
-  /** Se emite con el HTML completo en cada cambio. Es lo que se guarda en `Noticia.contenido`. */
   onChange?: (html: string) => void;
   editable?: boolean;
   placeholder?: string;
@@ -134,8 +132,6 @@ export default function Tiptap({
       TableHeader,
       TableCell,
       Placeholder.configure({ placeholder }),
-      // CharacterCount no se usa: el límite del backend (2000) cuenta
-      // etiquetas HTML, así que un límite sobre texto plano sería engañoso.
     ],
     content,
     editable,
@@ -157,9 +153,6 @@ export default function Tiptap({
   useEffect(() => {
     if (!editor || content === undefined) return;
     if (editor.getHTML() !== content) {
-      // Sin emitUpdate:false para que onUpdate recalcule el contador
-      // y normalice el HTML (el onChange resultante devuelve el mismo
-      // contenido y el efecto se estabiliza solo).
       editor.commands.setContent(content);
     }
   }, [editor, content]);
@@ -176,8 +169,6 @@ export default function Tiptap({
     </div>
   );
 }
-
-/* ---------------------------------- Toolbar ---------------------------------- */
 
 function Toolbar({ editor }: { editor: Editor | null }) {
   const [dialog, setDialog] = useState<{
@@ -255,7 +246,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
   return (
     <div className="sticky top-0 z-10 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur">
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5">
-        {/* Historial */}
         <ToolButton
           title="Deshacer"
           disabled={disabled || !editor?.can().undo()}
@@ -272,7 +262,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         </ToolButton>
         <Divider />
 
-        {/* Bloque */}
         <Menu
           label="Estilo de bloque"
           title="Párrafo, títulos"
@@ -320,7 +309,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         </Menu>
         <Divider />
 
-        {/* Formato en línea */}
         <ToolButton
           title="Negrita"
           active={editor?.isActive("bold") ?? false}
@@ -379,7 +367,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         </ToolButton>
         <Divider />
 
-        {/* Color, resaltado, tamaño */}
         <Menu
           label="Color del texto"
           title="Color del texto"
@@ -510,7 +497,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         </ToolButton>
         <Divider />
 
-        {/* Alineación */}
         <ToolButton
           title="Alinear a la izquierda"
           active={editor?.isActive({ textAlign: "left" }) ?? false}
@@ -545,7 +531,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         </ToolButton>
         <Divider />
 
-        {/* Listas y bloques */}
         <ToolButton
           title="Lista con viñetas"
           active={editor?.isActive("bulletList") ?? false}
@@ -587,7 +572,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         </ToolButton>
         <Divider />
 
-        {/* Enlaces y multimedia */}
         <ToolButton
           title="Insertar o editar enlace"
           active={editor?.isActive("link") ?? false}
@@ -679,7 +663,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         </Menu>
       </div>
 
-      {/* Panel de URL para enlaces */}
       {dialog && (
         <div className="border-t border-neutral-200 bg-white px-3 py-2.5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -739,8 +722,6 @@ function Toolbar({ editor }: { editor: Editor | null }) {
     </div>
   );
 }
-
-/* --------------------------------- Piezas UI --------------------------------- */
 
 function ToolButton({
   title,

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Bell,
   BookOpen,
   CalendarDays,
   ChevronRight,
@@ -56,6 +57,7 @@ export function AppSidebar() {
   const { isMobile } = useSidebar();
   const isNoticias = pathname.startsWith("/admin/noticias");
   const isMedia = pathname.startsWith("/admin/media");
+  const isNotificaciones = pathname.startsWith("/admin/notificaciones");
 
   return (
     <Sidebar collapsible="icon">
@@ -91,7 +93,6 @@ export function AppSidebar() {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* REAL: lleva a /admin/noticias de verdad */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={isNoticias}
@@ -105,7 +106,6 @@ export function AppSidebar() {
                 />
               </SidebarMenuItem>
 
-              {/* REAL: lleva a /admin/media de verdad */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={isMedia}
@@ -119,7 +119,19 @@ export function AppSidebar() {
                 />
               </SidebarMenuItem>
 
-              {/* PRUEBA: botón + acción + badge juntos */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={isNotificaciones}
+                  tooltip="Notificaciones"
+                  render={
+                    <Link href="/admin/notificaciones">
+                      <Bell />
+                      <span>Notificaciones</span>
+                    </Link>
+                  }
+                />
+              </SidebarMenuItem>
+
               <SidebarMenuItem>
                 <SidebarMenuButton
                   tooltip="Eventos (prueba)"
@@ -140,7 +152,6 @@ export function AppSidebar() {
                 <SidebarMenuBadge className="right-7">12</SidebarMenuBadge>
               </SidebarMenuItem>
 
-              {/* PRUEBA: desplegable con submenú */}
               <Collapsible defaultOpen className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger
@@ -183,7 +194,6 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <SidebarMenu>
-            {/* PRUEBA: grupo simple sin label */}
             <SidebarMenuItem>
               <SidebarMenuButton
                 tooltip="Miembros (prueba)"
@@ -248,7 +258,6 @@ export function AppSidebar() {
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                {/* PRUEBA: sin auth real todavía (fase 03 OIDC/RBAC), solo menú visual */}
                 <DropdownMenuItem variant="destructive">
                   <LogOut />
                   Cerrar sesión

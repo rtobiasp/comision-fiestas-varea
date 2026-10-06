@@ -10,19 +10,11 @@ export interface SetVideoOptions {
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     video: {
-      /** Inserta un bloque <video> en la posición del cursor. */
       setVideo: (options: SetVideoOptions) => ReturnType;
     };
   }
 }
 
-/**
- * Nodo de vídeo compatible con el sanitizador del backend
- * (Application.Common.Validation.NoticiaValidators):
- * emite `<video src controls preload="metadata" ...>` plano,
- * sin <iframe> (YouTube/Vimeo embebido se rechaza con 400) y
- * sin data: URIs. Solo URLs http(s) de ficheros (mp4/webm/ogg).
- */
 export const Video = Node.create({
   name: "video",
   group: "block",

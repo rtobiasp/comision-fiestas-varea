@@ -39,7 +39,6 @@ function formatBytes(bytes: number): string {
 
 function isImageFile(file: File): boolean {
   if (file.type.startsWith("image/")) return true;
-  // Fallback por si el navegador no informa el MIME (p. ej. algunos Windows).
   return /\.(jpe?g|png|webp|gif)$/i.test(file.name);
 }
 

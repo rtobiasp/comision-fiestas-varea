@@ -28,8 +28,6 @@ export function useMediaLibrary({
   useEffect(() => {
     if (!autoLoad) return;
     let cancelled = false;
-    // Efecto de carga de datos: los setState sincronos son intencionales
-    // (inicia spinner + limpia error antes del fetch).
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);

@@ -21,19 +21,12 @@ import MediaUploadTab from "./MediaUploadTab";
 import { MEDIA_PAGE_SIZE, useMediaLibrary } from "./useMediaLibrary";
 
 export type MediaSelectorProps = {
-  /** Selección inicial (controlada desde fuera solo como valor inicial). */
   value?: MediaDto | null;
-  /**
-   * URL del media actual (relativa `/uploads/…` o absoluta). Si no hay
-   * `value`, se busca en la biblioteca y se preselecciona al abrir.
-   */
   valueUrl?: string | null;
   onSelect: (media: MediaDto) => void;
-  /** Tipos aceptados. Vacío = todos. Si hay uno solo, el filtro se bloquea. */
   acceptedTypes?: MediaTipo[];
   title?: string;
   description?: string;
-  /** Trigger personalizado. Si se omite, botón «Elegir de la biblioteca». */
   trigger?: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -89,8 +82,6 @@ export default function MediaSelector({
     setOpen(next);
   }
 
-  // Preselecciona el media actual al abrir: por `value`, o buscando
-  // `valueUrl` en la biblioteca cuando esta termina de cargar.
   useEffect(() => {
     if (!open || selected) return;
     const target = value
@@ -99,14 +90,12 @@ export default function MediaSelector({
         ? matchMediaByUrl(items, valueUrl)
         : undefined;
     if (target) {
-      // Efecto de sincronización con la biblioteca cargada.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelected(target);
     }
   }, [open, items, value, valueUrl, selected]);
 
   function handleUploaded(media: MediaDto) {
-    // Solo se incorpora si encaja con el filtro actual.
     if (tipoFilter === undefined || media.tipo === tipoFilter) prepend(media);
     setSelected(media);
     setTab("biblioteca");
@@ -118,7 +107,6 @@ export default function MediaSelector({
     setOpen(false);
   }
 
-  // Sin trigger visible cuando el diálogo se controla desde fuera (p. ej. Tiptap).
   const showTrigger = trigger !== undefined || controlledOpen === undefined;
 
   return (

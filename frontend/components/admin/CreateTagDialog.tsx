@@ -30,8 +30,6 @@ export function CreateTagDialog({
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Igual que en categorías: `useActionState` solo por `isPending`.
-  // Estado del hook siempre `null`; el error vive en `useState`.
   const [, formAction, isPending] = useActionState(
     async (_prev: null, formData: FormData): Promise<null> => {
       setError(null);

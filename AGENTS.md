@@ -14,6 +14,8 @@
 - `docker/` — `docker-compose.yml` (postgres + optional pgAdmin), `postgres/init.sql`, `.env.example` (reference only).
 
 ## Frontend UI/UX — shadcn obligatorio
+- En `frontend/`, prohibido escribir comentarios en el código (`//`, `/* */`, `{/* */}`, JSDoc): ni explicativos ni marcadores tipo `REAL`/`PRUEBA`/`TODO`. El código debe ser autoexplicativo.
+- Excepciones: directivas funcionales `eslint-disable-*` (sin ellas falla el lint), ficheros generados (`types/api.d.ts`, `node_modules/`, `.next/`) y código de terceros (`components/ui/` de shadcn, salvo `components/ui/tiptap/`, que es código propio y tampoco lleva comentarios).
 - Al crear cualquier componente de UI/UX en `frontend/`, usar obligatoriamente shadcn: reutilizar primero lo existente en `frontend/components/ui/` (ej. `table.tsx` → `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`).
 - Si el componente shadcn no existe aún, añadirlo con `npx shadcn@latest add <componente>` desde `frontend/` (respeta `frontend/components.json`: style `base-nova`, RSC, Tailwind v4 en `app/globals.css`, `baseColor: neutral`, `cssVariables: true`, iconos `lucide`, alias `@/components/ui`). No reimplementarlo a mano ni inventar otro sistema de diseño.
 - Componer sobre shadcn + `cn` + `class-variance-authority` + tokens CSS de `app/globals.css`; mantener `data-slot`, variantes y estilos base, extendiendo solo vía `className`. No introducir otra librería UI ni estilos globales fuera de `app/globals.css`.

@@ -38,12 +38,6 @@ function bodyMessage(body: unknown): string | null {
   return null;
 }
 
-/**
- * El backend devuelve los fallos de 3 formas:
- * 1. Array FluentValidation `[{ propertyName, errorMessage }]` (POST Categorias/Tags).
- * 2. RFC7807 `{ errors: { Campo: [...] } }` (validación automática [ApiController]).
- * 3. String plano.
- */
 function extractFieldErrors(body: unknown): ApiFieldErrors {
   const out: ApiFieldErrors = {};
   const push = (key: string, msg: string) => {
