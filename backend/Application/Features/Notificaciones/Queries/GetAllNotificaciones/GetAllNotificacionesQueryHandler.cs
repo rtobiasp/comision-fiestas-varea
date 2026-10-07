@@ -42,7 +42,7 @@ namespace Application.Features.Notificaciones.Queries.GetAllNotificaciones
                 }
 
                 notificaciones = await _notificacionRepository.GetByCategoriaAndTagAsync(
-                    request.CategoriaId.Value, request.TagId.Value, cancellationToken);
+                    request.CategoriaId.Value, request.TagId.Value, request.Offset, request.Limit, cancellationToken);
             }
             else if (hasCategoria)
             {
@@ -51,7 +51,7 @@ namespace Application.Features.Notificaciones.Queries.GetAllNotificaciones
                     throw new KeyNotFoundException("No se han encontrado categorías con los parámetros proporcionados");
                 }
 
-                notificaciones = await _notificacionRepository.GetByCategoriaAsync(request.CategoriaId.Value, cancellationToken);
+                notificaciones = await _notificacionRepository.GetByCategoriaAsync(request.CategoriaId.Value, request.Offset, request.Limit, cancellationToken);
             }
             else if (hasTag)
             {
@@ -60,11 +60,11 @@ namespace Application.Features.Notificaciones.Queries.GetAllNotificaciones
                     throw new KeyNotFoundException("No se han encontrado tags con los parámetros proporcionados");
                 }
 
-                notificaciones = await _notificacionRepository.GetByTagAsync(request.TagId.Value, cancellationToken);
+                notificaciones = await _notificacionRepository.GetByTagAsync(request.TagId.Value, request.Offset, request.Limit, cancellationToken);
             }
             else
             {
-                notificaciones = await _notificacionRepository.GetAllAsync(cancellationToken);
+                notificaciones = await _notificacionRepository.GetAllAsync(request.Offset, request.Limit, cancellationToken);
             }
 
             return notificaciones.Select(NotificacionMapper.ToDto).ToList();

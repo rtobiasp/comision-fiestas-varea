@@ -33,42 +33,54 @@ namespace Infrastructure.Repositories
             await _postgreContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<Notificacion>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<Notificacion>> GetAllAsync(int? offset, int? limit, CancellationToken cancellationToken)
         {
             return await _postgreContext.Notificaciones
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Notificacion>> GetByCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken)
+        public async Task<List<Notificacion>> GetByCategoriaAsync(Guid categoriaId, int? offset, int? limit, CancellationToken cancellationToken)
         {
             return await _postgreContext.Notificaciones
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
                 .AsNoTracking()
                 .Where(x => x.Categorias.Any(c => c.Id == categoriaId))
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Notificacion>> GetByTagAsync(Guid tagId, CancellationToken cancellationToken)
+        public async Task<List<Notificacion>> GetByTagAsync(Guid tagId, int? offset, int? limit, CancellationToken cancellationToken)
         {
             return await _postgreContext.Notificaciones
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
                 .AsNoTracking()
                 .Where(x => x.Tags.Any(t => t.Id == tagId))
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Notificacion>> GetByCategoriaAndTagAsync(Guid categoriaId, Guid tagId, CancellationToken cancellationToken)
+        public async Task<List<Notificacion>> GetByCategoriaAndTagAsync(Guid categoriaId, Guid tagId, int? offset, int? limit, CancellationToken cancellationToken)
         {
             return await _postgreContext.Notificaciones
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
                 .AsNoTracking()
                 .Where(x => x.Categorias.Any(c => c.Id == categoriaId) && x.Tags.Any(t => t.Id == tagId))
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
         }
 

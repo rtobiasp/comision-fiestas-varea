@@ -44,16 +44,20 @@ namespace API.Controllers
             }
         }
 
-        // GET api/v1/Notificaciones?categoriaId=&tagId=
+        // GET api/v1/Notificaciones?categoriaId=&tagId=&offset=&limit=
         [HttpGet]
         [ProducesResponseType(typeof(List<NotificacionDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<List<NotificacionDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<NotificacionDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, [FromQuery] int? offset, [FromQuery] int? limit, CancellationToken cancellationToken)
         {
             try
             {
-                var notificaciones = await _bus.InvokeAsync<List<NotificacionDto>>(new GetAllNotificacionesQuery { CategoriaId = categoriaId, TagId = tagId }, cancellationToken);
+                var notificaciones = await _bus.InvokeAsync<List<NotificacionDto>>(new GetAllNotificacionesQuery { CategoriaId = categoriaId, TagId = tagId, Offset = offset, Limit = limit }, cancellationToken);
                 return Ok(notificaciones);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
             }
             catch (KeyNotFoundException ex)
             {
