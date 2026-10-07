@@ -47,7 +47,7 @@ export default function NoticiasTableRow({
         {noticia.publicada ? "Publicada" : "Borrador"}
         <br />
         <span className="text-muted-foreground">
-          {formatDateTime(noticia.createdAt)}
+          {formatDateTime(noticia.lastModifiedAt ?? noticia.createdAt)}
         </span>
       </TableCell>
     </TableRow>

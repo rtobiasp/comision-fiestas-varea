@@ -44,15 +44,15 @@ namespace API.Controllers
             }
         }
 
-        // GET api/v1/Notificaciones?categoriaId=&tagId=&offset=&limit=
+        // GET api/v1/Notificaciones?categoriaId=&tagId=&offset=&limit=&orderBy=&direction=&publicada=
         [HttpGet]
         [ProducesResponseType(typeof(List<NotificacionDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<List<NotificacionDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, [FromQuery] int? offset, [FromQuery] int? limit, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<NotificacionDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, [FromQuery] int? offset, [FromQuery] int? limit, [FromQuery] string? orderBy, [FromQuery] string? direction, [FromQuery] bool? publicada, CancellationToken cancellationToken)
         {
             try
             {
-                var notificaciones = await _bus.InvokeAsync<List<NotificacionDto>>(new GetAllNotificacionesQuery { CategoriaId = categoriaId, TagId = tagId, Offset = offset, Limit = limit }, cancellationToken);
+                var notificaciones = await _bus.InvokeAsync<List<NotificacionDto>>(new GetAllNotificacionesQuery { CategoriaId = categoriaId, TagId = tagId, Offset = offset, Limit = limit, OrderBy = orderBy, Direction = direction, Publicada = publicada }, cancellationToken);
                 return Ok(notificaciones);
             }
             catch (ValidationException ex)

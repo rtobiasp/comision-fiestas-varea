@@ -26,6 +26,8 @@ namespace Application.Features.Noticias.Queries.GetAllNoticias
         {
             var hasCategoria = request.CategoriaId.HasValue && request.CategoriaId.Value != Guid.Empty;
             var hasTag = request.TagId.HasValue && request.TagId.Value != Guid.Empty;
+            var orderBy = string.Equals(request.OrderBy, "titulo", StringComparison.OrdinalIgnoreCase) ? "titulo" : "fecha";
+            var descending = !string.Equals(request.Direction, "asc", StringComparison.OrdinalIgnoreCase);
 
             List<Noticia> noticias;
 
@@ -42,7 +44,7 @@ namespace Application.Features.Noticias.Queries.GetAllNoticias
                 }
 
                 noticias = await _noticiaRepository.GetByCategoriaAndTagAsync(
-                    request.CategoriaId.Value, request.TagId.Value, request.Offset, request.Limit, cancellationToken);
+                    request.CategoriaId.Value, request.TagId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else if (hasCategoria)
             {
@@ -51,7 +53,7 @@ namespace Application.Features.Noticias.Queries.GetAllNoticias
                     throw new KeyNotFoundException("No se han encontrado categorías con los parámetros proporcionados");
                 }
 
-                noticias = await _noticiaRepository.GetByCategoriaAsync(request.CategoriaId.Value, request.Offset, request.Limit, cancellationToken);
+                noticias = await _noticiaRepository.GetByCategoriaAsync(request.CategoriaId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else if (hasTag)
             {
@@ -60,11 +62,11 @@ namespace Application.Features.Noticias.Queries.GetAllNoticias
                     throw new KeyNotFoundException("No se han encontrado tags con los parámetros proporcionados");
                 }
 
-                noticias = await _noticiaRepository.GetByTagAsync(request.TagId.Value, request.Offset, request.Limit, cancellationToken);
+                noticias = await _noticiaRepository.GetByTagAsync(request.TagId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else
             {
-                noticias = await _noticiaRepository.GetAllAsync(request.Offset, request.Limit, cancellationToken);
+                noticias = await _noticiaRepository.GetAllAsync(request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
 
             return noticias.Select(NoticiaMapper.ToDto).ToList();

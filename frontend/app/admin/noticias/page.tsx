@@ -9,15 +9,30 @@ import Link from "next/link";
 export default async function Noticias({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; limit?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    limit?: string;
+    orderBy?: string;
+    direction?: string;
+    publicada?: string;
+  }>;
 }) {
-  const { page = "1", limit = "10" } = await searchParams;
+  const { page = "1", limit = "10", orderBy, direction, publicada } =
+    await searchParams;
 
   const p = Math.max(1, Number(page)) || 1;
   const l = [10, 25, 50, 100].includes(Number(limit)) ? Number(limit) : 25;
   const offset = (p - 1) * l;
+  const o = orderBy === "titulo" ? "titulo" : "fecha";
+  const d = direction === "asc" ? "asc" : "desc";
+  const pub =
+    publicada === "true" ? true : publicada === "false" ? false : undefined;
 
-  const noticias = await getNoticias(offset, l);
+  const noticias = await getNoticias(offset, l, {
+    orderBy: o,
+    direction: d,
+    publicada: pub,
+  });
 
   async function deleteNoticiaAction(id: string): Promise<void> {
     "use server";
@@ -36,7 +51,13 @@ export default async function Noticias({
           Añadir noticia
         </Link>
       </div>
-      <NoticiasTable noticias={noticias} onDelete={deleteNoticiaAction} />
+      <NoticiasTable
+        noticias={noticias}
+        orderBy={o}
+        direction={d}
+        publicada={pub}
+        onDelete={deleteNoticiaAction}
+      />
       <Suspense>
         <TablePagination page={p} limit={l} hasNext={noticias.length === l} />
       </Suspense>

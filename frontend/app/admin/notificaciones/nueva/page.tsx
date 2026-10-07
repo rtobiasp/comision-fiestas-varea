@@ -51,6 +51,8 @@ const emptyNotificacion: NotificacionDto = {
   fijada: false,
   createdAt: "",
   createdBy: "",
+  lastModifiedAt: null,
+  lastModifiedBy: null,
   categorias: [],
   tags: [],
 };

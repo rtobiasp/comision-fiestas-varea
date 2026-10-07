@@ -68,7 +68,9 @@ export default function NotificacionesTableRow({
         {notificacion.publicada ? "Publicada" : "Borrador"}
         <br />
         <span className="text-muted-foreground">
-          {formatDateTime(notificacion.createdAt)}
+          {formatDateTime(
+            notificacion.lastModifiedAt ?? notificacion.createdAt,
+          )}
         </span>
         {notificacion.fechaCaducidad != null && (
           <>

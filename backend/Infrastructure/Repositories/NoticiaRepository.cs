@@ -29,55 +29,90 @@ namespace Infrastructure.Repositories
             await _postgreContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<Noticia>> GetAllAsync(int? offset, int? limit, CancellationToken cancellationToken)
+        public async Task<List<Noticia>> GetAllAsync(int? offset, int? limit, bool? publicada, string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Noticias
+            var query = _postgreContext.Noticias
                 .Include(n => n.Categorias)
                 .Include(n => n.Tags)
-                .OrderByDescending(n => n.CreatedAt)
-                .Skip(offset ?? 0)
-                .Take(limit ?? int.MaxValue)
                 .AsNoTracking()
-                .ToListAsync(cancellationToken);
-        }
+                .AsQueryable();
 
-        public async Task<List<Noticia>> GetByCategoriaAsync(Guid categoriaId, int? offset, int? limit, CancellationToken cancellationToken)
-        {
-            return await _postgreContext.Noticias
-                .Include(n => n.Categorias)
-                .Include(n => n.Tags)
-                .AsNoTracking()
-                .Where(n => n.Categorias.Any(c => c.Id == categoriaId))
-                .OrderByDescending(n => n.CreatedAt)
+            if (publicada.HasValue)
+                query = query.Where(n => n.Publicada == publicada.Value);
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query
                 .Skip(offset ?? 0)
                 .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Noticia>> GetByTagAsync(Guid tagId, int? offset, int? limit, CancellationToken cancellationToken)
+        public async Task<List<Noticia>> GetByCategoriaAsync(Guid categoriaId, int? offset, int? limit, bool? publicada, string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Noticias
+            var query = _postgreContext.Noticias
                 .Include(n => n.Categorias)
                 .Include(n => n.Tags)
                 .AsNoTracking()
-                .Where(n => n.Tags.Any(t => t.Id == tagId))
-                .OrderByDescending(n => n.CreatedAt)
+                .Where(n => n.Categorias.Any(c => c.Id == categoriaId));
+
+            if (publicada.HasValue)
+                query = query.Where(n => n.Publicada == publicada.Value);
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query
                 .Skip(offset ?? 0)
                 .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Noticia>> GetByCategoriaAndTagAsync(Guid categoriaId, Guid tagId, int? offset, int? limit, CancellationToken cancellationToken)
+        public async Task<List<Noticia>> GetByTagAsync(Guid tagId, int? offset, int? limit, bool? publicada, string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Noticias
+            var query = _postgreContext.Noticias
                 .Include(n => n.Categorias)
                 .Include(n => n.Tags)
                 .AsNoTracking()
-                .Where(n => n.Categorias.Any(c => c.Id == categoriaId) && n.Tags.Any(t => t.Id == tagId))
-                .OrderByDescending(n => n.CreatedAt)
+                .Where(n => n.Tags.Any(t => t.Id == tagId));
+
+            if (publicada.HasValue)
+                query = query.Where(n => n.Publicada == publicada.Value);
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query
                 .Skip(offset ?? 0)
                 .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<Noticia>> GetByCategoriaAndTagAsync(Guid categoriaId, Guid tagId, int? offset, int? limit, bool? publicada, string orderBy, bool descending, CancellationToken cancellationToken)
+        {
+            var query = _postgreContext.Noticias
+                .Include(n => n.Categorias)
+                .Include(n => n.Tags)
+                .AsNoTracking()
+                .Where(n => n.Categorias.Any(c => c.Id == categoriaId) && n.Tags.Any(t => t.Id == tagId));
+
+            if (publicada.HasValue)
+                query = query.Where(n => n.Publicada == publicada.Value);
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
+                .ToListAsync(cancellationToken);
+        }
+
+        private static IQueryable<Noticia> ApplyOrdering(IQueryable<Noticia> query, string orderBy, bool descending)
+        {
+            if (string.Equals(orderBy, "titulo", StringComparison.OrdinalIgnoreCase))
+                return descending ? query.OrderByDescending(n => n.Titulo) : query.OrderBy(n => n.Titulo);
+
+            return descending
+                ? query.OrderByDescending(n => n.LastModifiedAt ?? n.CreatedAt)
+                : query.OrderBy(n => n.LastModifiedAt ?? n.CreatedAt);
         }
 
         public async Task<Noticia> GetAsync(Guid id, CancellationToken cancellationToken)

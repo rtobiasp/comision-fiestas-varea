@@ -7,12 +7,29 @@ import { apiDelete, apiFetch, apiPost, apiPut } from "./client";
 
 const API_BASE = "/api/v1/Notificaciones";
 
+export type NotificacionesQuery = {
+  offset: number;
+  limit: number;
+  orderBy?: string;
+  direction?: string;
+  publicada?: boolean;
+};
+
 export async function getAllNotificaciones(
   offset: number,
   limit: number,
+  query?: Pick<NotificacionesQuery, "orderBy" | "direction" | "publicada">,
 ): Promise<NotificacionDto[]> {
+  const params = new URLSearchParams({
+    offset: String(offset),
+    limit: String(limit),
+  });
+  if (query?.orderBy) params.set("orderBy", query.orderBy);
+  if (query?.direction) params.set("direction", query.direction);
+  if (query?.publicada !== undefined)
+    params.set("publicada", String(query.publicada));
   return await apiFetch<NotificacionDto[]>(
-    `${API_BASE}?offset=${offset}&limit=${limit}`,
+    `${API_BASE}?${params.toString()}`,
   );
 }
 

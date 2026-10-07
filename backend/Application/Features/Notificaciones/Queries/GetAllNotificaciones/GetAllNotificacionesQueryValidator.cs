@@ -15,6 +15,14 @@ namespace Application.Features.Notificaciones.Queries.GetAllNotificaciones
                 .WithMessage("El limit debe ser mayor o igual que 1.")
                 .LessThanOrEqualTo(100).When(x => x.Limit.HasValue)
                 .WithMessage("El limit no puede ser mayor que 100.");
+
+            RuleFor(x => x.OrderBy)
+                .Must(v => v == null || v.Equals("titulo", StringComparison.OrdinalIgnoreCase) || v.Equals("fecha", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("OrderBy debe ser 'titulo' o 'fecha'.");
+
+            RuleFor(x => x.Direction)
+                .Must(v => v == null || v.Equals("asc", StringComparison.OrdinalIgnoreCase) || v.Equals("desc", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("Direction debe ser 'asc' o 'desc'.");
         }
     }
 }

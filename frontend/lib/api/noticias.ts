@@ -20,13 +20,27 @@ export function updateNoticia(
   return apiPut<void>(`/api/v1/Noticias/${id}`, cmd);
 }
 
+export type NoticiasQuery = {
+  offset: number;
+  limit: number;
+  orderBy?: string;
+  direction?: string;
+  publicada?: boolean;
+};
+
 export function getNoticias(
   offset: number,
   limit: number,
+  query?: Pick<NoticiasQuery, "orderBy" | "direction" | "publicada">,
 ): Promise<NoticiaDto[]> {
-  return apiFetch<NoticiaDto[]>(
-    `/api/v1/Noticias?offset=${offset}&limit=${limit}`,
-  );
+  const params = new URLSearchParams({
+    offset: String(offset),
+    limit: String(limit),
+  });
+  if (query?.orderBy) params.set("orderBy", query.orderBy);
+  if (query?.direction) params.set("direction", query.direction);
+  if (query?.publicada !== undefined) params.set("publicada", String(query.publicada));
+  return apiFetch<NoticiaDto[]>(`/api/v1/Noticias?${params.toString()}`);
 }
 
 export function deleteNoticia(id: string) {

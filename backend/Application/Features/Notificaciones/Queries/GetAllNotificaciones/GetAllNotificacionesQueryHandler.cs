@@ -26,6 +26,8 @@ namespace Application.Features.Notificaciones.Queries.GetAllNotificaciones
         {
             var hasCategoria = request.CategoriaId.HasValue && request.CategoriaId.Value != Guid.Empty;
             var hasTag = request.TagId.HasValue && request.TagId.Value != Guid.Empty;
+            var orderBy = string.Equals(request.OrderBy, "titulo", StringComparison.OrdinalIgnoreCase) ? "titulo" : "fecha";
+            var descending = !string.Equals(request.Direction, "asc", StringComparison.OrdinalIgnoreCase);
 
             List<Notificacion> notificaciones;
 
@@ -42,7 +44,7 @@ namespace Application.Features.Notificaciones.Queries.GetAllNotificaciones
                 }
 
                 notificaciones = await _notificacionRepository.GetByCategoriaAndTagAsync(
-                    request.CategoriaId.Value, request.TagId.Value, request.Offset, request.Limit, cancellationToken);
+                    request.CategoriaId.Value, request.TagId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else if (hasCategoria)
             {
@@ -51,7 +53,7 @@ namespace Application.Features.Notificaciones.Queries.GetAllNotificaciones
                     throw new KeyNotFoundException("No se han encontrado categorías con los parámetros proporcionados");
                 }
 
-                notificaciones = await _notificacionRepository.GetByCategoriaAsync(request.CategoriaId.Value, request.Offset, request.Limit, cancellationToken);
+                notificaciones = await _notificacionRepository.GetByCategoriaAsync(request.CategoriaId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else if (hasTag)
             {
@@ -60,11 +62,11 @@ namespace Application.Features.Notificaciones.Queries.GetAllNotificaciones
                     throw new KeyNotFoundException("No se han encontrado tags con los parámetros proporcionados");
                 }
 
-                notificaciones = await _notificacionRepository.GetByTagAsync(request.TagId.Value, request.Offset, request.Limit, cancellationToken);
+                notificaciones = await _notificacionRepository.GetByTagAsync(request.TagId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else
             {
-                notificaciones = await _notificacionRepository.GetAllAsync(request.Offset, request.Limit, cancellationToken);
+                notificaciones = await _notificacionRepository.GetAllAsync(request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
 
             return notificaciones.Select(NotificacionMapper.ToDto).ToList();

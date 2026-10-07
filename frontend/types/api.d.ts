@@ -1566,6 +1566,9 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             createdBy: string;
+            /** Format: date-time */
+            lastModifiedAt: null | string;
+            lastModifiedBy: null | string;
             categorias: components["schemas"]["CategoriaResumenDto"][];
             tags: components["schemas"]["TagResumenDto"][];
         };

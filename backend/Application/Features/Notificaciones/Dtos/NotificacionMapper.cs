@@ -18,6 +18,8 @@ namespace Application.Features.Notificaciones.Dtos
                 notificacion.Fijada,
                 notificacion.CreatedAt,
                 notificacion.CreatedBy,
+                notificacion.LastModifiedAt,
+                notificacion.LastModifiedBy,
                 notificacion.Categorias
                     .OrderBy(c => c.Nombre)
                     .Select(c => new CategoriaResumenDto(c.Id, c.Nombre))
