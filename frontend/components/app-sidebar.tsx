@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,6 +16,7 @@ import {
   PartyPopper,
   Plus,
   Settings,
+  Tags,
   Users,
 } from "lucide-react";
 import {
@@ -58,6 +60,15 @@ export function AppSidebar() {
   const isNoticias = pathname.startsWith("/admin/noticias");
   const isMedia = pathname.startsWith("/admin/media");
   const isNotificaciones = pathname.startsWith("/admin/notificaciones");
+  const isCategorias = pathname.startsWith("/admin/categorias");
+  const isTags = pathname.startsWith("/admin/tags");
+  const isTaxonomias = isCategorias || isTags;
+  const [taxOpen, setTaxOpen] = useState(isTaxonomias);
+  const [wasTaxonomias, setWasTaxonomias] = useState(isTaxonomias);
+  if (wasTaxonomias !== isTaxonomias) {
+    setWasTaxonomias(isTaxonomias);
+    if (isTaxonomias) setTaxOpen(true);
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -131,6 +142,51 @@ export function AppSidebar() {
                   }
                 />
               </SidebarMenuItem>
+
+              <Collapsible
+                open={taxOpen}
+                onOpenChange={setTaxOpen}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger
+                    render={
+                      <SidebarMenuButton
+                        tooltip="Taxonomías"
+                        isActive={isTaxonomias}
+                      >
+                        <Tags />
+                        <span>Taxonomías</span>
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    }
+                  />
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          isActive={isCategorias}
+                          render={
+                            <Link href="/admin/categorias">
+                              <span>Categorías</span>
+                            </Link>
+                          }
+                        />
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          isActive={isTags}
+                          render={
+                            <Link href="/admin/tags">
+                              <span>Tags</span>
+                            </Link>
+                          }
+                        />
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
 
               <SidebarMenuItem>
                 <SidebarMenuButton
