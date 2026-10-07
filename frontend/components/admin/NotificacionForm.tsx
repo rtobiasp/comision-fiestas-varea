@@ -28,13 +28,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { NotificacionDto } from "@/types";
+import { NotificacionDto, CategoriaDto, TagDto } from "@/types";
+import { getCategorias } from "@/lib/api/categorias";
+import { getTags } from "@/lib/api/tags";
+import CategoriasCardForm from "./CategoriasCardForm";
+import TagsCardForm from "./TagsCardForm";
 
 type NotificacionFormProps = {
   isNew: boolean;
   notificacion: NotificacionDto;
+  categorias: CategoriaDto[];
+  tags: TagDto[];
+  categoriasError?: boolean;
+  tagsError?: boolean;
   onCreate: (formData: FormData) => Promise<NotificacionDto>;
   onUpdate: (formData: FormData) => Promise<void>;
+  onCreateCategoria: (formData: FormData) => Promise<CategoriaDto>;
+  onCreateTag: (formData: FormData) => Promise<TagDto>;
 };
 
 const NIVELES = [
@@ -76,12 +86,73 @@ function isNivelValue(value: string | null | undefined): value is NivelValue {
 export default function NotificacionForm({
   isNew,
   notificacion,
+  categorias,
+  tags,
+  categoriasError = false,
+  tagsError = false,
   onCreate,
   onUpdate,
+  onCreateCategoria,
+  onCreateTag,
 }: NotificacionFormProps) {
   const [nivel, setNivel] = useState<NivelValue>(
     isNivelValue(notificacion.nivel ?? "") ? notificacion.nivel as NivelValue : "Info",
   );
+  const [visibleCategorias, setVisibleCategorias] =
+    useState<CategoriaDto[]>(categorias);
+  const [visibleTags, setVisibleTags] = useState<TagDto[]>(tags);
+  const [categoriasFailed, setCategoriasFailed] = useState(categoriasError);
+  const [tagsFailed, setTagsFailed] = useState(tagsError);
+  const [retryingCategorias, setRetryingCategorias] = useState(false);
+  const [retryingTags, setRetryingTags] = useState(false);
+  const selectedCategoriaIds = new Set(
+    (notificacion.categorias ?? []).map((c) => c.id),
+  );
+  const initialTagIds = (notificacion.tags ?? []).map((t) => t.id);
+
+  async function handleRetryCategorias() {
+    if (retryingCategorias) return;
+    setRetryingCategorias(true);
+    try {
+      setVisibleCategorias(await getCategorias());
+      setCategoriasFailed(false);
+    } catch {
+      setCategoriasFailed(true);
+    } finally {
+      setRetryingCategorias(false);
+    }
+  }
+
+  async function handleRetryTags() {
+    if (retryingTags) return;
+    setRetryingTags(true);
+    try {
+      setVisibleTags(await getTags());
+      setTagsFailed(false);
+    } catch {
+      setTagsFailed(true);
+    } finally {
+      setRetryingTags(false);
+    }
+  }
+
+  async function handleCreateCategoria(
+    formData: FormData,
+  ): Promise<CategoriaDto> {
+    const created = await onCreateCategoria(formData);
+    setVisibleCategorias((prev) =>
+      prev.some((c) => c.id === created.id) ? prev : [...prev, created],
+    );
+    return created;
+  }
+
+  async function handleCreateTag(formData: FormData): Promise<TagDto> {
+    const created = await onCreateTag(formData);
+    setVisibleTags((prev) =>
+      prev.some((t) => t.id === created.id) ? prev : [...prev, created],
+    );
+    return created;
+  }
 
   const selectedNivel = NIVELES.find((item) => item.value === nivel) ?? NIVELES[0];
 
@@ -243,6 +314,25 @@ export default function NotificacionForm({
               </Button>
             </CardFooter>
           </Card>
+
+          <CategoriasCardForm
+            categorias={visibleCategorias}
+            selectedCategoriaIds={selectedCategoriaIds}
+            onCreateCategoria={handleCreateCategoria}
+            loadError={categoriasFailed}
+            onRetry={handleRetryCategorias}
+            retrying={retryingCategorias}
+          />
+
+          <TagsCardForm
+            key={notificacion.id}
+            tags={visibleTags}
+            initialSelectedTagIds={initialTagIds}
+            onCreateTag={handleCreateTag}
+            loadError={tagsFailed}
+            onRetry={handleRetryTags}
+            retrying={retryingTags}
+          />
         </div>
       </form>
     </div>

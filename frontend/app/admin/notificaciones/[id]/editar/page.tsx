@@ -1,11 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 import NotificacionForm from "@/components/admin/NotificacionForm";
+import { createCategoria, getCategorias } from "@/lib/api/categorias";
 import {
   createNotificacion,
   getNotificacionById,
   updateNotificacion,
 } from "@/lib/api/notificaciones";
-import type { NotificacionDto } from "@/types";
+import { createTag, getTags } from "@/lib/api/tags";
+import type { CategoriaDto, NotificacionDto, TagDto } from "@/types";
 import { revalidatePath } from "next/cache";
 
 async function onCreate(formData: FormData): Promise<NotificacionDto> {
@@ -25,17 +27,44 @@ async function onCreate(formData: FormData): Promise<NotificacionDto> {
   return result;
 }
 
+async function createCategoriaAction(
+  formData: FormData,
+): Promise<CategoriaDto> {
+  "use server";
+  return createCategoria({
+    nombre: String(formData.get("nombre") ?? ""),
+  });
+}
+
+async function createTagAction(formData: FormData): Promise<TagDto> {
+  "use server";
+  return createTag({ nombre: String(formData.get("nombre") ?? "") });
+}
+
 export default async function EditarNotificacion({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const notificacion = await getNotificacionById(id).catch(() => null);
+  const [notificacionRes, categoriasRes, tagsRes] = await Promise.allSettled([
+    getNotificacionById(id).catch(() => null),
+    getCategorias(),
+    getTags(),
+  ]);
+
+  const notificacion =
+    notificacionRes.status === "fulfilled" ? notificacionRes.value : null;
 
   if (notificacion === null) {
     notFound();
   }
+
+  const categorias =
+    categoriasRes.status === "fulfilled" ? categoriasRes.value : [];
+  const tags = tagsRes.status === "fulfilled" ? tagsRes.value : [];
+  const categoriasError = categoriasRes.status !== "fulfilled";
+  const tagsError = tagsRes.status !== "fulfilled";
 
   async function onUpdate(formData: FormData): Promise<void> {
     "use server";
@@ -59,8 +88,14 @@ export default async function EditarNotificacion({
     <NotificacionForm
       isNew={false}
       notificacion={notificacion}
+      categorias={categorias}
+      tags={tags}
+      categoriasError={categoriasError}
+      tagsError={tagsError}
       onCreate={onCreate}
       onUpdate={onUpdate}
+      onCreateCategoria={createCategoriaAction}
+      onCreateTag={createTagAction}
     />
   );
 }
