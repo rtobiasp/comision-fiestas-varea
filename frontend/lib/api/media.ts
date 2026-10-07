@@ -1,4 +1,4 @@
-import {
+import type {
   MediaDto,
   MediaTipo,
   UpdateMediaCommand,
@@ -8,7 +8,7 @@ import { apiDelete, apiFetch, apiPut } from "./client";
 
 const BASE_URL = "/api/v1/Media";
 
-export async function getAllMedias(
+export function getAllMedias(
   tipo?: MediaTipo,
   offset?: number,
   limit?: number,
@@ -18,29 +18,29 @@ export async function getAllMedias(
   if (offset !== undefined) params.set("offset", String(offset));
   if (limit !== undefined) params.set("limit", String(limit));
   const query = params.size > 0 ? `?${params.toString()}` : "";
-  return await apiFetch<MediaDto[]>(`${BASE_URL}${query}`);
+  return apiFetch<MediaDto[]>(`${BASE_URL}${query}`);
 }
 
-export async function deleteMedia(id: string) {
-  await apiDelete(`${BASE_URL}/${id}`);
+export function deleteMedia(id: string): Promise<void> {
+  return apiDelete(`${BASE_URL}/${id}`);
 }
 
-export async function uploadMedia(cmd: UploadMediaData): Promise<MediaDto> {
+export function uploadMedia(cmd: UploadMediaData): Promise<MediaDto> {
   const form = new FormData();
   form.append("file", cmd.file);
   if (cmd.altText !== undefined && cmd.altText.trim() !== "") {
     form.append("altText", cmd.altText);
   }
 
-  return await apiFetch<MediaDto>(`${BASE_URL}/upload`, {
+  return apiFetch<MediaDto>(`${BASE_URL}/upload`, {
     method: "POST",
     body: form,
   });
 }
 
-export async function updateMedia(
+export function updateMedia(
   id: string,
   cmd: UpdateMediaCommand,
 ): Promise<void> {
-  return await apiPut<void>(`${BASE_URL}/${id}`, cmd);
+  return apiPut<void>(`${BASE_URL}/${id}`, cmd);
 }

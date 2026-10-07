@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getAllMedias } from "@/lib/api/media";
-import type { MediaDto } from "@/types";
-import type { MediaTipo } from "@/types";
+import type { MediaDto, MediaTipo } from "@/types";
+import { MEDIA_PAGE_SIZE } from "@/lib/media-labels";
 
-export const MEDIA_PAGE_SIZE = 24;
+export { MEDIA_PAGE_SIZE };
 
 type UseMediaLibraryOptions = {
   tipo?: MediaTipo;
@@ -24,30 +24,34 @@ export function useMediaLibrary({
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const offsetRef = useRef(0);
 
   useEffect(() => {
     if (!autoLoad) return;
-    let cancelled = false;
+    const controller = new AbortController();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
+    offsetRef.current = 0;
     getAllMedias(tipo, 0, pageSize)
       .then((data) => {
-        if (cancelled) return;
+        if (controller.signal.aborted) return;
         setItems(data);
+        offsetRef.current = data.length;
         setHasMore(data.length === pageSize);
       })
       .catch((e: unknown) => {
-        if (cancelled) return;
+        if (controller.signal.aborted) return;
         setItems([]);
+        offsetRef.current = 0;
         setHasMore(false);
         setError(e instanceof Error ? e.message : "No se pudo cargar la media");
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       });
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [tipo, pageSize, reloadKey, autoLoad]);
 
@@ -56,23 +60,25 @@ export function useMediaLibrary({
     setLoadingMore(true);
     setError(null);
     try {
-      const data = await getAllMedias(tipo, items.length, pageSize);
+      const data = await getAllMedias(tipo, offsetRef.current, pageSize);
       setItems((prev) => {
         const known = new Set(prev.map((m) => m.id));
         return [...prev, ...data.filter((m) => !known.has(m.id))];
       });
+      offsetRef.current += data.length;
       setHasMore(data.length === pageSize);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "No se pudo cargar más media");
     } finally {
       setLoadingMore(false);
     }
-  }, [tipo, items.length, pageSize, loading, loadingMore, hasMore]);
+  }, [tipo, pageSize, loading, loadingMore, hasMore]);
 
   const prepend = useCallback((media: MediaDto) => {
     setItems((prev) =>
       prev.some((m) => m.id === media.id) ? prev : [media, ...prev],
     );
+    offsetRef.current += 1;
   }, []);
 
   const reload = useCallback(() => setReloadKey((k) => k + 1), []);

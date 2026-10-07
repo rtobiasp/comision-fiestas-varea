@@ -1,24 +1,17 @@
-import { ApiError } from "./client";
+import { ApiError, type ApiFieldErrors } from "./client";
+import { isRedirectError } from "@/lib/navigation";
 
 export type FormErrorState = {
   ok: false;
   message: string;
-  fieldErrors: Record<string, string[]>;
+  fieldErrors: ApiFieldErrors;
 };
 
-export function isRedirectError(e: unknown): boolean {
-  return (
-    e instanceof Error &&
-    "digest" in e &&
-    typeof (e as { digest?: unknown }).digest === "string" &&
-    ((e as { digest: string }).digest.startsWith("NEXT_REDIRECT") ||
-      (e as { digest: string }).digest.startsWith("NEXT_NOT_FOUND"))
-  );
-}
+export { isRedirectError };
 
 export function toFormError(e: unknown): Omit<FormErrorState, "ok"> {
   if (e instanceof ApiError) {
-    const fieldErrors: Record<string, string[]> = {};
+    const fieldErrors: ApiFieldErrors = {};
     for (const [key, value] of Object.entries(e.fieldErrors)) {
       fieldErrors[key.toLowerCase()] = value;
     }

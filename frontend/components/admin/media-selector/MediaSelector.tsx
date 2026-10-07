@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { ImagePlus } from "lucide-react";
-import { getMediaAbsoluteUrl } from "@/lib/media-url";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,10 +14,11 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MediaTipo, type MediaDto } from "@/types";
+import { ALL_TIPOS, MEDIA_PAGE_SIZE, matchMediaByUrl } from "@/lib/media-labels";
 import MediaDetailSidebar from "./MediaDetailSidebar";
-import MediaLibraryTab, { ALL_TIPOS } from "./MediaLibraryTab";
+import MediaLibraryTab from "./MediaLibraryTab";
 import MediaUploadTab from "./MediaUploadTab";
-import { MEDIA_PAGE_SIZE, useMediaLibrary } from "./useMediaLibrary";
+import { useMediaLibrary } from "./useMediaLibrary";
 
 export type MediaSelectorProps = {
   value?: MediaDto | null;
@@ -33,14 +33,6 @@ export type MediaSelectorProps = {
   onUpload?: (file: File, altText?: string) => Promise<MediaDto>;
   disabled?: boolean;
 };
-
-function matchMediaByUrl(items: MediaDto[], url: string): MediaDto | undefined {
-  const target = url.trim();
-  if (target === "") return undefined;
-  return items.find(
-    (m) => m.url === target || getMediaAbsoluteUrl(m.url) === target,
-  );
-}
 
 export default function MediaSelector({
   value = null,
@@ -64,9 +56,8 @@ export default function MediaSelector({
 
   const allowedTypes = acceptedTypes.length > 0 ? acceptedTypes : ALL_TIPOS;
   const lockTipo = acceptedTypes.length === 1;
-  const [tipoFilter, setTipoFilter] = useState<MediaTipo | undefined>(
-    lockTipo ? acceptedTypes[0] : undefined,
-  );
+  const [customTipo, setCustomTipo] = useState<MediaTipo | undefined>(undefined);
+  const tipoFilter = lockTipo ? acceptedTypes[0] : customTipo;
   const [tab, setTab] = useState("biblioteca");
   const [selected, setSelected] = useState<MediaDto | null>(value);
 
@@ -77,21 +68,23 @@ export default function MediaSelector({
     if (next) {
       setSelected(value);
       setTab("biblioteca");
-      if (lockTipo) setTipoFilter(acceptedTypes[0]);
+      if (!lockTipo) setCustomTipo(undefined);
     }
     setOpen(next);
   }
 
   useEffect(() => {
-    if (!open || selected) return;
-    const target = value
-      ? (items.find((m) => m.id === value.id) ?? value)
-      : valueUrl
-        ? matchMediaByUrl(items, valueUrl)
-        : undefined;
-    if (target) {
+    if (!open) return;
+    if (value) {
+      const target = items.find((m) => m.id === value.id) ?? value;
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelected(target);
+      return;
+    }
+    if (valueUrl && !selected) {
+      const id = matchMediaByUrl(items, valueUrl);
+      const target = items.find((m) => m.id === id);
+      if (target) setSelected(target);
     }
   }, [open, items, value, valueUrl, selected]);
 
@@ -159,7 +152,7 @@ export default function MediaSelector({
                 error={error}
                 hasMore={hasMore}
                 tipoFilter={tipoFilter}
-                onTipoChange={setTipoFilter}
+                onTipoChange={setCustomTipo}
                 allowedTypes={allowedTypes}
                 lockTipo={lockTipo}
                 selectedId={selected?.id ?? null}

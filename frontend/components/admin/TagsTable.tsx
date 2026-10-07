@@ -22,9 +22,7 @@ export default function TagsTable({ tags, onDelete }: TagsTableProps) {
   const [selected, setSelected] = useState<{
     id: string;
     nombre: string;
-  } | null>(null);
-
-  return (
+  } | null>(null);  return (
     <>
       <Table>
         <TableHeader>
@@ -41,7 +39,7 @@ export default function TagsTable({ tags, onDelete }: TagsTableProps) {
                 colSpan={3}
                 className="text-center text-muted-foreground"
               >
-                No hay tags todavía.
+                No hay etiquetas todavía.
               </TableCell>
             </TableRow>
           ) : (
@@ -55,17 +53,15 @@ export default function TagsTable({ tags, onDelete }: TagsTableProps) {
           )}
         </TableBody>
       </Table>
-      {selected != null && (
-        <DeleteTagDialog
-          open={selected != null}
-          onOpenChange={(open) => {
-            if (!open) setSelected(null);
-          }}
-          id={selected.id}
-          nombre={selected.nombre}
-          onDelete={onDelete}
-        />
-      )}
+      <DeleteTagDialog
+        open={selected != null}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        id={selected?.id ?? ""}
+        nombre={selected?.nombre ?? ""}
+        onDelete={onDelete}
+      />
     </>
   );
 }

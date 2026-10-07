@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import DeleteNotificacionDialog from "@/components/admin/DeleteNotificacionDialog";
 import NotificacionesTableRow from "@/components/admin/NotificacionesTableRow";
+import { estadoLinkClass, withParams } from "@/components/admin/table-helpers";
 import type { NotificacionDto } from "@/types";
 
 type NotificacionesTableProps = {
@@ -23,20 +24,6 @@ type NotificacionesTableProps = {
   publicada?: boolean;
   onDelete: (id: string) => Promise<void>;
 };
-
-function withParams(
-  base: string,
-  pathname: string,
-  next: Record<string, string | null>,
-) {
-  const params = new URLSearchParams(base);
-  for (const [key, value] of Object.entries(next)) {
-    if (value == null) params.delete(key);
-    else params.set(key, value);
-  }
-  params.set("page", "1");
-  return `${pathname}?${params.toString()}`;
-}
 
 export default function NotificacionesTable({
   notificaciones,
@@ -58,10 +45,7 @@ export default function NotificacionesTable({
   const tituloNext = tituloSorted && direction === "asc" ? "desc" : "asc";
   const fechaNext = fechaSorted && direction === "desc" ? "asc" : "desc";
 
-  const estadoLink = (active: boolean) =>
-    active
-      ? "font-medium text-foreground"
-      : "text-primary underline-offset-4 hover:underline";
+  const estadoLink = estadoLinkClass;
 
   return (
     <>
@@ -167,17 +151,15 @@ export default function NotificacionesTable({
           )}
         </TableBody>
       </Table>
-      {selected != null && (
-        <DeleteNotificacionDialog
-          open={selected != null}
-          onOpenChange={(open) => {
-            if (!open) setSelected(null);
-          }}
-          id={selected.id}
-          titulo={selected.titulo}
-          onDelete={onDelete}
-        />
-      )}
+      <DeleteNotificacionDialog
+        open={selected != null}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        id={selected?.id ?? ""}
+        titulo={selected?.titulo ?? ""}
+        onDelete={onDelete}
+      />
     </>
   );
 }

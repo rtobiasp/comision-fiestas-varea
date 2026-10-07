@@ -2,21 +2,16 @@
 
 import Image from "next/image";
 import { Check, Copy, FileText, Video } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatBytes, formatDateTime, formatDuration } from "@/lib/format";
+import { tipoLabelSingular } from "@/lib/media-labels";
 import { getMediaAbsoluteUrl } from "@/lib/media-url";
 import { MediaTipo, type MediaDto } from "@/types";
 
-const tipoLabel: Record<number, string> = {
-  [MediaTipo.Imagen]: "Imagen",
-  [MediaTipo.Pdf]: "PDF",
-  [MediaTipo.Video]: "Vídeo",
-};
-
 export function MediaTypeBadge({ tipo }: { tipo: MediaTipo }) {
-  return <Badge variant="secondary">{tipoLabel[tipo] ?? "Archivo"}</Badge>;
+  return <Badge variant="secondary">{tipoLabelSingular(tipo)}</Badge>;
 }
 
 export function MediaThumb({
@@ -53,6 +48,13 @@ export function MediaThumb({
 
 export default function MediaDetailSidebar({ media }: { media: MediaDto | null }) {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current !== null) window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   if (!media) {
     return (
@@ -69,7 +71,8 @@ export default function MediaDetailSidebar({ media }: { media: MediaDto | null }
     try {
       await navigator.clipboard.writeText(src);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      if (timeoutRef.current !== null) window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = window.setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
     }

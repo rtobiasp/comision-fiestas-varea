@@ -109,6 +109,9 @@ export default function TablePagination({
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+      <p aria-live="polite" className="text-sm text-muted-foreground">
+        Página {page}
+      </p>
     </div>
   );
 }

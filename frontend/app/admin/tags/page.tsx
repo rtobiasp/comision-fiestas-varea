@@ -1,3 +1,4 @@
+import ListError from "@/components/admin/ListError";
 import TagsTable from "@/components/admin/TagsTable";
 import { buttonVariants } from "@/components/ui/button";
 import { deleteTag, getTags } from "@/lib/api/tags";
@@ -5,7 +6,13 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 
 export default async function Tags() {
-  const tags = await getTags();
+  let tags: Awaited<ReturnType<typeof getTags>> = [];
+  let loadError = false;
+  try {
+    tags = await getTags();
+  } catch {
+    loadError = true;
+  }
 
   async function deleteTagAction(id: string): Promise<void> {
     "use server";
@@ -25,6 +32,9 @@ export default async function Tags() {
         </Link>
       </div>
       <TagsTable tags={tags} onDelete={deleteTagAction} />
+      {loadError && (
+        <ListError message="Comprueba la conexión con la API e inténtalo de nuevo." />
+      )}
     </div>
   );
 }

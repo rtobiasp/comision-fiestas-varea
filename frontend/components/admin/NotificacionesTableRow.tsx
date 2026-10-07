@@ -29,7 +29,7 @@ export default function NotificacionesTableRow({
 }: NotificacionesTableRowProps) {
   return (
     <TableRow className="group">
-      <TableCell>
+      <TableCell className="whitespace-normal">
         <Link
           href={`/admin/notificaciones/${notificacion.id}/editar`}
           className="font-medium text-primary underline-offset-4 hover:underline"

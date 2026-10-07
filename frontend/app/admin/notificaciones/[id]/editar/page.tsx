@@ -2,30 +2,13 @@ import { notFound, redirect } from "next/navigation";
 import NotificacionForm from "@/components/admin/NotificacionForm";
 import { createCategoria, getCategorias } from "@/lib/api/categorias";
 import {
-  createNotificacion,
   getNotificacionById,
   updateNotificacion,
 } from "@/lib/api/notificaciones";
 import { createTag, getTags } from "@/lib/api/tags";
-import type { CategoriaDto, NotificacionDto, TagDto } from "@/types";
+import { parseOptionalDateTimeLocalToIso } from "@/lib/date";
+import type { CategoriaDto, TagDto } from "@/types";
 import { revalidatePath } from "next/cache";
-
-async function onCreate(formData: FormData): Promise<NotificacionDto> {
-  "use server";
-  const rawFecha = String(formData.get("fechaCaducidad") ?? "").trim();
-
-  const result = await createNotificacion({
-    titulo: String(formData.get("titulo") ?? "").trim(),
-    mensaje: String(formData.get("mensaje") ?? "").trim(),
-    nivel: String(formData.get("nivel") ?? "").trim(),
-    fechaCaducidad: rawFecha ? new Date(rawFecha).toISOString() : null,
-    fijada: formData.get("fijada") === "on",
-    categoriaIds: formData.getAll("categoriaIds").map(String),
-    tagIds: formData.getAll("tagIds").map(String),
-  });
-  revalidatePath("/admin/notificaciones");
-  return result;
-}
 
 async function createCategoriaAction(
   formData: FormData,
@@ -66,15 +49,15 @@ export default async function EditarNotificacion({
   const categoriasError = categoriasRes.status !== "fulfilled";
   const tagsError = tagsRes.status !== "fulfilled";
 
-  async function onUpdate(formData: FormData): Promise<void> {
+  async function updateNotificacionAction(formData: FormData): Promise<void> {
     "use server";
-    const rawFecha = String(formData.get("fechaCaducidad") ?? "").trim();
+    const rawFecha = String(formData.get("fechaCaducidad") ?? "");
 
     await updateNotificacion(id, {
       titulo: String(formData.get("titulo") ?? "").trim(),
       mensaje: String(formData.get("mensaje") ?? "").trim(),
       nivel: String(formData.get("nivel") ?? "").trim(),
-      fechaCaducidad: rawFecha ? new Date(rawFecha).toISOString() : null,
+      fechaCaducidad: parseOptionalDateTimeLocalToIso(rawFecha),
       publicada: formData.get("publicada") === "on",
       fijada: formData.get("fijada") === "on",
       categoriaIds: formData.getAll("categoriaIds").map(String),
@@ -86,14 +69,13 @@ export default async function EditarNotificacion({
 
   return (
     <NotificacionForm
-      isNew={false}
+      mode="edit"
       notificacion={notificacion}
       categorias={categorias}
       tags={tags}
       categoriasError={categoriasError}
       tagsError={tagsError}
-      onCreate={onCreate}
-      onUpdate={onUpdate}
+      onSubmit={updateNotificacionAction}
       onCreateCategoria={createCategoriaAction}
       onCreateTag={createTagAction}
     />

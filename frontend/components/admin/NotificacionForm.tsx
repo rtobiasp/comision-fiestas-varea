@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { Info, Siren, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldLabel,
 } from "@/components/ui/field";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -28,21 +30,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { NotificacionDto, CategoriaDto, TagDto } from "@/types";
-import { getCategorias } from "@/lib/api/categorias";
-import { getTags } from "@/lib/api/tags";
+import { CategoriaDto, NotificacionDto, TagDto } from "@/types";
+import {
+  isRedirectError,
+  toFormError,
+  type FormErrorState,
+} from "@/lib/api/form-error";
+import { useTaxonomyManager } from "./useTaxonomyManager";
+import { FormErrors } from "./form-helpers";
 import CategoriasCardForm from "./CategoriasCardForm";
 import TagsCardForm from "./TagsCardForm";
 
+type NotificacionInitial = Pick<
+  NotificacionDto,
+  | "id"
+  | "titulo"
+  | "mensaje"
+  | "nivel"
+  | "fechaCaducidad"
+  | "publicada"
+  | "fijada"
+> & {
+  categorias?: { id: string }[];
+  tags?: { id: string }[];
+};
+
 type NotificacionFormProps = {
-  isNew: boolean;
-  notificacion: NotificacionDto;
+  mode?: "create" | "edit";
+  notificacion: NotificacionInitial;
   categorias: CategoriaDto[];
   tags: TagDto[];
   categoriasError?: boolean;
   tagsError?: boolean;
-  onCreate: (formData: FormData) => Promise<NotificacionDto>;
-  onUpdate: (formData: FormData) => Promise<void>;
+  onSubmit: (formData: FormData) => Promise<void>;
   onCreateCategoria: (formData: FormData) => Promise<CategoriaDto>;
   onCreateTag: (formData: FormData) => Promise<TagDto>;
 };
@@ -83,95 +103,129 @@ function isNivelValue(value: string | null | undefined): value is NivelValue {
   return NIVELES.some((nivel) => nivel.value === value);
 }
 
+type SubmitState = { ok: true } | FormErrorState | null;
+
 export default function NotificacionForm({
-  isNew,
+  mode = "create",
   notificacion,
   categorias,
   tags,
   categoriasError = false,
   tagsError = false,
-  onCreate,
-  onUpdate,
+  onSubmit,
   onCreateCategoria,
   onCreateTag,
 }: NotificacionFormProps) {
+  const isEdit = mode === "edit";
   const [nivel, setNivel] = useState<NivelValue>(
-    isNivelValue(notificacion.nivel ?? "") ? notificacion.nivel as NivelValue : "Info",
+    isNivelValue(notificacion.nivel ?? "")
+      ? (notificacion.nivel as NivelValue)
+      : "Info",
   );
-  const [visibleCategorias, setVisibleCategorias] =
-    useState<CategoriaDto[]>(categorias);
-  const [visibleTags, setVisibleTags] = useState<TagDto[]>(tags);
-  const [categoriasFailed, setCategoriasFailed] = useState(categoriasError);
-  const [tagsFailed, setTagsFailed] = useState(tagsError);
-  const [retryingCategorias, setRetryingCategorias] = useState(false);
-  const [retryingTags, setRetryingTags] = useState(false);
   const selectedCategoriaIds = new Set(
     (notificacion.categorias ?? []).map((c) => c.id),
   );
   const initialTagIds = (notificacion.tags ?? []).map((t) => t.id);
 
-  async function handleRetryCategorias() {
-    if (retryingCategorias) return;
-    setRetryingCategorias(true);
-    try {
-      setVisibleCategorias(await getCategorias());
-      setCategoriasFailed(false);
-    } catch {
-      setCategoriasFailed(true);
-    } finally {
-      setRetryingCategorias(false);
-    }
-  }
+  const [submitState, formAction, isPending] = useActionState(
+    async (_prev: SubmitState, formData: FormData): Promise<SubmitState> => {
+      const titulo = String(formData.get("titulo") ?? "");
+      const mensaje = String(formData.get("mensaje") ?? "");
+      const nivelValue = String(formData.get("nivel") ?? "");
+      const fieldErrors: Record<string, string[]> = {};
+      if (titulo.trim() === "") {
+        fieldErrors.titulo = [
+          "El título no puede estar vacío ni contener solo espacios.",
+        ];
+      } else if (titulo.length > 200) {
+        fieldErrors.titulo = ["El título no puede exceder los 200 caracteres."];
+      }
+      if (mensaje.trim() === "") {
+        fieldErrors.mensaje = ["El mensaje no puede estar vacío."];
+      }
+      if (!isNivelValue(nivelValue)) {
+        fieldErrors.nivel = ["Selecciona un nivel válido."];
+      }
+      if (Object.keys(fieldErrors).length > 0) {
+        return {
+          ok: false,
+          message: "Revisa los campos marcados.",
+          fieldErrors,
+        };
+      }
+      try {
+        await onSubmit(formData);
+        return { ok: true };
+      } catch (e) {
+        if (isRedirectError(e)) throw e;
+        return { ok: false, ...toFormError(e) };
+      }
+    },
+    null,
+  );
 
-  async function handleRetryTags() {
-    if (retryingTags) return;
-    setRetryingTags(true);
-    try {
-      setVisibleTags(await getTags());
-      setTagsFailed(false);
-    } catch {
-      setTagsFailed(true);
-    } finally {
-      setRetryingTags(false);
-    }
-  }
+  const {
+    visibleCategorias,
+    visibleTags,
+    categoriasFailed,
+    tagsFailed,
+    retryingCategorias,
+    retryingTags,
+    handleRetryCategorias,
+    handleRetryTags,
+    appendCategoria,
+    appendTag,
+  } = useTaxonomyManager(
+    categorias,
+    tags,
+    categoriasError,
+    tagsError,
+    isPending,
+  );
 
   async function handleCreateCategoria(
     formData: FormData,
   ): Promise<CategoriaDto> {
     const created = await onCreateCategoria(formData);
-    setVisibleCategorias((prev) =>
-      prev.some((c) => c.id === created.id) ? prev : [...prev, created],
-    );
+    appendCategoria(created);
     return created;
   }
 
   async function handleCreateTag(formData: FormData): Promise<TagDto> {
     const created = await onCreateTag(formData);
-    setVisibleTags((prev) =>
-      prev.some((t) => t.id === created.id) ? prev : [...prev, created],
-    );
+    appendTag(created);
     return created;
   }
 
   const selectedNivel = NIVELES.find((item) => item.value === nivel) ?? NIVELES[0];
-
-  async function handleAction(formData: FormData): Promise<void> {
-    if (isNew) {
-      await onCreate(formData);
-    } else {
-      await onUpdate(formData);
-    }
-  }
+  const fieldErrors =
+    submitState !== null && !submitState.ok ? submitState.fieldErrors : {};
+  const tituloErrors = fieldErrors.titulo ?? [];
+  const mensajeErrors = fieldErrors.mensaje ?? [];
+  const nivelErrors = fieldErrors.nivel ?? [];
+  const otherErrors = Object.entries(fieldErrors).filter(
+    ([key]) => !["titulo", "mensaje", "nivel"].includes(key),
+  );
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <h1 className="text-2xl font-semibold">
-        {isNew ? "Nueva notificación" : "Editar notificación"}
+        {isEdit ? "Editar notificación" : "Nueva notificación"}
       </h1>
+      {submitState !== null && !submitState.ok && (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertTitle>No se ha podido guardar la notificación</AlertTitle>
+          <AlertDescription>
+            <p>{submitState.message}</p>
+            <FormErrors errors={otherErrors} />
+          </AlertDescription>
+        </Alert>
+      )}
       <form
-        action={handleAction}
+        action={formAction}
         key={notificacion.id}
+        aria-busy={isPending}
         className="grid items-start gap-4 lg:grid-cols-[1fr_320px]"
       >
         <div className="flex min-w-0 flex-col gap-4">
@@ -183,7 +237,7 @@ export default function NotificacionForm({
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <Field>
+              <Field data-invalid={tituloErrors.length > 0}>
                 <FieldLabel htmlFor="titulo">Título</FieldLabel>
                 <Input
                   id="titulo"
@@ -193,9 +247,14 @@ export default function NotificacionForm({
                   maxLength={200}
                   placeholder="Ej. Corte de calle por las fiestas"
                   defaultValue={notificacion.titulo ?? ""}
+                  readOnly={isPending}
+                  aria-invalid={tituloErrors.length > 0}
                 />
+                {tituloErrors.map((m, i) => (
+                  <FieldError key={i}>{m}</FieldError>
+                ))}
               </Field>
-              <Field>
+              <Field data-invalid={mensajeErrors.length > 0}>
                 <FieldLabel htmlFor="mensaje">Mensaje</FieldLabel>
                 <Textarea
                   id="mensaje"
@@ -204,42 +263,59 @@ export default function NotificacionForm({
                   rows={4}
                   placeholder="Describe la notificación con el detalle necesario"
                   defaultValue={notificacion.mensaje ?? ""}
+                  readOnly={isPending}
+                  aria-invalid={mensajeErrors.length > 0}
                 />
                 <FieldDescription>
                   Este texto será visible para todos los visitantes.
                 </FieldDescription>
+                {mensajeErrors.map((m, i) => (
+                  <FieldError key={i}>{m}</FieldError>
+                ))}
               </Field>
-              <Field>
+              <Field data-invalid={nivelErrors.length > 0}>
                 <FieldLabel htmlFor="nivel-trigger">Nivel</FieldLabel>
-                <Select value={nivel} onValueChange={(value) => {
-                  if (isNivelValue(value)) setNivel(value);
-                }}>
+                <Select
+                  value={nivel}
+                  disabled={isPending}
+                  onValueChange={(value) => {
+                    if (isNivelValue(value)) setNivel(value);
+                  }}
+                >
                   <SelectTrigger id="nivel-trigger" className="w-full">
                     <SelectValue placeholder="Selecciona un nivel" />
                   </SelectTrigger>
                   <SelectContent>
-                    {NIVELES.map(({ value, label, description, dotClassName, Icon }) => (
-                      <SelectItem key={value} value={value}>
-                        <span className="flex items-center gap-2">
-                          <span
-                            aria-hidden
-                            className={`size-2 shrink-0 rounded-full ${dotClassName}`}
-                          />
-                          <Icon className="size-4 shrink-0" aria-hidden />
-                          <span className="flex flex-col items-start">
-                            <span className="font-medium">{label}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {description}
+                    {NIVELES.map(
+                      ({ value, label, description, dotClassName, Icon }) => (
+                        <SelectItem key={value} value={value}>
+                          <span className="flex items-center gap-2">
+                            <span
+                              aria-hidden
+                              className={`size-2 shrink-0 rounded-full ${dotClassName}`}
+                            />
+                            <Icon className="size-4 shrink-0" aria-hidden />
+                            <span className="flex flex-col items-start">
+                              <span className="font-medium">{label}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {description}
+                              </span>
                             </span>
                           </span>
-                        </span>
-                      </SelectItem>
-                    ))}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
                 <input type="hidden" name="nivel" value={nivel} />
+                {nivelErrors.map((m, i) => (
+                  <FieldError key={i}>{m}</FieldError>
+                ))}
                 <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2.5">
-                  <Badge variant="outline" className={selectedNivel.badgeClassName}>
+                  <Badge
+                    variant="outline"
+                    className={selectedNivel.badgeClassName}
+                  >
                     <selectedNivel.Icon className="size-3" aria-hidden />
                     {selectedNivel.label}
                   </Badge>
@@ -270,32 +346,43 @@ export default function NotificacionForm({
                   name="fechaCaducidad"
                   type="datetime-local"
                   defaultValue={notificacion.fechaCaducidad?.slice(0, 16) ?? ""}
+                  readOnly={isPending}
                 />
                 <FieldDescription>
                   Opcional. A partir de esa fecha dejará de mostrarse.
                 </FieldDescription>
               </Field>
               <div className="flex flex-col gap-3 rounded-lg border p-3">
-                <div className="flex items-start gap-2">
-                  <Checkbox
-                    id="publicada"
-                    name="publicada"
-                    defaultChecked={notificacion.publicada ?? false}
-                  />
-                  <div className="grid gap-0.5">
-                    <Label htmlFor="publicada" className="cursor-pointer">
-                      Publicada
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Si está desactivada se guarda como borrador.
-                    </p>
+                {!isEdit && (
+                  <p className="text-xs text-muted-foreground">
+                    Se creará como borrador. Podrás publicarla editándola
+                    después.
+                  </p>
+                )}
+                {isEdit && (
+                  <div className="flex items-start gap-2">
+                    <Checkbox
+                      id="publicada"
+                      name="publicada"
+                      defaultChecked={notificacion.publicada ?? false}
+                      disabled={isPending}
+                    />
+                    <div className="grid gap-0.5">
+                      <Label htmlFor="publicada" className="cursor-pointer">
+                        Publicada
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Si está desactivada se guarda como borrador.
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="flex items-start gap-2">
                   <Checkbox
                     id="fijada"
                     name="fijada"
                     defaultChecked={notificacion.fijada ?? false}
+                    disabled={isPending}
                   />
                   <div className="grid gap-0.5">
                     <Label htmlFor="fijada" className="cursor-pointer">
@@ -309,8 +396,12 @@ export default function NotificacionForm({
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full">
-                {isNew ? "Crear notificación" : "Guardar cambios"}
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending
+                  ? "Guardando…"
+                  : isEdit
+                    ? "Guardar cambios"
+                    : "Crear notificación"}
               </Button>
             </CardFooter>
           </Card>
@@ -319,6 +410,7 @@ export default function NotificacionForm({
             categorias={visibleCategorias}
             selectedCategoriaIds={selectedCategoriaIds}
             onCreateCategoria={handleCreateCategoria}
+            disabled={isPending}
             loadError={categoriasFailed}
             onRetry={handleRetryCategorias}
             retrying={retryingCategorias}
@@ -329,6 +421,7 @@ export default function NotificacionForm({
             tags={visibleTags}
             initialSelectedTagIds={initialTagIds}
             onCreateTag={handleCreateTag}
+            disabled={isPending}
             loadError={tagsFailed}
             onRetry={handleRetryTags}
             retrying={retryingTags}

@@ -3,28 +3,24 @@ import NotificacionForm from "@/components/admin/NotificacionForm";
 import { createCategoria, getCategorias } from "@/lib/api/categorias";
 import { createNotificacion } from "@/lib/api/notificaciones";
 import { createTag, getTags } from "@/lib/api/tags";
-import type { CategoriaDto, NotificacionDto, TagDto } from "@/types";
+import { parseOptionalDateTimeLocalToIso } from "@/lib/date";
+import type { CategoriaDto, TagDto } from "@/types";
 import { revalidatePath } from "next/cache";
 
-async function onCreate(formData: FormData): Promise<NotificacionDto> {
+async function createNotificacionAction(formData: FormData): Promise<void> {
   "use server";
-  const rawFecha = String(formData.get("fechaCaducidad") ?? "").trim();
-
+  const rawFecha = String(formData.get("fechaCaducidad") ?? "");
   await createNotificacion({
     titulo: String(formData.get("titulo") ?? "").trim(),
     mensaje: String(formData.get("mensaje") ?? "").trim(),
     nivel: String(formData.get("nivel") ?? "").trim(),
-    fechaCaducidad: rawFecha ? new Date(rawFecha).toISOString() : null,
+    fechaCaducidad: parseOptionalDateTimeLocalToIso(rawFecha),
     fijada: formData.get("fijada") === "on",
     categoriaIds: formData.getAll("categoriaIds").map(String),
     tagIds: formData.getAll("tagIds").map(String),
   });
   revalidatePath("/admin/notificaciones");
   redirect("/admin/notificaciones");
-}
-
-async function onUpdate(): Promise<void> {
-  "use server";
 }
 
 async function createCategoriaAction(
@@ -41,7 +37,7 @@ async function createTagAction(formData: FormData): Promise<TagDto> {
   return createTag({ nombre: String(formData.get("nombre") ?? "") });
 }
 
-const emptyNotificacion: NotificacionDto = {
+const emptyNotificacion = {
   id: "",
   titulo: "",
   mensaje: "",
@@ -49,13 +45,7 @@ const emptyNotificacion: NotificacionDto = {
   fechaCaducidad: null,
   publicada: false,
   fijada: false,
-  createdAt: "",
-  createdBy: "",
-  lastModifiedAt: null,
-  lastModifiedBy: null,
-  categorias: [],
-  tags: [],
-};
+} as const;
 
 export default async function NuevaNotificacion() {
   let categorias: CategoriaDto[] = [];
@@ -75,14 +65,13 @@ export default async function NuevaNotificacion() {
 
   return (
     <NotificacionForm
-      isNew
+      mode="create"
       notificacion={emptyNotificacion}
       categorias={categorias}
       tags={tags}
       categoriasError={categoriasError}
       tagsError={tagsError}
-      onCreate={onCreate}
-      onUpdate={onUpdate}
+      onSubmit={createNotificacionAction}
       onCreateCategoria={createCategoriaAction}
       onCreateTag={createTagAction}
     />

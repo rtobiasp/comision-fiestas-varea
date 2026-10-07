@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import ListError from "@/components/admin/ListError";
 import NotificacionesTable from "@/components/admin/NotificacionesTable";
 import TablePagination from "@/components/admin/TablePagination";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,7 +18,7 @@ export default async function Notificaciones({
     publicada?: string;
   }>;
 }) {
-  const { page = "1", limit = "10", orderBy, direction, publicada } =
+  const { page = "1", limit = "25", orderBy, direction, publicada } =
     await searchParams;
 
   const p = Math.max(1, Number(page)) || 1;
@@ -28,11 +29,17 @@ export default async function Notificaciones({
   const pub =
     publicada === "true" ? true : publicada === "false" ? false : undefined;
 
-  const notificaciones = await getAllNotificaciones(offset, l, {
-    orderBy: o,
-    direction: d,
-    publicada: pub,
-  });
+  let notificaciones: Awaited<ReturnType<typeof getAllNotificaciones>> = [];
+  let loadError = false;
+  try {
+    notificaciones = await getAllNotificaciones(offset, l, {
+      orderBy: o,
+      direction: d,
+      publicada: pub,
+    });
+  } catch {
+    loadError = true;
+  }
 
   async function deleteNotificacionAction(id: string): Promise<void> {
     "use server";
@@ -58,6 +65,9 @@ export default async function Notificaciones({
         publicada={pub}
         onDelete={deleteNotificacionAction}
       />
+      {loadError && (
+        <ListError message="Comprueba la conexión con la API e inténtalo de nuevo." />
+      )}
       <Suspense>
         <TablePagination page={p} limit={l} hasNext={notificaciones.length === l} />
       </Suspense>

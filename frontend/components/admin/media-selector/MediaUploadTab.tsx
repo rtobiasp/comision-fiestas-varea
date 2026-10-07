@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toFormError } from "@/lib/api/form-error";
 import { uploadMedia } from "@/lib/api/media";
+import { formatBytes } from "@/lib/format";
+import { isImageFile } from "@/lib/media-labels";
 import { MediaTipo, type MediaDto } from "@/types";
 
 function acceptFor(types: MediaTipo[]): string {
@@ -29,23 +31,12 @@ function acceptFor(types: MediaTipo[]): string {
   return parts.join(",");
 }
 
-function isImageFile(file: File): boolean {
-  if (file.type.startsWith("image/")) return true;
-  return /\.(jpe?g|png|webp|gif)$/i.test(file.name);
-}
-
 function kindLabel(file: File): string {
   if (isImageFile(file)) return "Imagen";
   if (file.type === "application/pdf" || /\.pdf$/i.test(file.name))
     return "PDF";
   if (file.type.startsWith("video/")) return "Vídeo";
   return "Archivo";
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 type MediaUploadTabProps = {
@@ -98,8 +89,24 @@ export default function MediaUploadTab({
     setError(null);
   }
 
+  function isAllowed(file: File): boolean {
+    if (allowedTypes.length === 0) return true;
+    if (isImageFile(file)) return allowedTypes.includes(MediaTipo.Imagen);
+    if (file.type === "application/pdf" || /\.pdf$/i.test(file.name))
+      return allowedTypes.includes(MediaTipo.Pdf);
+    if (file.type.startsWith("video/"))
+      return allowedTypes.includes(MediaTipo.Video);
+    return false;
+  }
+
   function handleFiles(files: FileList | null) {
     const file = files?.[0] ?? null;
+    if (file && !isAllowed(file)) {
+      setSelectedFile(null);
+      setPreviewFor(null);
+      setError("El tipo de archivo no está permitido en este campo.");
+      return;
+    }
     setSelectedFile(file);
     setPreviewFor(file);
     setError(null);
@@ -130,7 +137,7 @@ export default function MediaUploadTab({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div>
-        <Label htmlFor="media-selector-file">Archivo</Label>
+        <p className="text-sm font-medium">Archivo</p>
         <Label
           htmlFor="media-selector-file"
           className={cn(

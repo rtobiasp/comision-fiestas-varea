@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, type KeyboardEvent } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -13,6 +13,7 @@ import {
   toFormError,
   type FormErrorState,
 } from "@/lib/api/form-error";
+import { preventEnterSubmit, validarNombre } from "./form-helpers";
 
 type TagFormProps = {
   initial?: { nombre: string };
@@ -28,35 +29,17 @@ export default function TagForm({
   const isEdit = mode === "edit";
   const [nombreLen, setNombreLen] = useState(initial?.nombre.length ?? 0);
 
-  function preventEnterSubmit(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-    }
-  }
-
   type SubmitState = { ok: true } | FormErrorState | null;
 
   const [submitState, formAction, isPending] = useActionState(
     async (_prev: SubmitState, formData: FormData): Promise<SubmitState> => {
       const nombre = String(formData.get("nombre") ?? "");
-      if (nombre.trim() === "") {
+      const nombreErrors = validarNombre(nombre, 100);
+      if (nombreErrors) {
         return {
           ok: false,
           message: "Revisa los campos marcados.",
-          fieldErrors: {
-            nombre: [
-              "El nombre no puede estar vacío ni contener solo espacios.",
-            ],
-          },
-        };
-      }
-      if (nombre.length > 100) {
-        return {
-          ok: false,
-          message: "Revisa los campos marcados.",
-          fieldErrors: {
-            nombre: ["El nombre no puede exceder los 100 caracteres."],
-          },
+          fieldErrors: nombreErrors,
         };
       }
       try {

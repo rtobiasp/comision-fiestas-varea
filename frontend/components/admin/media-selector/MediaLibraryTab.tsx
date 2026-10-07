@@ -13,16 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MediaTipo, type MediaDto } from "@/types";
-import { MEDIA_PAGE_SIZE } from "./useMediaLibrary";
+import { tipoLabelPlural } from "@/lib/media-labels";
 import { MediaThumb } from "./MediaDetailSidebar";
 
 export const ALL_TIPOS = [MediaTipo.Imagen, MediaTipo.Pdf, MediaTipo.Video];
-
-const tipoLabel: Record<number, string> = {
-  [MediaTipo.Imagen]: "Imágenes",
-  [MediaTipo.Pdf]: "PDF",
-  [MediaTipo.Video]: "Vídeos",
-};
 
 type MediaLibraryTabProps = {
   items: MediaDto[];
@@ -38,7 +32,6 @@ type MediaLibraryTabProps = {
   onPick: (media: MediaDto) => void;
   onLoadMore: () => void;
   onRetry: () => void;
-  pageSize?: number;
 };
 
 export default function MediaLibraryTab({
@@ -55,7 +48,6 @@ export default function MediaLibraryTab({
   onPick,
   onLoadMore,
   onRetry,
-  pageSize = MEDIA_PAGE_SIZE,
 }: MediaLibraryTabProps) {
   const tipoValue = tipoFilter === undefined ? "todos" : String(tipoFilter);
 
@@ -76,18 +68,14 @@ export default function MediaLibraryTab({
               <SelectItem value="todos">Todos</SelectItem>
               {allowedTypes.map((t) => (
                 <SelectItem key={t} value={String(t)}>
-                  {tipoLabel[t]}
+                  {tipoLabelPlural(t)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         )}
         <p className="text-xs text-muted-foreground" aria-live="polite">
-          {loading
-            ? "Cargando…"
-            : items.length === pageSize
-              ? `Mostrando ${items.length} archivos`
-              : `${items.length} archivos`}
+          {loading ? "Cargando…" : `${items.length} archivos`}
         </p>
       </div>
 
@@ -136,7 +124,6 @@ export default function MediaLibraryTab({
                   aria-selected={selected}
                   title={m.nombreOriginal}
                   onClick={() => onPick(m)}
-                  onDoubleClick={() => onPick(m)}
                   className={cn(
                     "relative aspect-square w-full overflow-hidden rounded-lg border text-left transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     selected

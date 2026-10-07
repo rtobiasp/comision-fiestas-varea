@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import CreateMediaForm from "@/components/admin/CreateMediaForm";
+import ListError from "@/components/admin/ListError";
 import MediaCard from "@/components/admin/MediaCard";
 import TablePagination from "@/components/admin/TablePagination";
 import { deleteMedia, getAllMedias, updateMedia, uploadMedia } from "@/lib/api/media";
@@ -53,7 +54,13 @@ export default async function Media({
   const l = [10, 25, 50, 100].includes(Number(limit)) ? Number(limit) : 25;
   const offset = (p - 1) * l;
 
-  const media = await getAllMedias(undefined, offset, l);
+  let media: Awaited<ReturnType<typeof getAllMedias>> = [];
+  let loadError = false;
+  try {
+    media = await getAllMedias(undefined, offset, l);
+  } catch {
+    loadError = true;
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -80,6 +87,9 @@ export default async function Media({
           />
         ))}
       </div>
+      {loadError && (
+        <ListError message="Comprueba la conexión con la API e inténtalo de nuevo." />
+      )}
       <Suspense>
         <TablePagination page={p} limit={l} hasNext={media.length === l} />
       </Suspense>

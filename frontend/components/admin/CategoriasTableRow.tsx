@@ -17,7 +17,7 @@ export default function CategoriasTableRow({
 }: CategoriasTableRowProps) {
   return (
     <TableRow className="group">
-      <TableCell>
+      <TableCell className="whitespace-normal">
         <Link
           href={`/admin/categorias/${categoria.id}/editar`}
           className="font-medium text-primary underline-offset-4 hover:underline"

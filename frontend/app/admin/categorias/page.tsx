@@ -1,3 +1,4 @@
+import ListError from "@/components/admin/ListError";
 import CategoriasTable from "@/components/admin/CategoriasTable";
 import { buttonVariants } from "@/components/ui/button";
 import { deleteCategoria, getCategorias } from "@/lib/api/categorias";
@@ -5,7 +6,13 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 
 export default async function Categorias() {
-  const categorias = await getCategorias();
+  let categorias: Awaited<ReturnType<typeof getCategorias>> = [];
+  let loadError = false;
+  try {
+    categorias = await getCategorias();
+  } catch {
+    loadError = true;
+  }
 
   async function deleteCategoriaAction(id: string): Promise<void> {
     "use server";
@@ -25,6 +32,9 @@ export default async function Categorias() {
         </Link>
       </div>
       <CategoriasTable categorias={categorias} onDelete={deleteCategoriaAction} />
+      {loadError && (
+        <ListError message="Comprueba la conexión con la API e inténtalo de nuevo." />
+      )}
     </div>
   );
 }

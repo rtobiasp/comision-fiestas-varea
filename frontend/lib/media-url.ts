@@ -1,5 +1,6 @@
 export function getMediaAbsoluteUrl(url: string): string {
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  const base = process.env.NEXT_PUBLIC_API_URL ?? "";
-  return `${base}${url.startsWith("/") ? url : `/${url}`}`;
+  const value = url.trim();
+  if (value.startsWith("http://") || value.startsWith("https://")) return value;
+  const base = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
+  return `${base}${value.startsWith("/") ? value : `/${value}`}`;
 }

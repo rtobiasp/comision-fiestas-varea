@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, type KeyboardEvent } from "react";
+import { useActionState, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import Tiptap from "@/components/ui/tiptap/Tiptap";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,13 +10,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoriaDto, TagDto } from "@/types";
-import { getCategorias } from "@/lib/api/categorias";
-import { getTags } from "@/lib/api/tags";
 import {
   isRedirectError,
   toFormError,
   type FormErrorState,
 } from "@/lib/api/form-error";
+import { FormErrors, preventEnterSubmit } from "./form-helpers";
+import { useTaxonomyManager } from "./useTaxonomyManager";
 import CategoriasCardForm from "./CategoriasCardForm";
 import PortadaCardForm from "./PortadaCardForm";
 import TagsCardForm from "./TagsCardForm";
@@ -62,65 +62,6 @@ export default function NoticiaForm({
   );
   const heading = title ?? (isEdit ? "Editar noticia" : "Añadir noticia");
   const selectedCategoriaIds = new Set(initial?.categoriaIds ?? []);
-
-  const [visibleCategorias, setVisibleCategorias] =
-    useState<CategoriaDto[]>(categorias);
-  const [visibleTags, setVisibleTags] = useState<TagDto[]>(tags);
-
-  const [categoriasFailed, setCategoriasFailed] = useState(categoriasError);
-  const [tagsFailed, setTagsFailed] = useState(tagsError);
-  const [retryingCategorias, setRetryingCategorias] = useState(false);
-  const [retryingTags, setRetryingTags] = useState(false);
-
-  async function handleRetryCategorias() {
-    if (retryingCategorias || isPending) return;
-    setRetryingCategorias(true);
-    try {
-      setVisibleCategorias(await getCategorias());
-      setCategoriasFailed(false);
-    } catch {
-      setCategoriasFailed(true);
-    } finally {
-      setRetryingCategorias(false);
-    }
-  }
-
-  async function handleRetryTags() {
-    if (retryingTags || isPending) return;
-    setRetryingTags(true);
-    try {
-      setVisibleTags(await getTags());
-      setTagsFailed(false);
-    } catch {
-      setTagsFailed(true);
-    } finally {
-      setRetryingTags(false);
-    }
-  }
-
-  async function handleCreateCategoria(
-    formData: FormData,
-  ): Promise<CategoriaDto> {
-    const created = await onCreateCategoria(formData);
-    setVisibleCategorias((prev) =>
-      prev.some((c) => c.id === created.id) ? prev : [...prev, created],
-    );
-    return created;
-  }
-
-  async function handleCreateTag(formData: FormData): Promise<TagDto> {
-    const created = await onCreateTag(formData);
-    setVisibleTags((prev) =>
-      prev.some((t) => t.id === created.id) ? prev : [...prev, created],
-    );
-    return created;
-  }
-
-  function preventEnterSubmit(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-    }
-  }
 
   type SubmitState = { ok: true } | FormErrorState | null;
 
@@ -168,6 +109,39 @@ export default function NoticiaForm({
     null,
   );
 
+  const {
+    visibleCategorias,
+    visibleTags,
+    categoriasFailed,
+    tagsFailed,
+    retryingCategorias,
+    retryingTags,
+    handleRetryCategorias,
+    handleRetryTags,
+    appendCategoria,
+    appendTag,
+  } = useTaxonomyManager(
+    categorias,
+    tags,
+    categoriasError,
+    tagsError,
+    isPending,
+  );
+
+  async function handleCreateCategoria(
+    formData: FormData,
+  ): Promise<CategoriaDto> {
+    const created = await onCreateCategoria(formData);
+    appendCategoria(created);
+    return created;
+  }
+
+  async function handleCreateTag(formData: FormData): Promise<TagDto> {
+    const created = await onCreateTag(formData);
+    appendTag(created);
+    return created;
+  }
+
   const fieldErrors =
     submitState !== null && !submitState.ok ? submitState.fieldErrors : {};
   const tituloErrors = fieldErrors.titulo ?? [];
@@ -199,17 +173,7 @@ export default function NoticiaForm({
           <AlertTitle>No se ha podido guardar la noticia</AlertTitle>
           <AlertDescription>
             <p>{submitState.message}</p>
-            {otherErrors.length > 0 && (
-              <ul className="mt-1 list-disc pl-5">
-                {otherErrors.map(([key, messages]) =>
-                  messages.map((m, i) => (
-                    <li key={`${key}-${i}`}>
-                      {key}: {m}
-                    </li>
-                  )),
-                )}
-              </ul>
-            )}
+            <FormErrors errors={otherErrors} />
           </AlertDescription>
         </Alert>
       )}
@@ -221,9 +185,7 @@ export default function NoticiaForm({
       >
         <div className="flex min-w-0 flex-col gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="titulo" className="sr-only">
-              Título *
-            </Label>
+            <Label htmlFor="titulo">Título *</Label>
             <Input
               type="text"
               id="titulo"
@@ -259,9 +221,7 @@ export default function NoticiaForm({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="subtitulo" className="sr-only">
-              Subtítulo
-            </Label>
+            <Label htmlFor="subtitulo">Subtítulo</Label>
             <Input
               type="text"
               id="subtitulo"
@@ -396,6 +356,7 @@ export default function NoticiaForm({
           />
 
           <TagsCardForm
+            key={isEdit ? "edit" : "create"}
             tags={visibleTags}
             initialSelectedTagIds={initial?.tagIds ?? []}
             onCreateTag={handleCreateTag}

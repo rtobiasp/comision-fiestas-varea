@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { TriangleAlert, XIcon } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { TriangleAlert } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import type { TagDto } from "@/types";
 import { CreateTagDialog } from "./CreateTagDialog";
-import { cn } from "cn";
 
 type TagsCardFormProps = {
   tags: TagDto[];
@@ -34,17 +34,14 @@ export default function TagsCardForm({
   const [selectedIds, setSelectedIds] = useState<string[]>(
     initialSelectedTagIds,
   );
+  const knownIds = new Set(tags.map((t) => t.id));
+  const missingIds = selectedIds.filter((id) => !knownIds.has(id));
 
-  function toggleTag(id: string) {
+  function toggleTag(id: string, checked: boolean) {
     if (disabled) return;
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
+      checked ? (prev.includes(id) ? prev : [...prev, id]) : prev.filter((t) => t !== id),
     );
-  }
-
-  function removeTag(id: string) {
-    if (disabled) return;
-    setSelectedIds((prev) => prev.filter((t) => t !== id));
   }
 
   return (
@@ -89,48 +86,33 @@ export default function TagsCardForm({
             ))}
           </div>
         )}
-        {tags.length === 0 ? (
+        {tags.length === 0 && missingIds.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No hay tags disponibles.
+            No hay etiquetas disponibles.
           </p>
         ) : (
           <div
-            className={`flex flex-row flex-wrap gap-2 ${disabled ? "opacity-60" : ""}`}
+            className={`flex max-h-60 flex-col gap-2 overflow-y-auto ${disabled ? "opacity-60" : ""}`}
             inert={disabled}
             aria-disabled={disabled}
           >
             {tags.map((t) => {
-              const selected = selectedIds.includes(t.id);
+              const checked = selectedIds.includes(t.id);
               return (
-                <Badge
-                  key={t.id}
-                  variant={selected ? "default" : "outline"}
-                  className={cn(
-                    "h-7 rounded-md px-2 py-1 text-sm font-normal",
-                    !selected && !disabled && "cursor-pointer",
-                  )}
-                  onClick={
-                    selected || disabled ? undefined : () => toggleTag(t.id)
-                  }
-                >
-                  {t.nombre}
-                  {selected && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={`Quitar ${t.nombre}`}
-                      className="ml-1 h-4 w-4 rounded-full"
-                      disabled={disabled}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeTag(t.id);
-                      }}
-                    >
-                      <XIcon />
-                    </Button>
-                  )}
-                </Badge>
+                <div key={t.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`tag-${t.id}`}
+                    checked={checked}
+                    disabled={disabled}
+                    onCheckedChange={(v) => toggleTag(t.id, v === true)}
+                  />
+                  <Label
+                    htmlFor={`tag-${t.id}`}
+                    className="cursor-pointer font-normal"
+                  >
+                    {t.nombre}
+                  </Label>
+                </div>
               );
             })}
           </div>

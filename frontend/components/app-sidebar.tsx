@@ -5,19 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bell,
-  BookOpen,
-  CalendarDays,
   ChevronRight,
   ChevronsUpDown,
   Images,
   LogOut,
-  MoreHorizontal,
   Newspaper,
   PartyPopper,
-  Plus,
-  Settings,
   Tags,
-  Users,
 } from "lucide-react";
 import {
   Collapsible,
@@ -38,13 +32,10 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -64,11 +55,7 @@ export function AppSidebar() {
   const isTags = pathname.startsWith("/admin/tags");
   const isTaxonomias = isCategorias || isTags;
   const [taxOpen, setTaxOpen] = useState(isTaxonomias);
-  const [wasTaxonomias, setWasTaxonomias] = useState(isTaxonomias);
-  if (wasTaxonomias !== isTaxonomias) {
-    setWasTaxonomias(isTaxonomias);
-    if (isTaxonomias) setTaxOpen(true);
-  }
+  const taxExpanded = isTaxonomias || taxOpen;
 
   return (
     <Sidebar collapsible="icon">
@@ -98,10 +85,6 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Contenido</SidebarGroupLabel>
-          <SidebarGroupAction title="Añadir contenido (prueba)">
-            <Plus />
-            <span className="sr-only">Añadir contenido</span>
-          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -144,7 +127,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
 
               <Collapsible
-                open={taxOpen}
+                open={taxExpanded}
                 onOpenChange={setTaxOpen}
                 className="group/collapsible"
               >
@@ -187,92 +170,8 @@ export function AppSidebar() {
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Eventos (prueba)"
-                  render={
-                    <a href="#">
-                      <CalendarDays />
-                      <span>Eventos</span>
-                    </a>
-                  }
-                />
-                <SidebarMenuAction
-                  showOnHover
-                  title="Más opciones de eventos (prueba)"
-                >
-                  <MoreHorizontal />
-                  <span className="sr-only">Más opciones de eventos</span>
-                </SidebarMenuAction>
-                <SidebarMenuBadge className="right-7">12</SidebarMenuBadge>
-              </SidebarMenuItem>
-
-              <Collapsible defaultOpen className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger
-                    render={
-                      <SidebarMenuButton tooltip="Programas (prueba)">
-                        <BookOpen />
-                        <span>Programas</span>
-                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[open]/collapsible:rotate-90" />
-                      </SidebarMenuButton>
-                    }
-                  />
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          isActive
-                          render={
-                            <a href="#">
-                              <span>Programa 2025</span>
-                            </a>
-                          }
-                        />
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          render={
-                            <a href="#">
-                              <span>Carteles</span>
-                            </a>
-                          }
-                        />
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip="Miembros (prueba)"
-                render={
-                  <a href="#">
-                    <Users />
-                    <span>Miembros</span>
-                  </a>
-                }
-              />
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip="Ajustes (prueba)"
-                render={
-                  <a href="#">
-                    <Settings />
-                    <span>Ajustes</span>
-                  </a>
-                }
-              />
-            </SidebarMenuItem>
-          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
 
@@ -282,7 +181,7 @@ export function AppSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <SidebarMenuButton size="lg" tooltip="Rubén García (prueba)">
+                  <SidebarMenuButton size="lg" tooltip="Cuenta de administración">
                     <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg text-xs font-semibold">
                       RG
                     </div>
@@ -314,7 +213,7 @@ export function AppSidebar() {
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive">
+                <DropdownMenuItem variant="destructive" disabled>
                   <LogOut />
                   Cerrar sesión
                 </DropdownMenuItem>

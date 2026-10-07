@@ -1,57 +1,41 @@
-import {
+import type {
   CreateNotificacionCommand,
   NotificacionDto,
   UpdateNotificacionCommand,
 } from "@/types";
 import { apiDelete, apiFetch, apiPost, apiPut } from "./client";
+import { toPageParams, type PageQuery } from "./page-query";
 
 const API_BASE = "/api/v1/Notificaciones";
 
-export type NotificacionesQuery = {
-  offset: number;
-  limit: number;
-  orderBy?: string;
-  direction?: string;
-  publicada?: boolean;
-};
+export type NotificacionesQuery = PageQuery;
 
-export async function getAllNotificaciones(
+export function getAllNotificaciones(
   offset: number,
   limit: number,
   query?: Pick<NotificacionesQuery, "orderBy" | "direction" | "publicada">,
 ): Promise<NotificacionDto[]> {
-  const params = new URLSearchParams({
-    offset: String(offset),
-    limit: String(limit),
-  });
-  if (query?.orderBy) params.set("orderBy", query.orderBy);
-  if (query?.direction) params.set("direction", query.direction);
-  if (query?.publicada !== undefined)
-    params.set("publicada", String(query.publicada));
-  return await apiFetch<NotificacionDto[]>(
-    `${API_BASE}?${params.toString()}`,
-  );
+  const params = toPageParams({ offset, limit, ...query });
+  return apiFetch<NotificacionDto[]>(`${API_BASE}?${params.toString()}`);
 }
 
-export async function getNotificacionById(
-  id: string,
-): Promise<NotificacionDto | null> {
-  return await apiFetch(`${API_BASE}/${id}`);
+export function getNotificacionById(id: string): Promise<NotificacionDto> {
+  return apiFetch<NotificacionDto>(`${API_BASE}/${id}`);
 }
 
-export async function deleteNotificacion(id: string) {
-  return await apiDelete(`${API_BASE}/${id}`);
+export function deleteNotificacion(id: string): Promise<void> {
+  return apiDelete(`${API_BASE}/${id}`);
 }
 
-export async function createNotificacion(
+export function createNotificacion(
   cmd: CreateNotificacionCommand,
 ): Promise<NotificacionDto> {
-  return await apiPost(`${API_BASE}`, cmd);
+  return apiPost<NotificacionDto>(`${API_BASE}`, cmd);
 }
 
-export async function updateNotificacion(
+export function updateNotificacion(
   id: string,
   cmd: UpdateNotificacionCommand,
 ): Promise<void> {
-  await apiPut(`${API_BASE}/${id}`, cmd);
+  return apiPut<void>(`${API_BASE}/${id}`, cmd);
 }

@@ -5,9 +5,11 @@ import type {
 } from "@/types";
 import { apiDelete, apiFetch, apiPost, apiPut } from "./client";
 
-export async function getTags(search?: string): Promise<TagDto[]> {
-  const query = search?.trim() ? `?search=${encodeURIComponent(search.trim())}` : "";
-  return await apiFetch<TagDto[]>(`/api/v1/Tags${query}`);
+export function getTags(search?: string): Promise<TagDto[]> {
+  const params = new URLSearchParams();
+  if (search?.trim()) params.set("search", search.trim());
+  const query = params.size > 0 ? `?${params.toString()}` : "";
+  return apiFetch<TagDto[]>(`/api/v1/Tags${query}`);
 }
 
 export function getTagById(id: string): Promise<TagDto> {

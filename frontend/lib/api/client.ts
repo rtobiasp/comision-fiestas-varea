@@ -1,7 +1,8 @@
-const baseUrl =
+const rawBaseUrl =
   typeof window === "undefined"
-    ? process.env.API_INTERNAL_URL
-    : process.env.NEXT_PUBLIC_API_URL;
+    ? (process.env.API_INTERNAL_URL ?? "")
+    : (process.env.NEXT_PUBLIC_API_URL ?? "");
+const baseUrl = rawBaseUrl.replace(/\/$/, "");
 
 export type ApiFieldErrors = Record<string, string[]>;
 
@@ -112,7 +113,15 @@ export async function apiFetch<T>(
   if (res.status === 204) {
     return undefined as T;
   }
-  return res.json() as Promise<T>;
+  try {
+    return (await res.json()) as T;
+  } catch {
+    return undefined as T;
+  }
+}
+
+export function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
+  return apiFetch<T>(path, { ...init, method: "GET" });
 }
 
 export function apiPost<T>(path: string, body: unknown): Promise<T> {

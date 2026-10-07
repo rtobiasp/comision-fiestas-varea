@@ -27,6 +27,8 @@ export default function CategoriasTable({
     nombre: string;
   } | null>(null);
   const nombresPorId = new Map(categorias.map((c) => [c.id, c.nombre]));
+  const selectedId = selected?.id ?? "";
+  const selectedNombre = selected?.nombre ?? "";
 
   return (
     <>
@@ -66,17 +68,15 @@ export default function CategoriasTable({
           )}
         </TableBody>
       </Table>
-      {selected != null && (
-        <DeleteCategoriaDialog
-          open={selected != null}
-          onOpenChange={(open) => {
-            if (!open) setSelected(null);
-          }}
-          id={selected.id}
-          nombre={selected.nombre}
-          onDelete={onDelete}
-        />
-      )}
+      <DeleteCategoriaDialog
+        open={selected != null}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        id={selectedId}
+        nombre={selectedNombre}
+        onDelete={onDelete}
+      />
     </>
   );
 }
