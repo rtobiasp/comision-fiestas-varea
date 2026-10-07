@@ -5,8 +5,15 @@ import type {
 } from "@/types";
 import { apiDelete, apiFetch, apiPost, apiPut } from "./client";
 
-export function getCategorias(): Promise<CategoriaDto[]> {
-  return apiFetch<CategoriaDto[]>("/api/v1/Categorias");
+export function getCategorias(query?: {
+  orderBy?: string;
+  direction?: string;
+}): Promise<CategoriaDto[]> {
+  const params = new URLSearchParams();
+  if (query?.orderBy) params.set("orderBy", query.orderBy);
+  if (query?.direction) params.set("direction", query.direction);
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+  return apiFetch<CategoriaDto[]>(`/api/v1/Categorias${suffix}`);
 }
 
 export function getCategoriaById(id: string): Promise<CategoriaDto> {

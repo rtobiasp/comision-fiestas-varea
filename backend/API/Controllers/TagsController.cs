@@ -47,16 +47,20 @@ namespace API.Controllers
             }
         }
 
-        // GET api/v1/Tags?search=
+        // GET api/v1/Tags?search=&orderBy=&direction=
         [HttpGet]
         [ProducesResponseType(typeof(List<TagDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<List<TagDto>>> GetAll([FromQuery] string? search, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<TagDto>>> GetAll([FromQuery] string? search, [FromQuery] string? orderBy, [FromQuery] string? direction, CancellationToken cancellationToken)
         {
             try
             {
-                var tags = await _bus.InvokeAsync<List<TagDto>>(new GetAllTagsQuery { Search = search }, cancellationToken);
+                var tags = await _bus.InvokeAsync<List<TagDto>>(new GetAllTagsQuery { Search = search, OrderBy = orderBy, Direction = direction }, cancellationToken);
                 return Ok(tags);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
             }
             catch (Exception ex)
             {

@@ -7,7 +7,7 @@ namespace Application.Common.Interfaces
 {
     public interface ICategoriaRepository
     {
-        public Task<List<Categoria>> GetAllAsync(CancellationToken cancellationToken);
+        public Task<List<Categoria>> GetAllAsync(string orderBy, bool descending, CancellationToken cancellationToken);
         public Task<Categoria> GetAsync(Guid id, CancellationToken cancellationToken);
         public Task<List<Categoria>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken);
         public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);

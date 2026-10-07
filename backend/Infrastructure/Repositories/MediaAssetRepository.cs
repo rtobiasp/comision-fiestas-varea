@@ -33,7 +33,7 @@ namespace Infrastructure.Repositories
         public async Task<List<MediaAsset>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await _postgreContext.MediaAssets
-                .OrderByDescending(m => m.CreatedAt)
+                .OrderByDescending(m => m.LastModifiedAt ?? m.CreatedAt)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
                 query = query.Where(m => m.Tipo == tipo.Value);
 
             return await query
-                .OrderByDescending(m => m.CreatedAt)
+                .OrderByDescending(m => m.LastModifiedAt ?? m.CreatedAt)
                 .Skip(offset ?? 0)
                 .Take(limit ?? int.MaxValue)
                 .AsNoTracking()

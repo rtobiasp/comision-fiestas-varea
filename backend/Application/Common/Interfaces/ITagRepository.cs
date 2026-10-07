@@ -7,10 +7,10 @@ namespace Application.Common.Interfaces
 {
     public interface ITagRepository
     {
-        public Task<List<Tag>> GetAllAsync(CancellationToken cancellationToken);
+        public Task<List<Tag>> GetAllAsync(string orderBy, bool descending, CancellationToken cancellationToken);
         public Task<Tag> GetAsync(Guid id, CancellationToken cancellationToken);
         public Task<List<Tag>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken);
-        public Task<List<Tag>> SearchAsync(string prefix, CancellationToken cancellationToken);
+        public Task<List<Tag>> SearchAsync(string prefix, string orderBy, bool descending, CancellationToken cancellationToken);
         public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
         public Task<bool> HasNoticiasAsync(Guid id, CancellationToken cancellationToken);
         public Task<int> CountNoticiasAsync(Guid id, CancellationToken cancellationToken);

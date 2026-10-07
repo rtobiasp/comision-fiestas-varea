@@ -5,11 +5,19 @@ import { deleteCategoria, getCategorias } from "@/lib/api/categorias";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 
-export default async function Categorias() {
+export default async function Categorias({
+  searchParams,
+}: {
+  searchParams: Promise<{ orderBy?: string; direction?: string }>;
+}) {
+  const { orderBy, direction } = await searchParams;
+  const o = orderBy === "titulo" ? "titulo" : "fecha";
+  const d = direction === "asc" ? "asc" : "desc";
+
   let categorias: Awaited<ReturnType<typeof getCategorias>> = [];
   let loadError = false;
   try {
-    categorias = await getCategorias();
+    categorias = await getCategorias({ orderBy: o, direction: d });
   } catch {
     loadError = true;
   }
@@ -31,7 +39,12 @@ export default async function Categorias() {
           Añadir categoría
         </Link>
       </div>
-      <CategoriasTable categorias={categorias} onDelete={deleteCategoriaAction} />
+      <CategoriasTable
+        categorias={categorias}
+        orderBy={o}
+        direction={d}
+        onDelete={deleteCategoriaAction}
+      />
       {loadError && (
         <ListError message="Comprueba la conexión con la API e inténtalo de nuevo." />
       )}

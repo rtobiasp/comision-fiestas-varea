@@ -34,9 +34,13 @@ namespace Infrastructure.Repositories
             await _postgreContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<Tag>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<Tag>> GetAllAsync(string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Tags.AsNoTracking().ToListAsync(cancellationToken);
+            var query = _postgreContext.Tags.AsNoTracking().AsQueryable();
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query.ToListAsync(cancellationToken);
         }
 
         public async Task<Tag> GetAsync(Guid id, CancellationToken cancellationToken)
@@ -63,15 +67,27 @@ namespace Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Tag>> SearchAsync(string prefix, CancellationToken cancellationToken)
+        public async Task<List<Tag>> SearchAsync(string prefix, string orderBy, bool descending, CancellationToken cancellationToken)
         {
             var normalized = Tag.NormalizeNombre(prefix);
 
-            return await _postgreContext.Tags
+            var query = _postgreContext.Tags
                 .AsNoTracking()
-                .Where(t => t.Nombre.StartsWith(normalized))
-                .OrderBy(t => t.Nombre)
-                .ToListAsync(cancellationToken);
+                .Where(t => t.Nombre.StartsWith(normalized));
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query.ToListAsync(cancellationToken);
+        }
+
+        private static IQueryable<Tag> ApplyOrdering(IQueryable<Tag> query, string orderBy, bool descending)
+        {
+            if (string.Equals(orderBy, "titulo", StringComparison.OrdinalIgnoreCase))
+                return descending ? query.OrderByDescending(t => t.Nombre) : query.OrderBy(t => t.Nombre);
+
+            return descending
+                ? query.OrderByDescending(t => t.LastModifiedAt ?? t.CreatedAt)
+                : query.OrderBy(t => t.LastModifiedAt ?? t.CreatedAt);
         }
 
         public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)

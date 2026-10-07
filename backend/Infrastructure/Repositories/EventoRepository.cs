@@ -42,6 +42,7 @@ namespace Infrastructure.Repositories
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
                 .AsNoTracking()
+                .OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
 
@@ -52,6 +53,7 @@ namespace Infrastructure.Repositories
                 .Include(x => x.Tags)
                 .AsNoTracking()
                 .Where(x => x.Categorias.Any(c => c.Id == categoriaId))
+                .OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
 
@@ -62,6 +64,7 @@ namespace Infrastructure.Repositories
                 .Include(x => x.Tags)
                 .AsNoTracking()
                 .Where(x => x.Tags.Any(t => t.Id == tagId))
+                .OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
 
@@ -72,6 +75,7 @@ namespace Infrastructure.Repositories
                 .Include(x => x.Tags)
                 .AsNoTracking()
                 .Where(x => x.Categorias.Any(c => c.Id == categoriaId) && x.Tags.Any(t => t.Id == tagId))
+                .OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
 

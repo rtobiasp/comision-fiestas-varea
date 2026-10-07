@@ -16,7 +16,10 @@ namespace Application.Features.Categorias.Queries.GetAllCategorias
             GetAllCategoriasQuery request,
             CancellationToken cancellationToken)
         {
-            var categorias = await _categoriaRepository.GetAllAsync(cancellationToken);
+            var orderBy = string.Equals(request.OrderBy, "titulo", StringComparison.OrdinalIgnoreCase) ? "titulo" : "fecha";
+            var descending = !string.Equals(request.Direction, "asc", StringComparison.OrdinalIgnoreCase);
+
+            var categorias = await _categoriaRepository.GetAllAsync(orderBy, descending, cancellationToken);
             var counts = await _categoriaRepository.CountNoticiasByCategoriasAsync(cancellationToken);
             return categorias.Select(c => new CategoriaDto(
                 c.Id,

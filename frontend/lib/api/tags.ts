@@ -5,11 +5,16 @@ import type {
 } from "@/types";
 import { apiDelete, apiFetch, apiPost, apiPut } from "./client";
 
-export function getTags(search?: string): Promise<TagDto[]> {
+export function getTags(
+  search?: string,
+  query?: { orderBy?: string; direction?: string },
+): Promise<TagDto[]> {
   const params = new URLSearchParams();
   if (search?.trim()) params.set("search", search.trim());
-  const query = params.size > 0 ? `?${params.toString()}` : "";
-  return apiFetch<TagDto[]>(`/api/v1/Tags${query}`);
+  if (query?.orderBy) params.set("orderBy", query.orderBy);
+  if (query?.direction) params.set("direction", query.direction);
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+  return apiFetch<TagDto[]>(`/api/v1/Tags${suffix}`);
 }
 
 export function getTagById(id: string): Promise<TagDto> {

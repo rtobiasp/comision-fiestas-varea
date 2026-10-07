@@ -17,15 +17,18 @@ namespace Application.Features.Tags.Queries.GetAllTags
             GetAllTagsQuery request,
             CancellationToken cancellationToken)
         {
+            var orderBy = string.Equals(request.OrderBy, "titulo", StringComparison.OrdinalIgnoreCase) ? "titulo" : "fecha";
+            var descending = !string.Equals(request.Direction, "asc", StringComparison.OrdinalIgnoreCase);
+
             List<Tag> tags;
 
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
-                tags = await _tagRepository.SearchAsync(request.Search, cancellationToken);
+                tags = await _tagRepository.SearchAsync(request.Search, orderBy, descending, cancellationToken);
             }
             else
             {
-                tags = await _tagRepository.GetAllAsync(cancellationToken);
+                tags = await _tagRepository.GetAllAsync(orderBy, descending, cancellationToken);
             }
 
             var counts = await _tagRepository.CountNoticiasByTagsAsync(cancellationToken);

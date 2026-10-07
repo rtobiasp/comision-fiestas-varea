@@ -34,9 +34,23 @@ namespace Infrastructure.Repositories
             await _postgreContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<Categoria>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<Categoria>> GetAllAsync(string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Categorias.AsNoTracking().ToListAsync(cancellationToken);
+            var query = _postgreContext.Categorias.AsNoTracking().AsQueryable();
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query.ToListAsync(cancellationToken);
+        }
+
+        private static IQueryable<Categoria> ApplyOrdering(IQueryable<Categoria> query, string orderBy, bool descending)
+        {
+            if (string.Equals(orderBy, "titulo", StringComparison.OrdinalIgnoreCase))
+                return descending ? query.OrderByDescending(c => c.Nombre) : query.OrderBy(c => c.Nombre);
+
+            return descending
+                ? query.OrderByDescending(c => c.LastModifiedAt ?? c.CreatedAt)
+                : query.OrderBy(c => c.LastModifiedAt ?? c.CreatedAt);
         }
 
         public async Task<Categoria> GetAsync(Guid id, CancellationToken cancellationToken)

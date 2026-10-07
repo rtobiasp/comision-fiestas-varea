@@ -5,11 +5,19 @@ import { deleteTag, getTags } from "@/lib/api/tags";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 
-export default async function Tags() {
+export default async function Tags({
+  searchParams,
+}: {
+  searchParams: Promise<{ orderBy?: string; direction?: string }>;
+}) {
+  const { orderBy, direction } = await searchParams;
+  const o = orderBy === "titulo" ? "titulo" : "fecha";
+  const d = direction === "asc" ? "asc" : "desc";
+
   let tags: Awaited<ReturnType<typeof getTags>> = [];
   let loadError = false;
   try {
-    tags = await getTags();
+    tags = await getTags(undefined, { orderBy: o, direction: d });
   } catch {
     loadError = true;
   }
@@ -31,7 +39,12 @@ export default async function Tags() {
           Añadir tag
         </Link>
       </div>
-      <TagsTable tags={tags} onDelete={deleteTagAction} />
+      <TagsTable
+        tags={tags}
+        orderBy={o}
+        direction={d}
+        onDelete={deleteTagAction}
+      />
       {loadError && (
         <ListError message="Comprueba la conexión con la API e inténtalo de nuevo." />
       )}
