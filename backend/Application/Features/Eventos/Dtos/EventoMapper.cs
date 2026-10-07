@@ -15,11 +15,14 @@ namespace Application.Features.Eventos.Dtos
                 evento.Lugar,
                 evento.FechaInicio,
                 evento.FechaFin,
-                evento.Publicado,
-                evento.Destacado,
+                evento.ImagenPortada,
+                evento.Publicada,
+                evento.Fijada,
                 evento.Aforo,
                 evento.CreatedAt,
                 evento.CreatedBy,
+                evento.LastModifiedAt,
+                evento.LastModifiedBy,
                 evento.Categorias
                     .OrderBy(c => c.Nombre)
                     .Select(c => new CategoriaResumenDto(c.Id, c.Nombre))

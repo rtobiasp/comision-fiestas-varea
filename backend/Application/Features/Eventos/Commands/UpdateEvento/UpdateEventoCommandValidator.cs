@@ -33,6 +33,9 @@ namespace Application.Features.Eventos.Commands.UpdateEvento
                 .WithMessage("La fecha de fin no puede ser anterior a la fecha de inicio.")
                 .When(x => x.FechaFin.HasValue);
 
+            RuleFor(x => x.ImagenPortada)
+                .IsValidPortadaUrl();
+
             RuleFor(x => x.Aforo)
                 .GreaterThan(0).WithMessage("El aforo debe ser mayor que cero.")
                 .When(x => x.Aforo.HasValue);

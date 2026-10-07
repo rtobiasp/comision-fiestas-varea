@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bell,
+  CalendarDays,
   ChevronRight,
   ChevronsUpDown,
   Images,
@@ -49,6 +50,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
   const isNoticias = pathname.startsWith("/admin/noticias");
+  const isEventos = pathname.startsWith("/admin/eventos");
   const isMedia = pathname.startsWith("/admin/media");
   const isNotificaciones = pathname.startsWith("/admin/notificaciones");
   const isCategorias = pathname.startsWith("/admin/categorias");
@@ -95,6 +97,19 @@ export function AppSidebar() {
                     <Link href="/admin/noticias">
                       <Newspaper />
                       <span>Noticias</span>
+                    </Link>
+                  }
+                />
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={isEventos}
+                  tooltip="Eventos"
+                  render={
+                    <Link href="/admin/eventos">
+                      <CalendarDays />
+                      <span>Eventos</span>
                     </Link>
                   }
                 />

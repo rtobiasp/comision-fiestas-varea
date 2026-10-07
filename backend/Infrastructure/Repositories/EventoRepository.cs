@@ -36,47 +36,90 @@ namespace Infrastructure.Repositories
             await _postgreContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<Evento>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<Evento>> GetAllAsync(int? offset, int? limit, bool? publicada, string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Eventos
+            var query = _postgreContext.Eventos
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
                 .AsNoTracking()
-                .OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
+                .AsQueryable();
+
+            if (publicada.HasValue)
+                query = query.Where(x => x.Publicada == publicada.Value);
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Evento>> GetByCategoriaAsync(Guid categoriaId, CancellationToken cancellationToken)
+        public async Task<List<Evento>> GetByCategoriaAsync(Guid categoriaId, int? offset, int? limit, bool? publicada, string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Eventos
+            var query = _postgreContext.Eventos
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
                 .AsNoTracking()
-                .Where(x => x.Categorias.Any(c => c.Id == categoriaId))
-                .OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
+                .Where(x => x.Categorias.Any(c => c.Id == categoriaId));
+
+            if (publicada.HasValue)
+                query = query.Where(x => x.Publicada == publicada.Value);
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Evento>> GetByTagAsync(Guid tagId, CancellationToken cancellationToken)
+        public async Task<List<Evento>> GetByTagAsync(Guid tagId, int? offset, int? limit, bool? publicada, string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Eventos
+            var query = _postgreContext.Eventos
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
                 .AsNoTracking()
-                .Where(x => x.Tags.Any(t => t.Id == tagId))
-                .OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
+                .Where(x => x.Tags.Any(t => t.Id == tagId));
+
+            if (publicada.HasValue)
+                query = query.Where(x => x.Publicada == publicada.Value);
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Evento>> GetByCategoriaAndTagAsync(Guid categoriaId, Guid tagId, CancellationToken cancellationToken)
+        public async Task<List<Evento>> GetByCategoriaAndTagAsync(Guid categoriaId, Guid tagId, int? offset, int? limit, bool? publicada, string orderBy, bool descending, CancellationToken cancellationToken)
         {
-            return await _postgreContext.Eventos
+            var query = _postgreContext.Eventos
                 .Include(x => x.Categorias)
                 .Include(x => x.Tags)
                 .AsNoTracking()
-                .Where(x => x.Categorias.Any(c => c.Id == categoriaId) && x.Tags.Any(t => t.Id == tagId))
-                .OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
+                .Where(x => x.Categorias.Any(c => c.Id == categoriaId) && x.Tags.Any(t => t.Id == tagId));
+
+            if (publicada.HasValue)
+                query = query.Where(x => x.Publicada == publicada.Value);
+
+            query = ApplyOrdering(query, orderBy, descending);
+
+            return await query
+                .Skip(offset ?? 0)
+                .Take(limit ?? int.MaxValue)
                 .ToListAsync(cancellationToken);
+        }
+
+        private static IQueryable<Evento> ApplyOrdering(IQueryable<Evento> query, string orderBy, bool descending)
+        {
+            if (string.Equals(orderBy, "titulo", StringComparison.OrdinalIgnoreCase))
+                return descending ? query.OrderByDescending(x => x.Titulo) : query.OrderBy(x => x.Titulo);
+
+            return descending
+                ? query.OrderByDescending(x => x.LastModifiedAt ?? x.CreatedAt)
+                : query.OrderBy(x => x.LastModifiedAt ?? x.CreatedAt);
         }
 
         public async Task<Evento> GetAsync(Guid id, CancellationToken cancellationToken)

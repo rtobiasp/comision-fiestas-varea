@@ -52,8 +52,9 @@ namespace Application.Features.Eventos.Commands.UpdateEvento
                     ? DateTime.SpecifyKind(request.FechaFin.Value, DateTimeKind.Utc)
                     : request.FechaFin.Value.ToUniversalTime())
                 : null;
-            existingEvento.Publicado = request.Publicado;
-            existingEvento.Destacado = request.Destacado;
+            existingEvento.ImagenPortada = string.IsNullOrWhiteSpace(request.ImagenPortada) ? null : request.ImagenPortada.Trim();
+            existingEvento.Publicada = request.Publicada;
+            existingEvento.Fijada = request.Fijada;
             existingEvento.Aforo = request.Aforo;
 
             SyncCategorias(existingEvento, categorias);

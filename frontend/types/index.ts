@@ -36,5 +36,10 @@ export type CreateNotificacionCommand =
   components["schemas"]["CreateNotificacionCommand"];
 export type UpdateNotificacionCommand =
   components["schemas"]["UpdateNotificacionCommand"];
+export type EventoDto = components["schemas"]["EventoDto"];
+export type CreateEventoCommand =
+  components["schemas"]["CreateEventoCommand"];
+export type UpdateEventoCommand =
+  components["schemas"]["UpdateEventoCommand"];
 
 export type ApiPaths = paths;

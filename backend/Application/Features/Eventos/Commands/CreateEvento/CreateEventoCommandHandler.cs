@@ -52,7 +52,9 @@ namespace Application.Features.Eventos.Commands.CreateEvento
                         ? DateTime.SpecifyKind(request.FechaFin.Value, DateTimeKind.Utc)
                         : request.FechaFin.Value.ToUniversalTime())
                     : null,
-                Destacado = request.Destacado,
+                ImagenPortada = string.IsNullOrWhiteSpace(request.ImagenPortada) ? null : request.ImagenPortada.Trim(),
+                Publicada = request.Publicada,
+                Fijada = request.Fijada,
                 Aforo = request.Aforo,
                 Categorias = categorias,
                 Tags = tags,

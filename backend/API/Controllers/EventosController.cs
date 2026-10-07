@@ -44,16 +44,20 @@ namespace API.Controllers
             }
         }
 
-        // GET api/v1/Eventos?categoriaId=&tagId=
+        // GET api/v1/Eventos?categoriaId=&tagId=&offset=&limit=&orderBy=&direction=&publicada=
         [HttpGet]
         [ProducesResponseType(typeof(List<EventoDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<List<EventoDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<EventoDto>>> GetAll([FromQuery] Guid? categoriaId, [FromQuery] Guid? tagId, [FromQuery] int? offset, [FromQuery] int? limit, [FromQuery] string? orderBy, [FromQuery] string? direction, [FromQuery] bool? publicada, CancellationToken cancellationToken)
         {
             try
             {
-                var eventos = await _bus.InvokeAsync<List<EventoDto>>(new GetAllEventosQuery { CategoriaId = categoriaId, TagId = tagId }, cancellationToken);
+                var eventos = await _bus.InvokeAsync<List<EventoDto>>(new GetAllEventosQuery { CategoriaId = categoriaId, TagId = tagId, Offset = offset, Limit = limit, OrderBy = orderBy, Direction = direction, Publicada = publicada }, cancellationToken);
                 return Ok(eventos);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
             }
             catch (KeyNotFoundException ex)
             {
@@ -127,6 +131,10 @@ namespace API.Controllers
                 command.Id = id;
                 await _bus.InvokeAsync(command, cancellationToken);
                 return NoContent();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
             }
             catch (KeyNotFoundException ex)
             {

@@ -168,7 +168,10 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    orderBy?: string;
+                    direction?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -404,6 +407,11 @@ export interface paths {
                 query?: {
                     categoriaId?: string;
                     tagId?: string;
+                    offset?: number | string;
+                    limit?: number | string;
+                    orderBy?: string;
+                    direction?: string;
+                    publicada?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -871,6 +879,9 @@ export interface paths {
                     tagId?: string;
                     offset?: number | string;
                     limit?: number | string;
+                    orderBy?: string;
+                    direction?: string;
+                    publicada?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -1098,6 +1109,11 @@ export interface paths {
                 query?: {
                     categoriaId?: string;
                     tagId?: string;
+                    offset?: number | string;
+                    limit?: number | string;
+                    orderBy?: string;
+                    direction?: string;
+                    publicada?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -1342,6 +1358,8 @@ export interface paths {
             parameters: {
                 query?: {
                     search?: string;
+                    orderBy?: string;
+                    direction?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1464,7 +1482,9 @@ export interface components {
             fechaInicio?: string;
             /** Format: date-time */
             fechaFin?: null | string;
-            destacado?: boolean;
+            imagenPortada?: null | string;
+            publicada?: boolean;
+            fijada?: boolean;
             /** Format: int32 */
             aforo?: null | number | string;
             categoriaIds?: string[];
@@ -1503,13 +1523,17 @@ export interface components {
             fechaInicio: string;
             /** Format: date-time */
             fechaFin: null | string;
-            publicado: boolean;
-            destacado: boolean;
+            imagenPortada: null | string;
+            publicada: boolean;
+            fijada: boolean;
             /** Format: int32 */
             aforo: null | number | string;
             /** Format: date-time */
             createdAt: string;
             createdBy: string;
+            /** Format: date-time */
+            lastModifiedAt: null | string;
+            lastModifiedBy: null | string;
             categorias: components["schemas"]["CategoriaResumenDto"][];
             tags: components["schemas"]["TagResumenDto"][];
         };
@@ -1609,8 +1633,9 @@ export interface components {
             fechaInicio?: string;
             /** Format: date-time */
             fechaFin?: null | string;
-            publicado?: boolean;
-            destacado?: boolean;
+            imagenPortada?: null | string;
+            publicada?: boolean;
+            fijada?: boolean;
             /** Format: int32 */
             aforo?: null | number | string;
             categoriaIds?: string[];

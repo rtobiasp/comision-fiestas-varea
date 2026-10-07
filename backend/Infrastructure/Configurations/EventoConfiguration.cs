@@ -37,11 +37,15 @@ namespace Infrastructure.Configurations
                 .IsRequired(false)
                 .HasColumnType("timestamptz");
 
-            e.Property(x => x.Publicado)
+            e.Property(x => x.ImagenPortada)
+                .IsRequired(false)
+                .HasMaxLength(2048);
+
+            e.Property(x => x.Publicada)
                 .IsRequired()
                 .HasDefaultValue(false);
 
-            e.Property(x => x.Destacado)
+            e.Property(x => x.Fijada)
                 .IsRequired()
                 .HasDefaultValue(false);
 

@@ -6,5 +6,5 @@ using System.Text;
 
 namespace Application.Features.Eventos.Dtos
 {
-    public record EventoDto(Guid Id, string Titulo, string Descripcion, string Lugar, DateTime FechaInicio, DateTime? FechaFin, bool Publicado, bool Destacado, int? Aforo, DateTime CreatedAt, string CreatedBy, List<CategoriaResumenDto> Categorias, List<TagResumenDto> Tags);
+    public record EventoDto(Guid Id, string Titulo, string Descripcion, string Lugar, DateTime FechaInicio, DateTime? FechaFin, string? ImagenPortada, bool Publicada, bool Fijada, int? Aforo, DateTime CreatedAt, string CreatedBy, DateTime? LastModifiedAt, string? LastModifiedBy, List<CategoriaResumenDto> Categorias, List<TagResumenDto> Tags);
 }

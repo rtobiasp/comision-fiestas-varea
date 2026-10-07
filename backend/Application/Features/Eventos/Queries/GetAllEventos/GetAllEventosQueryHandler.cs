@@ -26,6 +26,8 @@ namespace Application.Features.Eventos.Queries.GetAllEventos
         {
             var hasCategoria = request.CategoriaId.HasValue && request.CategoriaId.Value != Guid.Empty;
             var hasTag = request.TagId.HasValue && request.TagId.Value != Guid.Empty;
+            var orderBy = string.Equals(request.OrderBy, "titulo", StringComparison.OrdinalIgnoreCase) ? "titulo" : "fecha";
+            var descending = !string.Equals(request.Direction, "asc", StringComparison.OrdinalIgnoreCase);
 
             List<Evento> eventos;
 
@@ -42,7 +44,7 @@ namespace Application.Features.Eventos.Queries.GetAllEventos
                 }
 
                 eventos = await _eventoRepository.GetByCategoriaAndTagAsync(
-                    request.CategoriaId.Value, request.TagId.Value, cancellationToken);
+                    request.CategoriaId.Value, request.TagId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else if (hasCategoria)
             {
@@ -51,7 +53,7 @@ namespace Application.Features.Eventos.Queries.GetAllEventos
                     throw new KeyNotFoundException("No se han encontrado categorías con los parámetros proporcionados");
                 }
 
-                eventos = await _eventoRepository.GetByCategoriaAsync(request.CategoriaId.Value, cancellationToken);
+                eventos = await _eventoRepository.GetByCategoriaAsync(request.CategoriaId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else if (hasTag)
             {
@@ -60,11 +62,11 @@ namespace Application.Features.Eventos.Queries.GetAllEventos
                     throw new KeyNotFoundException("No se han encontrado tags con los parámetros proporcionados");
                 }
 
-                eventos = await _eventoRepository.GetByTagAsync(request.TagId.Value, cancellationToken);
+                eventos = await _eventoRepository.GetByTagAsync(request.TagId.Value, request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
             else
             {
-                eventos = await _eventoRepository.GetAllAsync(cancellationToken);
+                eventos = await _eventoRepository.GetAllAsync(request.Offset, request.Limit, request.Publicada, orderBy, descending, cancellationToken);
             }
 
             return eventos.Select(EventoMapper.ToDto).ToList();

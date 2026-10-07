@@ -11,8 +11,9 @@ namespace Domain.Entities
         public string Lugar { get; set; } = string.Empty;
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
-        public bool Publicado { get; set; } = false;
-        public bool Destacado { get; set; } = false;
+        public string? ImagenPortada { get; set; }
+        public bool Publicada { get; set; } = false;
+        public bool Fijada { get; set; } = false;
         public int? Aforo { get; set; }
         [JsonIgnore]
         public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
