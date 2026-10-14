@@ -42,4 +42,49 @@ export type CreateEventoCommand =
 export type UpdateEventoCommand =
   components["schemas"]["UpdateEventoCommand"];
 
+export type ProgramacionDto = {
+  id: string;
+  nombre: string;
+  createdAt: string;
+  createdBy: string;
+  lastModifiedAt: string | null;
+  lastModifiedBy: string | null;
+  dias: DiaProgramacionDto[];
+};
+export type DiaProgramacionDto = {
+  id: string;
+  fecha: string;
+  eventos: EventoProgramacionDto[];
+};
+export type EventoProgramacionDto = {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  fechaInicio: string;
+};
+export type CreateProgramacionCommand = {
+  nombre: string;
+};
+export type UpdateProgramacionCommand = {
+  nombre: string;
+};
+export type CreateDiaProgramacionCommand = {
+  programacionId: string;
+  fecha: string;
+};
+export type UpdateDiaProgramacionCommand = {
+  fecha: string;
+};
+export type CreateEventoProgramacionCommand = {
+  diaId: string;
+  nombre: string;
+  descripcion: string;
+  fechaInicio: string;
+};
+export type UpdateEventoProgramacionCommand = {
+  nombre: string;
+  descripcion: string;
+  fechaInicio: string;
+};
+
 export type ApiPaths = paths;
