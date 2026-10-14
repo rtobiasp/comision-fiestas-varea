@@ -66,6 +66,29 @@ namespace Infrastructure.Migrations
                     b.ToTable("Categorias", "contenido");
                 });
 
+            modelBuilder.Entity("Domain.Entities.DiaProgramacion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("ProgramacionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProgramacionId");
+
+                    b.HasIndex("ProgramacionId", "Fecha")
+                        .IsUnique();
+
+                    b.ToTable("DiasProgramacion", "programacion");
+                });
+
             modelBuilder.Entity("Domain.Entities.Evento", b =>
                 {
                     b.Property<Guid>("Id")
@@ -130,6 +153,37 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Eventos", "eventos");
+                });
+
+            modelBuilder.Entity("Domain.Entities.EventoProgramacion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("DiaProgramacionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("FechaInicio")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiaProgramacionId");
+
+                    b.HasIndex("DiaProgramacionId", "FechaInicio");
+
+                    b.ToTable("EventosProgramacion", "programacion");
                 });
 
             modelBuilder.Entity("Domain.Entities.MediaAsset", b =>
@@ -325,6 +379,40 @@ namespace Infrastructure.Migrations
                     b.ToTable("Notificaciones", "notificaciones");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Programacion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Programaciones", "programacion");
+                });
+
             modelBuilder.Entity("Domain.Entities.Tag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -462,6 +550,24 @@ namespace Infrastructure.Migrations
                     b.Navigation("CategoriaPadre");
                 });
 
+            modelBuilder.Entity("Domain.Entities.DiaProgramacion", b =>
+                {
+                    b.HasOne("Domain.Entities.Programacion", null)
+                        .WithMany("Dias")
+                        .HasForeignKey("ProgramacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.EventoProgramacion", b =>
+                {
+                    b.HasOne("Domain.Entities.DiaProgramacion", null)
+                        .WithMany("Eventos")
+                        .HasForeignKey("DiaProgramacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("EventoCategoria", b =>
                 {
                     b.HasOne("Domain.Entities.Categoria", null)
@@ -555,6 +661,16 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Categoria", b =>
                 {
                     b.Navigation("Subcategorias");
+                });
+
+            modelBuilder.Entity("Domain.Entities.DiaProgramacion", b =>
+                {
+                    b.Navigation("Eventos");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Programacion", b =>
+                {
+                    b.Navigation("Dias");
                 });
 #pragma warning restore 612, 618
         }

@@ -14,6 +14,9 @@ namespace Infrastructure
         public DbSet<Evento> Eventos => Set<Evento>();
         public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
         public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
+        public DbSet<Programacion> Programaciones => Set<Programacion>();
+        public DbSet<DiaProgramacion> DiasProgramacion => Set<DiaProgramacion>();
+        public DbSet<EventoProgramacion> EventosProgramacion => Set<EventoProgramacion>();
 
         public PostgreContext(DbContextOptions<PostgreContext> options) : base(options)
         {
