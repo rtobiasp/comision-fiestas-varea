@@ -42,6 +42,9 @@ builder.Host.UseWolverine(opts =>
     opts.CodeGeneration.AlwaysUseServiceLocationFor<IEventoRepository>();
     opts.CodeGeneration.AlwaysUseServiceLocationFor<INotificacionRepository>();
     opts.CodeGeneration.AlwaysUseServiceLocationFor<IMediaAssetRepository>();
+    opts.CodeGeneration.AlwaysUseServiceLocationFor<IProgramacionRepository>();
+    opts.CodeGeneration.AlwaysUseServiceLocationFor<IDiaProgramacionRepository>();
+    opts.CodeGeneration.AlwaysUseServiceLocationFor<IEventoProgramacionRepository>();
 });
 
 // Add services to the container.
@@ -69,6 +72,9 @@ builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<IEventoRepository, EventoRepository>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
+builder.Services.AddScoped<IProgramacionRepository, ProgramacionRepository>();
+builder.Services.AddScoped<IDiaProgramacionRepository, DiaProgramacionRepository>();
+builder.Services.AddScoped<IEventoProgramacionRepository, EventoProgramacionRepository>();
 builder.Services.AddScoped<IStorageService, LocalFileStorageService>();
 
 var app = builder.Build();
