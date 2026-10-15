@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = localFont({
+  src: "../public/fonts/Inter-VariableFont_opsz,wght.woff2",
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const merriweather = localFont({
+  src: "../public/fonts/Merriweather-VariableFont_opsz,wdth,wght.woff2",
+  variable: "--font-merriweather",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -20,8 +28,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="es"
+      className={`${inter.variable} ${merriweather.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
